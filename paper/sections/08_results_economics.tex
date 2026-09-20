@@ -2,6 +2,7 @@
 \label{sec:economics}
 
 \subsection{Cost at equal outcome}
+\label{sec:cost-fair}
 
 Comparing cost across arms that solve different numbers of tasks is
 meaningless: a failing run stops early and therefore costs less. Every ratio in
@@ -50,7 +51,7 @@ fair comparison, because a failing run stops early.}
 
 \input{figures/fig3_tokens}
 
-\subsection{The metric that matters: solved tasks per unit spend}
+\subsection{Solved tasks per unit spend, at series level}
 
 A runtime that halves tokens and fails half the tasks is not an improvement.
 The efficiency view (Table~\ref{tab:efficiency}) divides outcomes by resources.
@@ -70,11 +71,22 @@ evaluation produces. Per dollar the ranking changes:
 \StateOnly{} is the worst of all four arms at \EffCostTailZero{} solved per
 dollar, below the control's \EffCostBase{}.
 
-The arm that wins on both is \StateK{6} at \EffCostTailSix{} solved per dollar
-against \EffCostBase{}, with capability statistically indistinguishable from
-the control (\S\ref{sec:capability}). The useful configuration is therefore
-neither extreme: keep the state block, keep a short verbatim tail, and the
-combination is cheaper than a transcript at no measured cost in capability.
+By that series-level measure the best arm is \StateK{6} at \EffCostTailSix{}
+solved per dollar against \EffCostBase{}. That comparison must be read with
+the caveat of \S\ref{sec:cost-fair}: a failing run stops early and costs
+little, so series totals flatter whichever arm fails more, and they are
+reported here for scale rather than as a verdict.
+
+The matched-outcome comparison is the one that decides. On it \StateK{6} is
+\emph{not} cheaper than the control: \CostRatioTailSix$\times$ over
+\CostPairsTailSix{} tasks that both arms solved, more expensive in 78 of them
+against 53 ($p={}$\CostSignPTailSix)\live. The honest statement of the
+economics is therefore narrower than a token count suggests in either
+direction. Restoring a short tail removes the capability deficit
+(\S\ref{sec:capability}) and cuts the cost premium from
+\CostRatioTailZero$\times$ to \CostRatioTailSix$\times$, but on this corpus no
+configuration of structured state was cheaper than simply keeping the
+transcript at equal outcome.
 
 \input{figures/fig4_pareto}
 
@@ -85,6 +97,14 @@ cross 1.0; that is, that the overhead would amortise on long tasks. It does not.
 Spearman correlation between control horizon and per-task cost ratio is
 \RhoHorizonCost{} over \RhoHorizonCostN{} tasks ($p={}$\RhoHorizonCostP), a
 correlation indistinguishable from zero and, if anything, of the wrong sign.
+
+The test covers \RhoHorizonCostN{} of the \EOneTasks{} tasks by the definition
+of the quantity, not by any exclusion rule: a per-task cost ratio exists only
+where the control and \StateOnly{} both solved the task in at least one trial,
+and \StateOnly{} solves \SolveTailZero{} of runs. The restriction follows from
+the capability result of \S\ref{sec:capability}, and it cuts against us: the
+tasks where \StateOnly{} failed outright are the long ones on which the
+amortisation was predicted.
 
 No crossover exists within the observed horizon range. We report this as a
 refutation of our own hypothesis rather than dropping it, and it converges with

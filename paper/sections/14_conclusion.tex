@@ -31,9 +31,11 @@ equal outcome the state-only arm carries half the control's peak prompt and
 costs \CostRatioTailZero$\times$ as much, because state maintenance is billed at
 the output tariff and a block rewritten each turn forfeits the prefix cache
 that makes an append-only transcript cheap. Measured per token the state arms
-look efficient; measured per solved task per dollar, the published
-configuration is the worst of the four and a partial-history configuration
-beats both extremes at capability indistinguishable from the control.
+look efficient; measured per solved task per dollar over the whole series the
+published configuration is the worst of the four. On the matched-outcome
+comparison that this paper treats as the fair one, however, every state
+configuration including the best one costs more than the control
+(\CostRatioTailSix$\times$ at $\tailk{=}6$, $p={}$\CostSignPTailSix).
 
 The practical conclusion is therefore not that structured state should be
 abandoned, but that it should not be used to \emph{replace} recent history. The

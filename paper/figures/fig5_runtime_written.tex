@@ -1,0 +1,103 @@
+% Figure: the third runtime - state written by the RUNTIME, not by the model.
+%
+% Same visual language as fig1_architecture (box column, group frame, growth
+% panel) so the three designs can be compared at a glance. The point of the
+% figure is WHERE the state block comes from: in Figure 1 the model emits it as
+% generated text, here the runtime derives it from what already happened.
+%
+% Contains no measured numbers; the measured ladder is the composition figure.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, minimum width=3.4cm,
+              minimum height=0.6cm, align=center, inner sep=2pt},
+  hist/.style={box, fill=red!8},
+  state/.style={box, fill=blue!10, draw=blue!60, thick},
+  rtstate/.style={box, fill=green!12, draw=green!55!black, thick},
+  plain/.style={box, fill=black!3},
+  llm/.style={box, fill=black!8, minimum height=0.85cm, thick},
+  rt/.style={box, fill=green!8, draw=green!55!black, minimum height=0.85cm, thick},
+  grp/.style={draw, dashed, rounded corners=3pt, inner sep=7pt},
+  arr/.style={-latex, thick},
+]
+
+\node[font=\bfseries] at (0,4.55) {Model-written state (\SkillState{})};
+\node[plain]  (p1) at (0, 3.05) {task specification $P$};
+\node[state]  (s1) at (0, 2.35) {execution state $\Sigma_{t-1}$};
+\node[plain]  (o1) at (0, 1.65) {latest observation $o_t$};
+\node[grp, fit=(p1)(s1)(o1)] (g1) {};
+\node[above=2pt of g1, font=\bfseries\footnotesize, text=blue!60!black]
+  {prompt bounded};
+\node[llm] (m1) at (0,0.35) {language model};
+\draw[arr] (g1.south) -- (m1.north);
+\node[plain, dashed] (a1) at (0,-0.85) {execute action $a_t$};
+\draw[arr] (m1) -- (a1);
+\draw[arr, blue!60!black] (m1.west) -- ++(-1.3,0) |- (s1.west)
+  node[pos=0.26, left, font=\scriptsize, text=blue!60!black, align=center]
+  {model emits\\$\Delta\Sigma_t$ as text};
+\node[font=\scriptsize, text=red!65!black, align=center] at (0,-1.75)
+  {state costs output tokens;\\model can overwrite its own facts};
+
+\begin{scope}[xshift=7.8cm]
+\node[font=\bfseries] at (0,4.55) {Runtime-written state (this work)};
+\node[plain]   (p2) at (0, 3.05) {task specification $P$};
+\node[rtstate] (s2) at (0, 2.35) {verified state $V_{t-1}$};
+\node[plain]   (o2) at (0, 1.65) {latest observation $o_t$};
+\node[grp, fit=(p2)(s2)(o2)] (g2) {};
+\node[above=2pt of g2, font=\bfseries\footnotesize, text=green!45!black]
+  {prompt bounded};
+\node[llm] (m2) at (0,0.35) {language model};
+\draw[arr] (g2.south) -- (m2.north);
+\node[plain, dashed] (a2) at (0,-0.85) {execute action $a_t$};
+\draw[arr] (m2) -- (a2);
+
+\node[rt] (rec) at (4.6,-0.85) {runtime recorder};
+\draw[arr, green!50!black] (a2.east) -- (rec.west)
+  node[midway, below=1pt, font=\scriptsize, text=green!45!black, align=center]
+  {tool result};
+\draw[arr, green!50!black] (rec.north) -- ++(0,1.45) -| (s2.east)
+  node[pos=0.28, right, font=\scriptsize, text=green!45!black, align=left]
+  {derived, not\\generated};
+\node[font=\scriptsize, text=green!35!black, align=center] at (0,-1.75)
+  {state costs no output tokens;\\model cannot overwrite it};
+\end{scope}
+
+\draw[dashed, black!30] (-3.4,-2.45) -- (11.2,-2.45);
+
+\node[font=\bfseries\small, align=center] at (3.9,-3.05)
+  {What the runtime can record without asking the model};
+\begin{scope}[yshift=-3.95cm]
+  \foreach \x/\tag/\what in {
+     -3.0/v1/{files touched},
+     -0.6/v2/{+ content},
+      1.8/v3/{+ commands},
+      4.2/v4/{+ diagnostics},
+      6.6/v5/{+ environment},
+      9.0/v6/{+ tests},
+     11.4/v7/{+ failures}} {
+    \node[draw, rounded corners=2pt, fill=green!10, draw=green!55!black,
+          minimum width=2.05cm, minimum height=0.62cm, font=\scriptsize,
+          align=center] at (\x,0) {\textbf{\tag}\\\what};
+  }
+  \draw[arr, green!50!black] (-4.2,-0.68) -- (12.5,-0.68)
+    node[midway, below, font=\scriptsize, text=green!45!black]
+    {more delegated to the runtime, one component per rung};
+\end{scope}
+
+\end{tikzpicture}}
+\caption{Two ways to bound the prompt with a state block, differing in who
+writes it. \textbf{Left:} the model emits the state update as generated text,
+so maintaining it is billed at the output tariff and the model is free to
+overwrite a fact it previously recorded, which the original attributes
+\SI{68}{\percent} of its open-weight failures to\origin. \textbf{Right:} the
+runtime derives the same record from tool results that have already occurred.
+The block is a fact about what happened rather than a claim the model makes
+about it, costs no generated tokens, and cannot be overwritten by the model.
+The bar below is the factor varied in \S\ref{sec:composition}: each rung hands
+one more component to the runtime, with tail and schema frozen, so a gap
+between neighbours names a single delegated component.}
+\label{fig:runtime-written}
+\end{figure*}

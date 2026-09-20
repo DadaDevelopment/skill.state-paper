@@ -13,6 +13,9 @@ cd "$(dirname "$0")/.."
 echo "==> regenerating tables and numbers from canonical run data"
 python3 analysis/build_paper.py --check
 
+echo "==> regenerating the composition axis from the v-axis run log"
+python3 analysis/build_composition.py
+
 echo "==> typesetting"
 cd paper
 "${TECTONIC:-/opt/data/bin/tectonic}" main.tex

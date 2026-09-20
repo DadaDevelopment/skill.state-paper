@@ -13,6 +13,7 @@
 \input{preamble}
 
 \input{generated/numbers}
+\input{generated/composition}
 
 \title{\bfseries Bounded Context Is Not Bounded Information:\\
 Structured State Memory Trades Capability for Prompt Size\\
@@ -38,13 +39,9 @@ in Long-Horizon Coding Agents}
 \input{sections/07_results_mechanism}
 \input{sections/08_results_economics}
 
-%% EXTEND: the composition ladder (v1..v6 and further hybrids).
-%% Switch on with \vtwotrue in preamble.tex when the trials are complete.
-\ifvtwo
-  \input{sections/09_results_composition}
-\else
-  \input{sections/09_results_composition_stub}
-\fi
+%% The composition ladder (v1..v7): measured, trial 1.
+%% Numbers come from generated/composition.tex via analysis/build_composition.py.
+\input{sections/10_results_composition_v}
 
 %% EXTEND: schema x protocol matrix (E2).
 \ifetwo

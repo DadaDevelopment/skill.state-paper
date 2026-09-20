@@ -8,15 +8,17 @@ design: \EOneTasks{} Terminal-Bench 2.0 tasks $\times$ \EOneConditions{}
 conditions $\times$ \EOneTrials{} independent trials $=$ \EOneRuns{} runs, every
 cell filled, verdicts taken only from each task's own verifier.
 
-It does not transfer. The method as published solves \SolveTailZero{} of tasks
+It does not transfer in this regime. The method as published solves \SolveTailZero{} of tasks
 against the transcript control's \SolveBase{}; paired on
 (task, trial), it loses \McnCtlTailZero{} tasks and wins \McnArmTailZero{}
 ($p={}$\McnPTailZero). The loss is \emph{larger} on long-horizon tasks
 (\HorTailZeroLongCtl{} vs.\ \HorTailZeroLongArm, $p={}$\HorTailZeroLongP) than on short
 ones, the opposite of what a memory mechanism is meant to buy. Restoring six
-verbatim exchanges beside the state block recovers the gap entirely
-($p={}$\McnPTailSix), which locates the damage in the discarded history rather
-than in the state block itself.
+verbatim exchanges beside the state block leaves no detectable deficit
+(\McnCtlTailSix{} vs.\ \McnArmTailSix{} discordant tasks,
+$p={}$\McnPTailSix), which locates the damage in the discarded history rather
+than in the state block itself. We report this as a failure to detect a
+difference, not as demonstrated equivalence.
 
 The runs show the mechanism. Bounding the \emph{prompt} does not
 bound \emph{information acquisition}: agents re-acquire discarded context
@@ -30,6 +32,11 @@ saved in context. The economics follow: at equal outcome the state-only arm carr
 output tariff (\OutRatioTailZero$\times$) and a state block rewritten each turn
 destroys the prefix cache the control enjoys (\TotCacheBase{}M cached tokens
 against \TotCacheTailSix{}M).
+
+The tested regime is one model family on one benchmark, and it is a regime in
+which the control never approaches its context limit, so these results bound
+what the mechanism buys when the window is not the binding constraint rather
+than when it is.
 
 Our contributions are a falsification of the transfer claim on real coding
 tasks, an identification of the evaluation property that concealed it (fixing

@@ -1,0 +1,161 @@
+\section{State composition: who writes the state}
+\label{sec:composition}
+
+Sections~\ref{sec:capability}--\ref{sec:economics} establish that the damage
+comes from discarded history and that the agent pays for it by re-acquiring
+information through its tools. That diagnosis implies a repair: if the state
+already carried the facts the agent keeps re-deriving, the re-acquisition would
+not be necessary.
+
+This section varies one thing: how much of the state the \emph{runtime} writes
+without asking the model. It is a different axis from the tail, and it is
+reported separately because it answers a different question. The tail axis asks
+how much history to keep. This axis asks, for a fixed amount of history (none),
+who should produce the state that replaces it.
+
+\input{figures/fig5_runtime_written}
+
+\subsection{The factor}
+
+In \SkillState{} the state block is generated text: the model emits
+$\Delta\Sigma_t$ in the same completion as its action
+(Algorithm~\ref{alg:state}). Two consequences follow from
+\S\ref{sec:economics}, and both are unfavourable. Maintaining the state is
+billed at the output tariff $\beta$, the most expensive class in
+Eq.~\eqref{eq:cost}. And the model is free to overwrite a fact it recorded
+earlier; the original's own error taxonomy attributes \SI{68}{\percent} of
+open-weight failures to exactly that\origin.
+
+The alternative is to let the runtime record what already happened.
+A tool result is an observed fact, not a claim: the runtime saw which files
+were touched, which command ran, what it printed, and whether the tests passed.
+Writing those into the state requires no generation and cannot be overwritten
+by the model.
+
+How much to record is the factor. The ladder adds one component per rung:
+
+\begin{center}
+\begin{tabular}{@{}llp{0.52\linewidth}@{}}
+\toprule
+Rung & Adds & What the runtime writes \\
+\midrule
+v1 & files        & paths the agent has touched \\
+v2 & + content    & per-file and global modification records \\
+v3 & + commands   & normalised command records with their output \\
+v4 & + diagnostics& compiler and linter output, structured \\
+v5 & + environment& versions, paths, interpreter state \\
+v6 & + tests      & test invocations and their results \\
+v7 & + failures   & records of what was tried and did not work \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The tail is frozen at $\tailk{=}0$ and the schema at \texttt{L2-semantic} in
+every cell, so no rung borrows an advantage from the factors of
+\S\ref{sec:capability}. Neighbouring rungs differ by exactly one component, and
+that invariant is asserted over the flags the conditions actually emit before
+any cell is run, rather than over the intent behind them\code.
+
+\paragraph{The control runs inside this series.} Reusing E1's control was tried
+and the data refused it: the same arm on the same \VTasks{} tasks scored 0.793
+in E1 and 0.552 here, disagreeing on 31 of them\live. The stand drifts between
+series, so a borrowed control measures the drift as well as the condition.
+Against the borrowed control the first rung looked like a 46--2 deficit;
+against the in-series control it is 25--2. One control per series.
+
+\subsection{Capability improves as more is delegated}
+
+\begin{table}[t]
+\centering
+\caption{The composition ladder. Cost, turns and output are medians over tasks
+that both the rung and the control solved; ratios below $1$ favour the rung.}
+\label{tab:ladder}
+\input{tables/v1_ladder}
+\end{table}
+
+\input{figures/fig6_ladder}
+
+Table~\ref{tab:ladder} gives the ladder. The first rung, a state holding only
+the list of files touched, solves \VRateVOne{} against the control's
+\VBaseRate. Adding command records lifts it to \VRateVThree, tests to
+\VRateVSix. The last rung does not continue the rise: adding failure records
+gives \VRateVSeven, one task fewer than v6, which on \VStepVSixVSevenLo{}
+against \VStepVSixVSevenHi{} discordant tasks is indistinguishable from no
+change. The ladder is therefore not monotone at its top, and we do not claim
+it is.
+
+The paired steps are in Table~\ref{tab:vsteps}. Only the first is significant
+on its own: moving from files to commands wins \VStepVOneVThreeHi{} tasks and
+loses \VStepVOneVThreeLo{} ($p={}$\VStepVOneVThreeP). The later single steps are
+individually indistinguishable from noise at this sample size
+(\VStepVThreeVSixLo{} vs.\ \VStepVThreeVSixHi{},
+$p={}$\VStepVThreeVSixP; and \VStepVSixVSevenLo{} vs.\
+\VStepVSixVSevenHi, $p={}$\VStepVSixVSevenP). The end-to-end step is
+significant: v1 to v7 wins \VStepVOneVSevenHi{} and loses
+\VStepVOneVSevenLo{} ($p={}$\VStepVOneVSevenP).
+
+We therefore claim the trend and not the individual rungs. What the data
+supports is that a state carrying more runtime-derived facts solves more tasks
+than a state carrying fewer, with most of the gain arriving early, at the point
+where commands and their output enter the record. Locating the remaining
+components against each other needs the trials still running.
+
+\begin{table}[t]
+\centering
+\caption{Paired steps along the ladder, same task and trial.}
+\label{tab:vsteps}
+\input{tables/v2_steps}
+\end{table}
+
+\subsection{Cost falls at the same time}
+
+The result that matters is in the last three columns of Table~\ref{tab:ladder},
+because capability and cost move together rather than against each other.
+
+At v1 the arm costs \VCostVOne$\times$ the control at equal outcome. This is
+the regime of \S\ref{sec:economics}: a state that records almost nothing forces
+the agent to re-acquire almost everything, and it takes \VTurnsVOne$\times$ the
+control's turns to do it. By v6 the same comparison is \VCostVSix$\times$,
+below the control, and turns have fallen to \VTurnsVSix$\times$. The arm that
+delegates the most is both the most capable on this axis and the cheapest.
+
+The mechanism is visible in the output column. At v1 the arm generates
+\VOutVOne$\times$ the control's output tokens; by v6 it is \VOutVSix$\times$.
+Facts the runtime writes are not paid for at the output tariff, so moving a
+component from the model to the runtime removes generated tokens at the same
+time as it removes the re-acquisition those tokens were failing to prevent.
+
+Per dollar across the whole series the ordering is the same: \VCostPerVOne{}
+solved tasks per dollar at v1 against \VCostPerVSix{} at v6, with the control
+at \VBaseCostPer.
+
+\subsection{What this does not show}
+
+The ladder does not reach the control. Every rung remains behind it on paired
+capability (Table~\ref{tab:vcontrol}), and the best is still
+\VCtlVSixNet{} tasks net against a transcript agent. Delegating more to the
+runtime is a strict improvement \emph{over a model-written state}; on this
+corpus it is not yet a replacement for keeping the recent history.
+
+Combined with \S\ref{sec:capability}, where six verbatim exchanges alone close
+the gap entirely, the practical reading is that the two mechanisms are
+complementary rather than competing: the runtime-written state is the cheap way
+to carry durable facts, and a short tail is the cheap way to carry recent
+context. Neither substitutes for the other here.
+
+\begin{table}[t]
+\centering
+\caption{Each rung paired against the in-series transcript control.}
+\label{tab:vcontrol}
+\input{tables/v3_vs_control}
+\end{table}
+
+\paragraph{Status of these numbers.} \VRuns{} runs, \VTasks{} tasks, one trial.
+E1 carries three trials; this axis carries one, and this project has already
+had an effect that was significant at two trials and died at the third
+(\S\ref{sec:pitfalls}). The direction is consistent across every rung and the
+end-to-end comparison is significant, but the individual rung-to-rung steps
+should be read as provisional until the remaining trials land. No claim in this
+section rests on the plugin's own instrumentation counters, which are
+identically zero across the series and are therefore treated as dead rather
+than as evidence of absence\live.

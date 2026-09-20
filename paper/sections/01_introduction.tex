@@ -33,9 +33,10 @@ Two further observations turn this from a negative result into an explanation.
 First, the damage \emph{grows} with task horizon
 (\S\ref{sec:capability}), exactly inverting the argument for the method, whose
 benefit is supposed to accumulate on long tasks. Second, restoring a mere six
-verbatim exchanges alongside the state block closes the gap to statistical
-indistinguishability ($p={}$\McnPTailSix), which places the loss in the discarded
-history rather than in the state abstraction.
+verbatim exchanges alongside the state block leaves a deficit we can no longer
+detect ($p={}$\McnPTailSix; absence of evidence, not evidence of equivalence),
+which places the loss in the discarded history rather than in the state
+abstraction.
 
 \paragraph{Why the original evaluation could not see this.}
 In the synthetic setting the number of model calls per episode is fixed by
@@ -82,9 +83,9 @@ reduction in the direction the token count suggests.
       discarded history to redundant environment inspection
       (\S\ref{sec:mechanism}).
 \item A cache-aware cost methodology under which token reduction and monetary
-      reduction are shown to be distinct, together with the observation that a
-      partial-history configuration dominates both extremes on solved tasks per
-      dollar (\S\ref{sec:economics}).
+      reduction are shown to be distinct, and under which no configuration of
+      structured state is cheaper than a transcript at equal outcome
+      (\S\ref{sec:economics}).
 \item A released dataset of \EOneRuns{} fully instrumented trajectories with
       per-run provenance, and the deterministic analysis that regenerates every
       number in this paper (\S\ref{sec:repro-appendix}).
