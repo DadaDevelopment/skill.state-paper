@@ -4,12 +4,53 @@
   reason: >
     Direct overlap: 176 matched settings ablating context-management
     strategies, context-window budgets, planning and action space across
-    SWE-Bench Verified and Terminal-Bench 2.1. This is the closest empirical
-    relative to our composition study (v1-v7 ladder) found in the literature
-    watch. Flagged for a human to read in full and add a related-work
-    paragraph; not yet added to references.bib pending that read.
-    STATUS: PENDING_HUMAN_ACTION - do not remove this entry until cited or
-    explicitly excluded with a read-based reason.
+    SWE-Bench Verified and Terminal-Bench 2.1. Read in full (not abstract
+    only): their headline finding "context management extends execution
+    trajectories without substantially altering agent behavior" and their
+    finding that reversible recall (their M2) is rarely invoked and adds
+    no accuracy gain both parallel our own results (tail6 restores
+    capability mainly through more turns/tokens, and our composition
+    ladder's own instrumentation counters are dead/underused). Their axis
+    (how much transcript-management machinery) is orthogonal to ours
+    (state vs transcript), which makes it a genuine related-work citation,
+    not a competing claim. Still needs the related-work paragraph written.
+    STATUS: PENDING_HUMAN_ACTION - read complete, paragraph not yet drafted.
+
+- id: "arxiv:2606.30005"
+  title: "LLM Agents Are Latent Context Managers: Eliciting Self-Managed Context via State Proprioception (VISTA)"
+  decision: cite
+  reason: >
+    Found by following this paper's own citation graph (cited inside
+    arxiv:2609.20804's context-management related work), not by the
+    literature-watch keyword search. Argues models are "proprioceptively
+    blind" to their own context (cannot infer block size/recency/budget
+    from the prompt alone) and fixes this with a runtime dashboard plus
+    typed addressable memory blocks with full-fidelity archival/recovery.
+    This is close kin to our mechanism finding: our state-only arm
+    re-derives information it already observed (58% repeated inspect vs
+    20% control) because the state block bounds what is TOLD without
+    bounding what is NEEDED - VISTA's proprioception framing is a plausible
+    alternative or complementary explanation for part of that gap, and its
+    training-free/model-agnostic design is directly comparable to our
+    runtime-written composition axis (v1-v7). Worth a related-work
+    paragraph and possibly a discussion-section mention as a candidate
+    mechanism we did not isolate.
+    STATUS: PENDING_HUMAN_ACTION - abstract read, full paper not yet read.
+
+- id: "arxiv:2605.04050"
+  title: "LCM: Lossless Context Management"
+  decision: cite
+  reason: >
+    Also found via arxiv:2609.20804's citation graph. Claims a deterministic
+    hierarchical-summary-DAG architecture that outperforms Claude Code on
+    long-context tasks by keeping lossless pointers to every original
+    message rather than discarding on compaction. Directly relevant to our
+    Ledger comparison (Section 13): both LCM and Ledger keep objective,
+    runtime-managed state rather than model-authored summaries, but LCM's
+    specific claim (recursive compression beats flat summarization) is a
+    design point our composition ladder (v1-v7) does not test and should
+    at minimum be named as a design this study did not include.
+    STATUS: PENDING_HUMAN_ACTION - abstract read, full paper not yet read.
 
 - id: "arxiv:2609.20754"
   title: "RAFT: A Stateful Retrieval-Augmented Framework for Troubleshooting Agents"
