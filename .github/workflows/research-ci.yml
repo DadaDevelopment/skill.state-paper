@@ -28,7 +28,7 @@ jobs:
           curl -sL https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand -o /usr/local/bin/latexpand
           chmod +x /usr/local/bin/latexpand
           curl -sL https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
-          sudo mv lychee /usr/local/bin/lychee
+          sudo mv lychee-x86_64-unknown-linux-gnu/lychee /usr/local/bin/lychee
 
       - name: Install tectonic
         run: |
