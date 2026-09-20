@@ -1,0 +1,48 @@
+\section{Threats to validity}
+\label{sec:threats}
+
+\paragraph{One model family.} Every run uses \texttt{\EOneModel}. A paired
+pilot on a stronger model from the same provider solved no task the small model
+could not, at \num{22.7}$\times$ the median cost per cell\live, which is why
+the series was not moved. That pilot is 7--8 tasks and settles a budget
+question, not a transfer question. We claim nothing about models from other
+families, and in particular nothing about whether a model with stronger
+instruction-following would maintain state well enough to avoid the failure
+mode of \S\ref{sec:mechanism}.
+
+\paragraph{One corpus, and its horizon range.} Terminal-Bench 2.0 tasks
+utilise a median of roughly \SI{5}{\percent} of the context window under the
+control\live. The window is therefore rarely the binding constraint, which is
+the regime in which a memory mechanism should be least necessary. A pilot on
+the longer Terminal-Bench 4.0 shows a median peak of \SI{66}{\percent} of the
+window\live, and there the same mechanism appears an order of magnitude
+stronger (median repetition \num{3.26} against the control's \num{1.02}).
+That pilot is one trial on six tasks and is not a result. The honest statement
+of scope is that our finding holds where the window is not saturated, and that
+the direction of the effect in the saturated regime is measured but not
+established.
+
+\paragraph{Implementation fidelity.} Our state block is thicker per step than
+the original reports\live, so absolute cost magnitudes are upper bounds
+(\S\ref{sec:repro}). Both corrections move against our headline.
+
+\paragraph{Tariff transfer in the reproduction.} Section~\ref{sec:repro}
+applies our measured prices to the original's published token counts. The
+order of magnitude is robust; the exact multipliers are an estimate and are
+labelled as one.
+
+\paragraph{Contamination not detectable in principle.} The quarantine rule
+(\S\ref{sec:pitfalls}) keys on errored turns. A provider degradation below the
+error-visibility floor would not be caught. The bound on the damage is that the
+cost results do not depend on verdicts at all, and that the capability result
+survived removal of every cell the rule did catch.
+
+\paragraph{Two unrunnable tasks.} Two of 89 tasks fail during container setup
+in every condition\live{} and are absent from all arms equally. This removes
+two tasks from the corpus; it does not favour a condition.
+
+\paragraph{The composition study is incomplete.} Section~\ref{sec:composition}
+states a design and a pre-registered prediction. Its data are not reported as a
+result in this paper. Given this project's own history (an effect significant
+at two trials that died at the third (\S\ref{sec:pitfalls})), a single trial is
+not evidence here.

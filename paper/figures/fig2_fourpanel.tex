@@ -1,0 +1,99 @@
+% Figure 2: the four-panel characterisation of the method.
+% Every coordinate is read from figures/data/*.dat, which analysis/build_paper.py
+% regenerates from the canonical run CSV. No number is typed here.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[font=\small]
+
+\begin{axis}[
+  name=A,
+  width=0.46\textwidth, height=4.6cm,
+  ybar, bar width=15pt,
+  ymin=0, ymax=0.75,
+  ylabel={solve rate},
+  xtick={0,1,2,3},
+  xticklabels={control,$k{=}0$,$k{=}2$,$k{=}6$},
+  title={\textbf{(a)} capability},
+  enlarge x limits=0.15,
+  grid=major, grid style={black!12},
+  error bars/y dir=both, error bars/y explicit,
+]
+\addplot[draw=black!60, fill=blue!25] table[x=x, y=rate,
+  y error plus=ehi, y error minus=elo] {figures/data/solve_rate.dat};
+\end{axis}
+
+\begin{axis}[
+  name=B, at={($(A.east)+(1.7cm,0)$)}, anchor=west,
+  width=0.46\textwidth, height=4.6cm,
+  ybar, bar width=9pt,
+  ymin=0, ymax=95,
+  ylabel={discordant tasks},
+  xtick={0,1,2}, xticklabels={$k{=}0$,$k{=}2$,$k{=}6$},
+  title={\textbf{(b)} paired disagreement},
+  enlarge x limits=0.25,
+  grid=major, grid style={black!12},
+  legend style={at={(0.97,0.97)}, anchor=north east, font=\scriptsize,
+                draw=black!25, fill=white, fill opacity=0.9, text opacity=1},
+]
+\addplot[draw=black!60, fill=red!35] table[x=x, y=ctlonly]
+  {figures/data/discordance.dat};
+\addlegendentry{control solved only}
+\addplot[draw=black!60, fill=green!35] table[x=x, y=armonly]
+  {figures/data/discordance.dat};
+\addlegendentry{state arm solved only}
+\end{axis}
+
+\begin{axis}[
+  name=C, at={($(A.south)-(0,1.85cm)$)}, anchor=north,
+  width=0.46\textwidth, height=4.6cm,
+  ybar, bar width=9pt,
+  ymin=0, ymax=52,
+  ylabel={net tasks lost},
+  xtick={0,1,2}, xticklabels={$k{=}0$,$k{=}2$,$k{=}6$},
+  title={\textbf{(c)} loss by horizon},
+  enlarge x limits=0.25,
+  grid=major, grid style={black!12},
+  legend style={at={(0.97,0.97)}, anchor=north east, font=\scriptsize,
+                draw=black!25, fill=white, fill opacity=0.9, text opacity=1},
+]
+\addplot[draw=black!60, fill=orange!30] table[x=x, y=short]
+  {figures/data/horizon_deficit.dat};
+\addlegendentry{short tasks}
+\addplot[draw=black!60, fill=purple!45] table[x=x, y=long]
+  {figures/data/horizon_deficit.dat};
+\addlegendentry{long tasks}
+\end{axis}
+
+\begin{axis}[
+  name=D, at={($(B.south)-(0,1.85cm)$)}, anchor=north,
+  width=0.46\textwidth, height=4.6cm,
+  xmin=0.35, xmax=1.12, ymin=0.85, ymax=2.85,
+  xlabel={peak prompt, ratio to control},
+  ylabel={cost, ratio to control},
+  title={\textbf{(d)} what the prompt saving costs},
+  grid=major, grid style={black!12},
+  nodes near coords={\scriptsize\pgfplotspointmeta},
+  point meta=explicit symbolic,
+  every node near coord/.append style={anchor=west, xshift=3pt},
+]
+\addplot[only marks, mark=*, mark size=2.6pt, draw=black!70, fill=blue!45]
+  table[x=peak, y=cost, meta=label] {figures/data/prompt_vs_cost.dat};
+\draw[dashed, black!45] (axis cs:0.35,1) -- (axis cs:1.12,1);
+\node[font=\scriptsize, text=black!55, anchor=south east]
+  at (axis cs:1.10,1.02) {parity};
+\end{axis}
+
+\end{tikzpicture}
+\caption{Characterising structured state memory on \EOneTasks{} coding tasks,
+\EOneRuns{} runs. \textbf{(a)} Solve rate with Wilson intervals; the control
+solves \SolveBase{} against \SolveTailZero{} for the published configuration.
+\textbf{(b)} Paired disagreement against the same-trial control -- only
+discordant tasks carry information, and they are overwhelmingly one-sided at
+$k{=}0$. \textbf{(c)} Net tasks lost, split at the control's median horizon:
+the deficit \emph{widens} on long tasks, inverting the argument for the method.
+\textbf{(d)} At equal outcome the published configuration halves the peak
+prompt and multiplies cost by \CostRatioTailZero. Restoring six exchanges
+($k{=}6$) returns capability to parity while staying below the control's cost.}
+\label{fig:fourpanel}
+\end{figure*}

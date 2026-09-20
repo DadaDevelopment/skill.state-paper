@@ -1,0 +1,72 @@
+\section{Reproduction: what the original design can and cannot express}
+\label{sec:repro}
+
+Before measuring a disagreement it is worth establishing that there is no
+disagreement about the original's own numbers.
+
+\subsection{The published advantage survives cache-aware accounting}
+
+We recompute the original's headline table under our cost model: their reported
+token counts, our measured per-token tariffs, and our measured cache-hit rates
+for the two archetypal runtimes. The result narrows their advantage without
+reversing it\live:
+
+\begin{center}
+\begin{tabular}{@{}rrr@{}}
+\toprule
+Horizon $T$ & token ratio & cost ratio under caching \\
+\midrule
+10  & 1.6$\times$  & \textbf{0.97$\times$} \\
+25  & 2.9$\times$  & 1.75$\times$ \\
+50  & 5.7$\times$  & 3.42$\times$ \\
+100 & 19.0$\times$ & 11.45$\times$ \\
+200 & 21.3$\times$ & 12.82$\times$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two readings. Caching roughly halves the advantage but does not invert it:
+within the original design the method remains cost-positive, and we say so.
+And at $T{=}10$ the ratio has already crossed 1.0: cost parity disappears at
+the shortest horizon of their own table, unremarked because their metric cannot
+see it. This is A2 falsified from published data, with no new runs.
+
+This estimate transfers our tariffs onto their tokens and is labelled as such:
+the order of magnitude is robust, the exact multipliers are not measurements of
+their spend.
+
+\subsection{The property that hides re-acquisition}
+
+In the original generator, horizon $T$ is a count of environment events, and
+every runtime answers each event with exactly one model call\origin. The number
+of model calls is therefore fixed by construction and identical across arms.
+
+This single property determines what the evaluation can observe. The dominant
+cost of discarding history is re-acquiring what was discarded, and
+re-acquisition is spent in \emph{additional agent-initiated steps}. In a design
+where the step count is an input, that cost has nowhere to appear. An agent
+that has forgotten a fact and must re-derive it still gets exactly $T$ calls;
+the forgetting is invisible in the ledger the paper keeps.
+
+In an agentic setting the step count is an outcome. On our corpus the
+state-only arm takes \TurnRatioTailZero$\times$ the control's turns on tasks
+\emph{both} arms solved\live, and that ratio is measured only where the
+method succeeded, so it is a lower bound on the overhead, not an average over
+its failures.
+
+\subsection{What this does and does not impugn}
+
+The original's mechanics reproduce, its token claim reproduces, and its sign
+survives caching \emph{inside its own design}. What does not transfer is the
+inference from that design to agentic execution. Both are legitimate
+evaluations; they answer different questions, and only one of them is the
+question a practitioner asks before putting a memory architecture into a
+coding agent.
+
+One fidelity caveat, stated here rather than buried: our state block is thicker
+per step than the original's reported figure\live, so our absolute cost
+magnitudes are upper bounds. A thinner block would strengthen the prompt-size
+reduction and weaken the cost inversion; both move against our headline, which
+is why we report both.
+\note{the paper-fidelity arm that isolates this is built and pre-registered;
+if it runs before submission its numbers replace this paragraph}

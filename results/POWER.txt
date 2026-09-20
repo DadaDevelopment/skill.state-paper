@@ -1,0 +1,24 @@
+POWER REQUIREMENT FOR A SOLVE-RATE COMPARISON
+
+  Test                 McNemar exact, two-sided, alpha = 0.05
+  Minimum discordant   6 tasks must change hands, all in one direction,
+                       before any solve-rate difference can reach p < 0.05
+
+  Discordance measured on the current 12-task sample:
+    Condition               Discordant  Compared    Rate
+    tail0                            2        12    0.17
+    tail12                           1        12    0.08
+    tail2                            3        12    0.25
+    tail6                            1        12    0.08
+    tailinf                          1        12    0.08
+
+  Median discordance rate across conditions: 0.08
+  Tasks required = 6 / 0.08 = 72
+
+  A corpus of 72 tasks is the MINIMUM, and it assumes every
+  discordant task falls the same way. With any task discordant in the
+  opposite direction the requirement rises steeply.
+
+  Verdict reproducibility measured across three trials: 54 of 72 cells
+  agreed (75%), so single-trial verdicts carry noise of the same order as
+  the effects being sought - which is why trials cannot substitute for tasks.

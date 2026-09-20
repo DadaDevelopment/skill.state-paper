@@ -1,0 +1,44 @@
+\section{Reporting gaps in the original evaluation}
+\label{sec:gaps}
+
+Compiled during a full extraction of the original paper, each checkable against
+it directly\origin. These are recorded because several of them are the reason a
+reproduction must make its own choices, and a reader should know which choices
+were forced.
+
+\begin{enumerate}
+\item \textbf{Schemas.} A verbatim field list is given for one of the four
+      evaluation domains. For two others the schema is inferable only from a
+      single example trajectory; for the fourth none is given. No schema-design
+      method is described anywhere, and there is no sensitivity analysis. A
+      reproducer must therefore invent a schema, which is itself a source of
+      divergence, and the motivation for treating schema design as a factor
+      rather than a constant.
+
+\item \textbf{Caching and money.} A full-text search returns zero occurrences
+      of cache, billing or monetary terminology. All economic claims are in
+      logical token counts. The paper is silent on the question, not brief.
+
+\item \textbf{Variance and repetitions.} The noise-robustness and
+      state-recovery tables report point values with no dispersion and no
+      stated number of repetitions.
+
+\item \textbf{Compression control underspecified.} The learned-compression
+      baseline is reported without a compression ratio or variant. The
+      truncation budget is stated in characters in one place and tokens in
+      another.
+
+\item \textbf{Statistical claim not shown.} Significance is asserted as a
+      blanket paired $t$-test at $p<0.01$ for horizons $\ge 50$, with no
+      per-comparison values and no correction for multiple comparisons.
+
+\item \textbf{An unremarked null.} In one open-weight configuration at the
+      longest reported horizon, the structured-state runtime and a stateful
+      baseline score identically. The table contains it; the text does not
+      discuss it.
+
+\item \textbf{Step-count authority.} Horizon is a count of externally generated
+      events, and no condition varies who controls the step count. This is the
+      property analysed in \S\ref{sec:repro}, and it is the single most
+      consequential difference between that evaluation and ours.
+\end{enumerate}

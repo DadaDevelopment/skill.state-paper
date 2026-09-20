@@ -1,0 +1,47 @@
+==================================================================
+E1: SKILL.state against an unmodified control, Terminal-Bench 2.0
+==================================================================
+
+design: 87 tasks x 4 conditions x 3 trials = 1044 runs
+verdict: exit code of each task's own verifier, never a model's claim
+cost: derived from measured tokens at one published price table
+
+--- TABLE 1: solve rate ---
+condition      solved   runs     rate   95% CI
+baseline          160    261    0.613   [0.553, 0.670]
+tail0              91    261    0.349   [0.293, 0.408]
+tail2             118    261    0.452   [0.393, 0.513]
+tail6             154    261    0.590   [0.529, 0.648]
+
+--- TABLE 2: paired against the control (exact McNemar) ---
+a task-trial counts only when both arms returned a verdict
+condition     pairs  ctrl only  arm only   both          p
+tail0           261         82        13     78   2.08e-13
+tail2           261         58        16    102   9.67e-07
+tail6           261         29        23    131   4.88e-01
+
+--- TABLE 3: cost of memory, on pairs where BOTH arms solved ---
+ratios are per-pair medians, so one expensive task cannot set the number
+condition     pairs     cost     peak   output   cached
+tail0            78    2.57x    0.47x    4.55x    0.89x
+tail2           102    1.39x    0.60x    2.08x    0.40x
+tail6           131    1.15x    0.81x    1.36x    0.21x
+
+--- TABLE 4: horizon split at the control's median turn count ---
+cut at 11 turns: 45 short tasks, 42 long
+condition    horizon  ctrl only  arm only          p
+tail0        short           28         5   6.62e-05
+tail0        long            54         8   1.71e-09
+tail2        short           23         8   1.07e-02
+tail2        long            35         8   4.19e-05
+tail6        short           11        10   1.00e+00
+tail6        long            18        13   4.73e-01
+
+--- TABLE 5: totals ---
+condition         cost    turns        input    cacheRead      output
+baseline     $   17.85     6504   18,727,064  352,197,568   8,953,048
+tail0        $   14.83    16072   27,259,861   25,915,840  19,929,271
+tail2        $   12.88    10250   27,638,118   15,946,368  16,506,656
+tail6        $   11.83     4725   38,851,859    6,177,472  11,637,131
+
+total spend: $57.39

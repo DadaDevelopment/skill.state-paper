@@ -1,0 +1,31 @@
+DOES REDUNDANCY GROW WITH HORIZON? (terminal-bench-2.0, tail0 vs control)
+
+  Experimental unit    one task (medians over independent trials)
+  Tasks                12
+  Horizon              median control turns, from the CONTROL arm only
+  Redundancy           median tool-call repetition, tail0 arm
+  Test                 Spearman rank correlation, permutation p-value
+
+  Detectable at this n: |rho| >= 0.62 reaches p < 0.05.
+  Stated before the result, not chosen after seeing it.
+
+  Task                            Horizon  Redundancy   Control
+  prove-plus-comm                     5.0        1.43      1.25
+  modernize-scientific-stack          6.0        1.29      1.00
+  pytorch-model-recovery              8.0        1.00      1.00
+  regex-log                           8.0        1.57      1.00
+  db-wal-recovery                     9.0        1.00      1.00
+  fix-git                            10.0        1.42      1.00
+  configure-git-webserver            13.0        1.00      1.00
+  overfull-hbox                      15.0        1.51      1.00
+  tune-mjcf                          16.0        2.00      1.00
+  git-multibranch                    23.0        1.00      1.00
+  cobol-modernization                25.0        1.48      1.00
+  crack-7z-hash                      29.0        1.12      1.00
+
+  Spearman rho = +0.030   p = 0.9256   (n = 12 tasks)
+
+  NOT DETECTABLE at this sample size. The correlation is below the
+  threshold (0.03 < 0.62) that n=12 tasks
+  can resolve, so this corpus cannot answer the question either way.
+  This is a limit of the design, not evidence of absence.

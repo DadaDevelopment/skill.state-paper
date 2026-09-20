@@ -1,0 +1,66 @@
+% Master file. Compile with:  cd paper && /opt/data/bin/tectonic main.tex
+%
+% Structure follows the two reference papers: SKILL.state (arXiv:2608.26263)
+% for the horizon-scaling presentation, Ledger (arXiv:2608.00808) for the
+% deterministic execution-state framing and component ablations.
+%
+% EVERY NUMBER comes from paper/generated/numbers.tex, which is written by
+% analysis/build_paper.py from the canonical run CSV. Do not type a measured
+% number into a section file.
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\input{preamble}
+
+\input{generated/numbers}
+
+\title{\bfseries Bounded Context Is Not Bounded Information:\\
+Structured State Memory Trades Capability for Prompt Size\\
+in Long-Horizon Coding Agents}
+
+\author{%
+  \note{authors and affiliation pending owner decision}%
+}
+\date{Draft \today}
+
+\begin{document}
+\maketitle
+
+\input{sections/00_abstract}
+
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_model}
+\input{sections/03b_study_design}
+\input{sections/04_setup}
+\input{sections/05_reproduction}
+\input{sections/06_results_capability}
+\input{sections/07_results_mechanism}
+\input{sections/08_results_economics}
+
+%% EXTEND: the composition ladder (v1..v6 and further hybrids).
+%% Switch on with \vtwotrue in preamble.tex when the trials are complete.
+\ifvtwo
+  \input{sections/09_results_composition}
+\else
+  \input{sections/09_results_composition_stub}
+\fi
+
+%% EXTEND: schema x protocol matrix (E2).
+\ifetwo
+  \input{sections/10_results_schema_protocol}
+\fi
+
+\input{sections/11_threats}
+\input{sections/12_pitfalls}
+\input{sections/13_related}
+\input{sections/14_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\appendix
+\input{sections/A_reproducibility}
+\input{sections/B_original_gaps}
+
+\end{document}

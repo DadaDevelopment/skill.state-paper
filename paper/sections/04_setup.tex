@@ -1,0 +1,88 @@
+\section{Experimental setup}
+\label{sec:setup}
+
+\subsection{Agent, corpus and conditions}
+
+The agent is an unmodified open-source coding agent; the state mechanism is a
+plugin that replaces the context assembled for each model call and adds a
+validated patch tool\code. Versions, plugin content hash and schema hash are
+frozen for the series and recorded in every run row (plugin
+\texttt{\EOnePlugin}, schema \texttt{\EOneSchema})\live.
+
+The corpus is Terminal-Bench 2.0. Of 89 tasks runnable in principle, this stand
+reaches \EOneTasks: two fail during container setup, before the agent starts,
+on every attempt and in every condition\live. The model is
+\texttt{\EOneModel} throughout.
+
+The four conditions differ in exactly one property:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Condition & Context assembled for each model call \\
+\midrule
+\Control        & full transcript, no state block (unmodified agent) \\
+\StateOnly{}    & state block replaces the transcript ($\tailk{=}0$) \\
+\StateK{2}      & state block $+$ 2 most recent exchanges \\
+\StateK{6}      & state block $+$ 6 most recent exchanges \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Everything else is frozen: same model, schema, tools, turn budget, task and
+verifier. The realised $\tailk$ is read back out of each run's trace, and a run
+whose realised value disagrees with the requested one is rejected rather than
+analysed\code.
+
+\subsection{Unit, pairing and repetition}
+
+The experimental unit is one run of one task under one condition in one trial.
+Every comparison is paired within \emph{(task, trial)} against the control of
+the \emph{same} trial, never against a pooled control: single runs of an
+identical cell have been measured at 15, 51 and 65 model calls\live, so
+cross-trial pooling would compare a condition against a different sample of the
+same noise. Three independent trials give \EOneRuns{} runs in total.
+
+\subsection{Verdicts}
+
+The verdict is the exit status of the task's own verifier. This is not a
+formality: in an earlier phase of this project a model's self-report and a
+broken verifier container between them produced a full series of rows that
+looked like data and were not (\S\ref{sec:pitfalls}).
+
+Runs are additionally classified by how they ended (\StopReasonList{}), and the distribution is reported in
+Table~\ref{tab:stop}, because scoring a budget stop or an output-ceiling stop
+as an ordinary failure attributes a harness property to the method.
+
+\subsection{Cost accounting}
+
+Per-call usage (input, cached-read and output tokens) is taken from the
+session journal. Cost is derived from those measured tokens at one fixed
+published price table, not read from the provider, for two measured reasons:
+the account's two wallets bill identical token counts exactly a factor of two
+apart\live, and the custom-endpoint path reports zero cost while returning real
+tokens\live. The provider's own figure is retained in the raw records for
+audit.
+
+Cached-read tokens are tracked separately from input tokens throughout, because
+the central methodological claim is that they are different currencies. That
+the provider's prefix cache is real and visible in the usage fields was
+verified before the series: a repeated call moved from 0 to 3008 cached tokens
+of 3019\live.
+
+\subsection{Gates run before any measurement}
+
+A stack that has changed is smoke-tested before it is trusted\code:
+
+\begin{enumerate}
+\item an oracle solution passes the verifier, establishing that the verifier
+      can recognise a correct answer at all;
+\item every arm demonstrably loads the plugin and realises its declared
+      $\tailk$, checked against the assembled prompt rather than the plugin's
+      own log; a silent import failure otherwise turns a treatment arm into
+      the control under a different name, and the numbers still look plausible;
+\item versions and content hashes are locked and recorded per run.
+\end{enumerate}
+
+Gate 2 has caught a real staging defect in this project\live, which is why it
+checks the provider-facing prompt and not an internal trace.

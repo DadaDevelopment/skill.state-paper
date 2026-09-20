@@ -1,0 +1,19 @@
+REDUNDANT TOOL WORK (terminal-bench-4.0)
+
+  Task                          Condition    Calls Distinct  Repeat  ReadRep  Most repeated call
+  --------------------------------------------------------------------------------------------------------
+  batched-eval-parity           baseline        74       71    1.04     1.00  3x bash {"command": "cd /app && python3 /tmp/test
+  batched-eval-parity           tail0          609      118    5.16    14.17  143x read {"path": "/app/evalbench/evaluate.py"}
+  kv-live-surgery               tail0          387      376    1.03     1.33  4x bash {"command": "sed -n '1035,1115p' /tmp/dis
+  music-harmony                 baseline        47       46    1.02     0.00  2x bash {"command": "cd /tmp && timeout 900 pytho
+  music-harmony                 tail0          225       54    4.17    56.00  164x read {"path": "/app/page0.png"}
+  mvcc-lsm-compaction           baseline        27       26    1.04     1.08  2x read {"path": "/app/tests/regression_test.cc"}
+  mvcc-lsm-compaction           tail0          707       45   15.71    26.46  97x read {"path": "/app/src/flush_builder.cc"}
+  ontology-kg-querying          baseline        54       54    1.00     1.00  1x bash {"command": "find /app -type f | sort"}
+  ontology-kg-querying          tail0          397      168    2.36     5.83  47x read {"path": "/app/2024-q2/ontology_network.o
+  photonic-waveguide-routing    baseline         1        1    1.00     1.00  1x read {"path": "/app/layout_spec.json"}
+  photonic-waveguide-routing    tail0            4        3    1.33     2.00  2x read {"path": "/app/layout_spec.json"}
+
+  Median repetition by condition (1.00 = nothing ever re-fetched)
+    baseline        1.02   (n=5 runs)
+    tail0           3.26   (n=6 runs)

@@ -1,0 +1,48 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Structured state memory is motivated by a correct observation: an unbounded
+transcript is a poor working memory, and its cost grows with everything that
+came before. The published evaluation of \SkillState{} shows that a
+model-maintained state block bounds prompt growth at near-constant size while
+preserving quality, and on its own benchmark that result reproduces, including
+under cache-aware accounting.
+
+On real coding tasks it does not hold. Across \EOneRuns{} runs of a
+pre-registered design, the method as published solves \SolveTailZero{} of tasks
+against \SolveBase{} for a transcript control, losing \McnCtlTailZero{} paired
+tasks and winning \McnArmTailZero{} ($p={}$\McnPTailZero), with the deficit
+\emph{widening} on long horizons where the mechanism is supposed to pay for
+itself. Restoring six verbatim exchanges beside the state block removes the
+difference entirely, which places the damage in the discarded history rather
+than in the state abstraction.
+
+The reason the two settings disagree is structural rather than empirical. The
+synthetic benchmark fixes the number of model calls per episode, so an agent
+that has discarded something it later needs cannot spend anything to recover
+it. Real agents can, and do: in failing state-only runs \SI{58}{\percent} of
+all commands are repeats of an inspection already performed, against
+\SI{20}{\percent} for the control. This is the paper's thesis in one sentence:
+\emph{bounding the prompt does not bound the information the task requires; the
+difference is paid through the tool loop, where no prompt-size metric looks.}
+
+The economics follow from the same mechanism and invert the usual reading. At
+equal outcome the state-only arm carries half the control's peak prompt and
+costs \CostRatioTailZero$\times$ as much, because state maintenance is billed at
+the output tariff and a block rewritten each turn forfeits the prefix cache
+that makes an append-only transcript cheap. Measured per token the state arms
+look efficient; measured per solved task per dollar, the published
+configuration is the worst of the four and a partial-history configuration
+beats both extremes at capability indistinguishable from the control.
+
+The practical conclusion is therefore not that structured state should be
+abandoned, but that it should not be used to \emph{replace} recent history. The
+configuration that wins on this corpus keeps both, and the open question we are
+measuring next is what a runtime-maintained state must contain for the
+remaining gap to close (\S\ref{sec:composition}).
+
+The methodological conclusion may outlast the empirical one. In this genre the
+difference between a finding and an artefact is rarely the model, the method or
+the benchmark. It is the accounting: which currency the cost is measured in,
+which arm a harness limit penalises, and whether the column heading still
+describes what the column contains.

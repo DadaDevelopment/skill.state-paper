@@ -1,0 +1,9 @@
+date=2026-09-17T04:50:29Z
+pi=0.85.1
+harbor=0.22.0
+task=/opt/tb2/fix-git
+task_commit=83c7a61
+plugin_sha=be0f5b73e526ba4a
+state_sha=c2224a3c7d43531f
+schema_sha=7d8705aae4e124f1
+model=zai/glm-5.3-flash

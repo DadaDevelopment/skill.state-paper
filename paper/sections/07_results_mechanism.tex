@@ -1,0 +1,86 @@
+\section{Results II: mechanism}
+\label{sec:mechanism}
+
+Section~\ref{sec:capability} establishes that discarding recent history costs
+capability. This section establishes \emph{how} the cost is paid, from the tool
+calls of the same runs.
+
+\subsection{The agent buys back what the prompt discarded}
+
+A state-only run does not fail by forgetting its plan. It fails by re-deriving
+what it already observed. Classifying every shell command of 472 runs with full
+traces by purpose, and counting commands that repeat an earlier identical
+invocation\live:
+
+\begin{center}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Condition & Commands / run & Inspect share & \textbf{Repeated inspect} \\
+\midrule
+\Control{} (full history) & 95  & 0.23 & \textbf{0.20} \\
+\StateOnly{}, solved      & 163 & 0.52 & 0.45 \\
+\StateOnly{}, failed      & 278 & 0.67 & \textbf{0.58} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A failing state-only run spends \SI{58}{\percent} of its commands re-running an
+inspection it has already run, against \SI{20}{\percent} for the control. On a
+separate matrix the same effect appears as a pointer-follow rate of 5.19 per
+run against the control's 0.42, roughly twelve times as often\live.
+
+The state block bounds the \emph{prompt} without bounding the
+\emph{information the task requires}, and the shortfall is settled through the
+tool loop, where no prompt-size metric looks. That is the thesis of this paper
+stated as a measurement rather than an argument.
+
+\subsection{Read by hand}
+
+One trajectory, inspected directly rather than through an aggregate\live: 72
+tool calls, of which \texttt{input.tex} is read 22 times across two spellings of
+its path, a second file 19 times, and the document is recompiled five times,
+returning the same seven warnings at the same line numbers on every
+invocation. Turns 22--33 are almost entirely alternating re-reads of two files
+whose bytes never changed.
+
+Aggregates can be produced by a broken metric; this one was read first and the
+metric written afterwards to reproduce it mechanically.
+
+\subsection{What the state actually contained}
+
+Examining the final state of 251 state-only runs by outcome\live:
+
+\begin{center}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Marker present in the final state & Solved & Failed \\
+\midrule
+Characters (median)      & 1218 & 963 \\
+File paths               & 9    & 5 \\
+Exact version strings    & 1    & \textbf{0} \\
+Error or exit-code text  & 0    & \textbf{0} \\
+Quoted commands          & 1    & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A failing run's state carries zero exact versions, zero error text and zero
+commands, precisely the facts it then re-derives by running the same command
+again. The schema has nowhere to put them: its fields are prose buckets
+(\texttt{goal}, \texttt{facts\_established}, \texttt{work\_done},
+\texttt{work\_remaining}, \texttt{next\_step}, \texttt{current\_blocker}).
+
+The association runs the expected way\live: runs whose state records at least
+eight file paths solve at 0.50 against 0.24 for those that record fewer; runs
+recording an exact version solve at 0.47 against 0.32; runs recording an error
+or exit code at 0.50 against 0.33. This is correlational (a run that got
+further had more to record), but it is the only direction the data points, and
+it motivates the composition study of \S\ref{sec:composition}.
+
+\subsection{Why this cannot appear in the original evaluation}
+
+Re-acquisition is spent in extra agent-initiated steps. The original's
+generator fixes the step count per episode (\S\ref{sec:repro}), so the
+mechanism measured in this section has no channel through which to register.
+This is the concrete sense in which the synthetic result is not wrong but
+inapplicable: the benchmark removes the variable that carries the cost.

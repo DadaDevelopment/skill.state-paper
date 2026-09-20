@@ -1,0 +1,122 @@
+% ============================================================================
+% REAL VERSION - typeset when \vtwotrue in preamble.tex
+%
+% ============================ HOW TO FILL THIS IN ===========================
+% 1. Close the trial set for the ladder on the stand.
+% 2. Point analysis/build_composition.py at the composition run file. It must
+%    emit, exactly as build_paper.py does for E1:
+%       paper/tables/v1_ladder_solve.tex     solve rate per rung + control
+%       paper/tables/v2_ladder_paired.tex    paired McNemar vs control
+%       paper/tables/v3_ladder_cost.tex      cost/peak/output on both-solved
+%       paper/tables/v4_ladder_redundancy.tex redundant-inspect per rung
+%    and append its macros to paper/generated/numbers.tex.
+% 3. Set \vtwotrue in preamble.tex.
+% 4. Replace every \pending{} below with the sentence the data supports.
+%
+% RULE: do not type a measured number into this file. If a number is needed
+% inline, add a macro in the builder and reference it, exactly as sections
+% 06-08 do. This is what keeps the paper recomputable from the raw runs.
+% ============================================================================
+
+\section{State composition: what a runtime state should contain}
+\label{sec:composition}
+
+\subsection{Motivation from the measured failure}
+
+\pending{one paragraph: the failing state is empty of exactly the facts that
+get re-derived (\S\ref{sec:mechanism}), and the original attributes 68\% of
+open-weight failures to the model overwriting its own state. Both point the
+same way: move the objective half of the state out of the model.}
+
+\subsection{The ladder}
+
+\pending{the six-rung table from the stub, unchanged - it is the design, not
+a result}
+
+\subsection{Results}
+
+\begin{table}[t]
+\centering
+\caption{Solve rate by composition rung.}
+\label{tab:ladder-solve}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Condition & Solved / runs & Rate & 95\% CI \\
+\midrule
+\input{tables/v1_ladder_solve}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Paired against the control, exact McNemar.}
+\label{tab:ladder-paired}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Condition & Pairs & Control only & Arm only & Both & $p$ \\
+\midrule
+\input{tables/v2_ladder_paired}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Resource ratios on pairs where both arms solved.}
+\label{tab:ladder-cost}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Condition & Pairs & Cost & Peak prompt & Output & $p$ \\
+\midrule
+\input{tables/v3_ladder_cost}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\pending{the reading. The three questions to answer explicitly, in this order:
+(a) does any rung reach control capability, (b) which single component moves
+the number most, (c) does the cost advantage survive at that rung.}
+
+\subsection{Mechanism check: did the redundancy actually fall?}
+
+\begin{table}[t]
+\centering
+\caption{Redundant-inspect fraction by rung, against the control's measured
+\num{0.20} and state-only's \num{0.58}.}
+\label{tab:ladder-redundancy}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Condition & Commands / run & Inspect share & Repeated inspect \\
+\midrule
+\input{tables/v4_ladder_redundancy}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\pending{This is the gate that decides whether the story in this paper is
+right. If a rung raises solve rate but leaves the redundant-inspect fraction at
+state-only's level, the gain did not come from the mechanism this section
+claims, and the claim must be withdrawn rather than reworded.}
+
+\subsection{The token confound, stated before a reader states it}
+
+At equal $\tailk$ a richer rung sees strictly more context than a poorer one:
+the added component is text the lower rung does not get. A single-rung
+advantage is therefore partly just more input and cannot be reported as
+``the component is better''.
+
+\pending{the defensible form is a statement about the SHAPE of the ladder - a
+constant token addition shifts a curve, it does not bend it. Report prompt
+sizes and cost in the same table rather than in a footnote, as
+Table~\ref{tab:ladder-cost} does.}
+
+\subsection{Deliberately not varied here}
+
+\emph{Govern} (intercepting a proposed command and returning an earlier
+result instead of executing it) is excluded. \Ledger{}'s own ablation
+attributes most of its resolution gain to govern\origin, so including it would
+mix a large effect into the measurement of a smaller one. It is a separate
+condition with its own design.
+\note{if the further hybrids the owner is running include a govern-like arm,
+it belongs in its own subsection here, not folded into the ladder}

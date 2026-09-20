@@ -1,0 +1,36 @@
+% Figure 4: the Pareto view. Solved tasks against dollars spent - the frontier
+% that decides which configuration a practitioner should actually run.
+% Coordinates from figures/data/pareto.dat.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small]
+\begin{axis}[
+  width=0.92\linewidth, height=5.2cm,
+  xmin=10.5, xmax=19.5, ymin=75, ymax=180,
+  xlabel={series cost (USD, lower is better)},
+  ylabel={tasks solved (higher is better)},
+  grid=major, grid style={black!12},
+  nodes near coords={\scriptsize\pgfplotspointmeta},
+  point meta=explicit symbolic,
+  every node near coord/.append style={anchor=south, yshift=3pt},
+]
+\addplot[only marks, mark=*, mark size=3pt, draw=black!70, fill=blue!45]
+  table[x=cost, y=solved, meta=label] {figures/data/pareto.dat};
+
+\draw[->, thick, black!45] (axis cs:18.6,96) -- (axis cs:17.4,96);
+\node[font=\scriptsize, text=black!55, anchor=west] at (axis cs:18.4,90)
+  {better};
+\draw[->, thick, black!45] (axis cs:18.9,98) -- (axis cs:18.9,110);
+\end{axis}
+\end{tikzpicture}
+\caption{The frontier that matters in practice: tasks solved against money
+spent, whole series. The published configuration ($k{=}0$) is dominated -- it
+spends less than the control but solves far fewer tasks, and both $k{=}2$ and
+$k{=}6$ beat it on both axes simultaneously. The useful configuration is
+$k{=}6$: capability statistically indistinguishable from the control
+(Table~\ref{tab:mcnemar}) at lower cost, giving \EffCostTailSix{} solved tasks
+per dollar against the control's \EffCostBase{}. Neither extreme of the tail
+axis is the right answer.}
+\label{fig:pareto}
+\end{figure}

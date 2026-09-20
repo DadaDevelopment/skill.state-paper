@@ -1,0 +1,92 @@
+\section{Results III: economics}
+\label{sec:economics}
+
+\subsection{Cost at equal outcome}
+
+Comparing cost across arms that solve different numbers of tasks is
+meaningless: a failing run stops early and therefore costs less. Every ratio in
+Table~\ref{tab:cost} is computed only on pairs where \emph{both} arms solved
+the same task in the same trial, and each ratio is a per-pair median, so one
+expensive task cannot set the number.
+
+\begin{table}[t]
+\centering
+\caption{Resource ratios against the same-trial control, on pairs where both
+arms solved the task. Per-pair medians; $p$ from an exact sign test on the
+cost ratios.}
+\label{tab:cost}
+\input{tables/t3_cost}
+\end{table}
+
+At equal outcome the published configuration carries
+\PeakRatioTailZero$\times$ the control's peak prompt and costs
+\CostRatioTailZero$\times$ as much ($p={}$\CostSignPTailZero). The prompt is half the
+size and the bill is two and a half times larger.
+
+\subsection{Where the money goes}
+
+The same table carries the mechanism. Output tokens are
+\OutRatioTailZero$\times$ the control's: the state block is regenerated every
+turn, and generated text is billed at the most expensive tariff. Cached reads
+fall away as the retained history shrinks, and the series totals show the same
+effect from the other side: the control is served \TotCacheBase{}M cached
+tokens across the series against \TotCacheTailSix{}M for \StateK{6}\live.
+
+An append-only transcript is almost entirely cache-served, because every call
+shares the previous call's prefix. A state block rewritten each turn diverges
+from the previous prefix at the point where the block begins, so the discount
+that makes the control cheap does not apply. Neither quantity is visible in a
+cumulative token count, which is the concrete content of the methodological
+claim: token reduction and cost reduction are different measurements, and on
+this corpus they have opposite signs.
+
+\begin{table}[t]
+\centering
+\caption{Series totals. Reported for scale only: per-condition sums are not a
+fair comparison, because a failing run stops early.}
+\label{tab:totals}
+\input{tables/t5_totals}
+\end{table}
+
+\input{figures/fig3_tokens}
+
+\subsection{The metric that matters: solved tasks per unit spend}
+
+A runtime that halves tokens and fails half the tasks is not an improvement.
+The efficiency view (Table~\ref{tab:efficiency}) divides outcomes by resources.
+
+\begin{table}[t]
+\centering
+\caption{Efficiency. Solved tasks per million tokens and per dollar across the
+whole series.}
+\label{tab:efficiency}
+\input{tables/t6_efficiency}
+\end{table}
+
+Two things follow. Per token the state arms do look efficient
+(\EffTokTailZero{} against the control's \EffTokBase{} solved per million);
+this is the original's metric, and it is the reading that a token-count
+evaluation produces. Per dollar the ranking changes:
+\StateOnly{} is the worst of all four arms at \EffCostTailZero{} solved per
+dollar, below the control's \EffCostBase{}.
+
+The arm that wins on both is \StateK{6} at \EffCostTailSix{} solved per dollar
+against \EffCostBase{}, with capability statistically indistinguishable from
+the control (\S\ref{sec:capability}). The useful configuration is therefore
+neither extreme: keep the state block, keep a short verbatim tail, and the
+combination is cheaper than a transcript at no measured cost in capability.
+
+\input{figures/fig4_pareto}
+
+\subsection{H2 refuted as pre-registered}
+
+The pre-registration predicted that the cost ratio would fall with horizon and
+cross 1.0; that is, that the overhead would amortise on long tasks. It does not. The
+Spearman correlation between control horizon and per-task cost ratio is
+\RhoHorizonCost{} over \RhoHorizonCostN{} tasks ($p={}$\RhoHorizonCostP), a
+correlation indistinguishable from zero and, if anything, of the wrong sign.
+
+No crossover exists within the observed horizon range. We report this as a
+refutation of our own hypothesis rather than dropping it, and it converges with
+\S\ref{sec:capability}: not only does the cost fail to amortise, the capability
+deficit widens with horizon.

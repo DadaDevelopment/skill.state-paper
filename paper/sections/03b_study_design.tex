@@ -1,0 +1,69 @@
+\section{Study design and protocol freeze}
+\label{sec:design}
+
+This section is placed before the results deliberately. The design was fixed in
+writing before the series ran, and the sequence
+\emph{hypothesis $\rightarrow$ frozen method $\rightarrow$ data $\rightarrow$
+interpretation} is what allows a reader to distinguish a finding from a story
+assembled after the fact.
+
+\subsection{What was frozen, and when}
+
+The pre-registration is a repository artefact dated before the first run of the
+series\code. It fixes the question, the hypotheses with their falsification
+conditions, the intervention, the dependent variables, the confounders and
+their controls, the sample size with its power rationale, the stopping rule,
+the statistical tests, and the exclusion policy. Its amendment section is
+empty: nothing was changed after the first run started.
+
+Three commitments in it do the real work:
+
+\begin{enumerate}
+\item \textbf{The verdict is external.} A run's outcome is the exit status of
+      the task's own verifier, never the agent's report of its own success. A
+      run without a verifier verdict does not enter the dataset at all.
+\item \textbf{Tests were chosen before the data.} Paired exact McNemar for
+      capability, exact sign test on per-pair ratios for cost, Spearman rank
+      correlation for the horizon trend. No test was selected after seeing an
+      effect.
+\item \textbf{Exclusions were defined before the counts were seen.} The
+      contamination rule (\S\ref{sec:pitfalls}) and the duplicate-collapse rule
+      were both written before they were applied. The latter keeps the
+      \emph{earliest} launch of a re-run cell, so a repeat cannot promote
+      itself into the sample by winning.
+\end{enumerate}
+
+\subsection{Hypotheses and how each could fail}
+
+\begin{description}[style=nextline]
+\item[H1 (cost).] The median cost ratio of state-only to control exceeds 1.0.
+  \emph{Refuted if} the ratio is $\le 1.0$, the sign test misses significance,
+  or the direction is inconsistent across the three trials.
+\item[H2 (horizon).] The cost ratio falls as horizon grows, crossing 1.0:
+  the overhead amortises on long tasks. \emph{Refuted if} the correlation is
+  absent, positive, or never approaches 1.0 in the observed range.
+\item[H3 (capability).] Reported with its interval and treated as underpowered
+  unless the observed discordance exceeds the pre-computed requirement of six
+  one-sided discordant pairs.
+\end{description}
+
+H2 is the hypothesis this study refutes in the pre-registered manner, and we
+report it as such in \S\ref{sec:economics} rather than quietly dropping it.
+
+\subsection{A pre-declared artefact trap}
+
+One trap was named in advance because it would have produced a flattering
+result: if the state-only arm showed a \emph{lower} cost on long tasks merely
+because long tasks are where it more often exhausts its turn budget and stops
+early, that is censoring, not amortisation. The pre-registration therefore
+excludes budget-stopped runs from cost aggregation and reports their count per
+stratum separately. The trap was real: the stop-reason distribution in
+Table~\ref{tab:stop} shows budget stops concentrated in exactly that arm.
+
+\subsection{Scope}
+
+This series addresses the cost and horizon questions, and reports capability.
+Schema sensitivity and state composition are separate designs with their own
+pre-registrations; their status is given in \S\ref{sec:composition}.
+\pending{if the owner elects to publish E1 alone, this paragraph becomes the
+forward reference to the second paper}

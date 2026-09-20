@@ -1,0 +1,46 @@
+\begin{abstract}
+\noindent
+Structured state memory replaces an agent's conversation history with a compact,
+model-maintained state block. On synthetic long-horizon benchmarks this bounds
+prompt growth at near-constant size and reports no loss of task quality. We test
+whether that result transfers to real coding work, on a closed pre-registered
+design: \EOneTasks{} Terminal-Bench 2.0 tasks $\times$ \EOneConditions{}
+conditions $\times$ \EOneTrials{} independent trials $=$ \EOneRuns{} runs, every
+cell filled, verdicts taken only from each task's own verifier.
+
+It does not transfer. The method as published solves \SolveTailZero{} of tasks
+against the transcript control's \SolveBase{}; paired on
+(task, trial), it loses \McnCtlTailZero{} tasks and wins \McnArmTailZero{}
+($p={}$\McnPTailZero). The loss is \emph{larger} on long-horizon tasks
+(\HorTailZeroLongCtl{} vs.\ \HorTailZeroLongArm, $p={}$\HorTailZeroLongP) than on short
+ones, the opposite of what a memory mechanism is meant to buy. Restoring six
+verbatim exchanges beside the state block recovers the gap entirely
+($p={}$\McnPTailSix), which locates the damage in the discarded history rather
+than in the state block itself.
+
+The runs show the mechanism. Bounding the \emph{prompt} does not
+bound \emph{information acquisition}: agents re-acquire discarded context
+through their tools, repeating byte-identical inspection commands at
+\SI{58}{\percent} of all commands in failing state-only runs against
+\SI{20}{\percent} for the control, and following pointers into files
+\num{12} times more often, so the tool loop spends in turns what the prompt
+saved in context. The economics follow: at equal outcome the state-only arm carries
+\PeakRatioTailZero$\times$ the control's peak prompt yet costs
+\CostRatioTailZero$\times$ as much, because state maintenance is billed at the
+output tariff (\OutRatioTailZero$\times$) and a state block rewritten each turn
+destroys the prefix cache the control enjoys (\TotCacheBase{}M cached tokens
+against \TotCacheTailSix{}M).
+
+Our contributions are a falsification of the transfer claim on real coding
+tasks, an identification of the evaluation property that concealed it (fixing
+the number of model calls per episode makes compensatory re-acquisition
+impossible by construction), a cache-aware accounting method under which token
+reduction and cost reduction are shown to be different quantities, and a
+released dataset of \EOneRuns{} fully instrumented agent trajectories.
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Reading the source tags.} Claims about our own system carry
+\live{} for a measurement on a real run, \code{} for a property of the code, and
+\origin{} for a statement of the original papers. Anything without a tag is
+argument, not evidence.

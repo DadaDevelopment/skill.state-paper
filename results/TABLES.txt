@@ -1,0 +1,68 @@
+TABLE 1. Resource cost of memory conditions relative to a transcript control
+
+  Experimental unit    one agent run (one condition x one task x one trial)
+  Benchmark            terminal-bench-2.0
+  Task set             12 tasks, stratified by control turn count
+  Independent trials   3 per condition per task
+  Model                zai/glm-5.3-flash
+  Aggregation          per-task ratio to the control of the SAME trial,
+                       median over tasks; dispersion is the IQR over tasks
+  Statistical test     none applied; these are descriptive ratios
+
+  Peak prompt tokens (ratio to control; 1.00 = same as control)
+    Condition                        Trial 1           Trial 2           Trial 3
+    ----------------------------------------------------------------------------
+    State-only                0.36 [0.17-0.61]    0.38 [0.19-0.56]    0.29 [0.13-0.47]
+    State + 2 msgs            0.63 [0.33-0.81]    0.57 [0.40-1.10]    0.50 [0.19-0.83]
+    State + 6 msgs            0.90 [0.45-1.16]    0.79 [0.60-1.11]    0.85 [0.48-1.16]
+    State + 12 msgs           1.04 [0.96-1.68]    1.31 [0.93-1.60]    1.04 [0.60-1.32]
+    State + transcript        1.40 [1.12-1.78]    1.69 [1.16-2.10]    1.31 [1.05-1.57]
+
+  Cost (USD) (ratio to control; 1.00 = same as control)
+    Condition                        Trial 1           Trial 2           Trial 3
+    ----------------------------------------------------------------------------
+    State-only                2.35 [1.28-2.97]    2.09 [1.11-3.09]    1.94 [1.00-2.20]
+    State + 2 msgs            1.84 [1.30-2.98]    1.57 [1.23-2.25]    1.13 [0.78-1.74]
+    State + 6 msgs            1.82 [1.11-3.20]    1.67 [1.16-2.90]    1.68 [1.03-2.17]
+    State + 12 msgs           2.25 [1.35-3.43]    1.58 [1.08-2.17]    1.63 [1.21-2.11]
+    State + transcript        1.96 [1.60-2.91]    2.00 [1.14-3.21]    1.55 [1.33-1.93]
+
+  Output tokens (ratio to control; 1.00 = same as control)
+    Condition                        Trial 1           Trial 2           Trial 3
+    ----------------------------------------------------------------------------
+    State-only                2.99 [1.93-4.63]    3.74 [1.55-5.93]    2.70 [1.36-4.22]
+    State + 2 msgs            2.30 [1.59-3.16]    2.07 [1.57-3.67]    1.29 [0.95-2.22]
+    State + 6 msgs            1.58 [1.05-2.62]    1.60 [1.37-2.47]    1.62 [0.97-1.90]
+    State + 12 msgs           1.32 [0.96-2.41]    1.36 [1.01-1.82]    1.15 [0.83-2.22]
+    State + transcript        1.36 [1.20-1.78]    1.71 [1.09-2.56]    1.18 [0.79-1.57]
+
+  Model calls (ratio to control; 1.00 = same as control)
+    Condition                        Trial 1           Trial 2           Trial 3
+    ----------------------------------------------------------------------------
+    State-only                1.68 [1.17-1.98]    1.74 [1.26-3.18]    1.58 [1.00-2.79]
+    State + 2 msgs            1.52 [0.80-2.04]    1.10 [0.86-1.38]    0.80 [0.54-1.57]
+    State + 6 msgs            0.95 [0.79-1.08]    1.09 [0.66-1.60]    0.81 [0.52-1.09]
+    State + 12 msgs           0.93 [0.68-1.14]    0.65 [0.48-1.00]    0.65 [0.52-1.02]
+    State + transcript        0.84 [0.57-1.11]    0.85 [0.46-1.42]    0.82 [0.63-1.00]
+
+TABLE 2. Absolute measurements per condition (medians over tasks and trials)
+
+  Experimental unit    one agent run; 3 trials pooled here only
+                       for scale, never for the comparisons in Table 1
+
+  Condition               Runs   Peak prompt  Output tok   Cost USD   Calls  Cache %
+  ----------------------------------------------------------------------------------
+  Transcript (control)      36         9,870       6,542     0.0035      12     86.5
+  State-only                36         3,457      29,621     0.0099      25     64.3
+  State + 2 msgs            36         6,184      14,202     0.0054      15     48.8
+  State + 6 msgs            36         8,430      12,164     0.0070      12     27.1
+  State + 12 msgs           36        11,342       7,926     0.0059       9     27.0
+  State + transcript        36        14,018       9,114     0.0060      10     38.2
+
+  Condition definitions
+    baseline   Transcript (control)
+    tail0      State-only
+    tail2      State + 2 msgs
+    tail6      State + 6 msgs
+    tail12     State + 12 msgs
+    tailinf    State + transcript
