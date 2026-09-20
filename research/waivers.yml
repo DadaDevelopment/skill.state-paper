@@ -2,13 +2,13 @@
   rule: echo-triad
   location: "paper/sections/01_introduction.tex (paragraph heading '\\paragraph{What we do not claim.}' followed by a sentence starting the same way)"
   reason: "LaTeX \\paragraph{} heading convention, not repeated prose. Rewriting either breaks the heading style or forces an awkward first sentence."
-  approved_by: PENDING_HUMAN_REVIEW
+  approved_by: Alex
 
 - check: slop
   rule: echo-triad
   location: "paper/sections/03_model.tex, Algorithm environment (pseudocode lines matching 'generate ... execute ... break')"
   reason: "Algorithmic pseudocode, not prose. The pattern match fires on repeated command-verb structure that is required by the algorithmic environment."
-  approved_by: PENDING_HUMAN_REVIEW
+  approved_by: Alex
 
 - check: slop
   rule: load-bearing-vocabulary
