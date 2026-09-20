@@ -1,0 +1,10 @@
+queries:
+  - "skill.state LLM agents"
+  - "structured state LLM agent memory"
+  - "agent state representation long horizon"
+  - "context management coding agents"
+  - "context compression LLM agents"
+  - "long horizon software engineering agents"
+  - "agent memory software engineering"
+  - "ReAct memory context management"
+  - "persistent state language model agents"

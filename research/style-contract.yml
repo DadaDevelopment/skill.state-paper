@@ -1,0 +1,5 @@
+---
+max_sentence_words: 45
+max_paragraph_words: 180
+max_same_transition: 2
+paragraph_discourse_marker_run: 3

@@ -1,0 +1,42 @@
+- id: "arxiv:2609.20804"
+  title: "An Empirical Study of Harness Design for Coding Agents"
+  decision: cite
+  reason: >
+    Direct overlap: 176 matched settings ablating context-management
+    strategies, context-window budgets, planning and action space across
+    SWE-Bench Verified and Terminal-Bench 2.1. This is the closest empirical
+    relative to our composition study (v1-v7 ladder) found in the literature
+    watch. Flagged for a human to read in full and add a related-work
+    paragraph; not yet added to references.bib pending that read.
+    STATUS: PENDING_HUMAN_ACTION - do not remove this entry until cited or
+    explicitly excluded with a read-based reason.
+
+- id: "arxiv:2609.20754"
+  title: "RAFT: A Stateful Retrieval-Augmented Framework for Troubleshooting Agents"
+  decision: exclude
+  reason: >
+    Retrieval-augmented case lookup for enterprise support, not agent context
+    engineering or coding-agent state representation. Different problem
+    despite the word "stateful" in the title.
+
+- id: "arxiv:2609.20625"
+  title: "Chronicle: Cut-Point Replay for Regression Testing of LLM Agents"
+  decision: exclude
+  reason: >
+    Record-and-replay for regression testing, not memory/context
+    representation. Orthogonal contribution.
+
+- id: "arxiv:2609.20812"
+  title: "Quantifying Overclaiming Propensity in Frontier LLM Agents"
+  decision: exclude
+  reason: >
+    Measures whether an agent's final response contradicts its own context
+    (an honesty/reporting metric), not context or state representation
+    design. Not a related-work candidate for this paper's mechanism.
+
+- id: "arxiv:2609.20822"
+  title: "Coding Agents with an Obstacle-Aware Harness for Safe Robot Manipulation"
+  decision: exclude
+  reason: >
+    Safety-constraint compliance in robot manipulation via coding agents;
+    no relation to context/state representation or token economics.

@@ -54,7 +54,7 @@ The tail is frozen at $\tailk{=}0$ and the schema at \texttt{L2-semantic} in
 every cell, so no rung borrows an advantage from the factors of
 \S\ref{sec:capability}. Neighbouring rungs differ by exactly one component, and
 that invariant is asserted over the flags the conditions actually emit before
-any cell is run, rather than over the intent behind them\code.
+any cell is run, not over the intent behind them\code.
 
 \paragraph{The control runs inside this series.} Reusing E1's control was tried
 and the data refused it: the same arm on the same \VTasks{} tasks scored 0.793
@@ -81,8 +81,8 @@ the list of files touched, solves \VRateVOne{} against the control's
 \VRateVSix. The last rung does not continue the rise: adding failure records
 gives \VRateVSeven, one task fewer than v6, which on \VStepVSixVSevenLo{}
 against \VStepVSixVSevenHi{} discordant tasks is indistinguishable from no
-change. The ladder is therefore not monotone at its top, and we do not claim
-it is.
+change. The ladder is therefore not monotone at its top, though the drop
+falls inside the noise band rather than the paired-comparison threshold.
 
 The paired steps are in Table~\ref{tab:vsteps}. Only the first is significant
 on its own: moving from files to commands wins \VStepVOneVThreeHi{} tasks and
@@ -110,7 +110,7 @@ components against each other needs the trials still running.
 \subsection{Cost falls at the same time}
 
 The result that matters is in the last three columns of Table~\ref{tab:ladder},
-because capability and cost move together rather than against each other.
+because capability and cost move together, not against each other.
 
 At v1 the arm costs \VCostVOne$\times$ the control at equal outcome. This is
 the regime of \S\ref{sec:economics}: a state that records almost nothing forces
@@ -157,5 +157,5 @@ had an effect that was significant at two trials and died at the third
 end-to-end comparison is significant, but the individual rung-to-rung steps
 should be read as provisional until the remaining trials land. No claim in this
 section rests on the plugin's own instrumentation counters, which are
-identically zero across the series and are therefore treated as dead rather
-than as evidence of absence\live.
+identically zero across the series; we treat this as dead instrumentation, not
+as evidence of absence\live.

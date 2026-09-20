@@ -1,0 +1,9 @@
+{
+  "name": "skill-state-paper-research-ci",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "bibtex-tidy": "^1.15.1",
+    "slop": "github:bheijden/slop"
+  }
+}

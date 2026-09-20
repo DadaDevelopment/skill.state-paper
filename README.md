@@ -65,3 +65,43 @@ measured. Section 10 is written but gated:
 
 The manuscript is a working draft. Authors, affiliation and venue are not yet
 filled in; the title page carries a placeholder note where they belong.
+
+## Research CI
+
+`research/` and `scripts/research/` implement the verification layer from
+the project's own no-manual-numbers rule and the standard set out in
+`research/review-rubric.md`: a zero-slop prose gate, a reference checker
+against Semantic Scholar/OpenAlex/CrossRef/DBLP/ACL, Pandera data
+invariants on the canonical CSV, a literal-number gate on result-bearing
+sections, a literature-watch gap check, and a hostile independent-reviewer
+protocol. Run the whole thing with:
+
+```
+make audit
+```
+
+One-time setup (this environment has no system package manager access, so
+tools are user-installed rather than apt-installed - see
+`.github/workflows/research-ci.yml` for the CI-runner equivalent using
+`apt-get`):
+
+```
+uv venv .venv-research && source .venv-research/bin/activate
+uv pip install pytest pandera pandas pyyaml requests "academic-refchecker[llm,webui]"
+npm install --save-dev github:bheijden/slop bibtex-tidy
+```
+
+`make audit` is red until every finding in `research/waivers.yml` is either
+fixed or has `approved_by` changed from `PENDING_HUMAN_REVIEW` to an actual
+name by a human - an agent is never allowed to approve its own waiver. See
+`research/waivers.yml` for what is currently pending and why, and
+`research/literature-decisions.yml` for one citation still pending a human
+read (`arxiv:2609.20804`, a closely related harness-ablation study found by
+the literature watch and not yet added to `references.bib`).
+
+`make results` currently fails: the mechanism (`07_results_mechanism.tex`)
+and composition (`10_results_composition_v.tex`) sections carry ~20 numbers
+typed by hand from an off-pipeline trace classification, predating this
+gate. Fixing that means writing the trace-classification numbers into
+`analysis/build_paper.py`'s macro output, not editing the gate - it is
+correctly failing on a real violation of the project's own rule.

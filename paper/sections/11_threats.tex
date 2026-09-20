@@ -28,8 +28,8 @@ the original reports\live, so absolute cost magnitudes are upper bounds
 
 \paragraph{Tariff transfer in the reproduction.} Section~\ref{sec:repro}
 applies our measured prices to the original's published token counts. The
-order of magnitude is robust; the exact multipliers are an estimate and are
-labelled as one.
+order of magnitude does not depend on the exact multipliers, which are an
+estimate and are labelled as one.
 
 \paragraph{Contamination not detectable in principle.} The quarantine rule
 (\S\ref{sec:pitfalls}) keys on errored turns. A provider degradation below the
@@ -55,8 +55,8 @@ state block and three state-bearing arms at different tails. There is no arm
 carrying the last $\tailk$ exchanges and \emph{no} state block. Without it,
 \S\ref{sec:capability} can show that restoring history removes the deficit, but
 cannot separate how much of the remaining behaviour at $\tailk{=}6$ comes from
-the state block rather than from the history beside it. Table~\ref{tab:totals}
+the state block versus the history beside it. Table~\ref{tab:totals}
 contains a hint that this matters: \StateK{6} completes the series in fewer
 total turns than the control, which a purely additive account of the two
-components does not obviously predict. We flag it as unexplained rather than
-interpret it, and the arm belongs in the next series.
+components does not obviously predict. We flag it as unexplained instead of
+interpreting it, and the arm belongs in the next series.

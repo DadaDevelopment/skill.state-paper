@@ -1,0 +1,59 @@
+name: Research CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  research-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: System dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc poppler-utils perl
+          curl -sL https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand -o /usr/local/bin/latexpand
+          chmod +x /usr/local/bin/latexpand
+          curl -sL https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv lychee /usr/local/bin/lychee
+
+      - name: Install tectonic
+        run: |
+          curl -sL https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/tectonic-0.17.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv tectonic /usr/local/bin/tectonic
+
+      - name: Python dependencies
+        run: |
+          python -m venv .venv-research
+          . .venv-research/bin/activate
+          pip install --upgrade pip
+          pip install pytest pandera pandas pyyaml requests "academic-refchecker[llm,webui]"
+
+      - name: Node dependencies
+        run: |
+          npm install --save-dev github:bheijden/slop bibtex-tidy
+
+      - name: Full research audit
+        env:
+          TECTONIC: /usr/local/bin/tectonic
+        run: make audit
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-audit
+          path: build/research/

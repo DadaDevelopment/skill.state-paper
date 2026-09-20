@@ -1,0 +1,46 @@
+name: Literature Watch
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  literature:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dependencies
+        run: pip install pyyaml requests
+
+      - name: Fetch literature-review tooling
+        run: git clone --depth 1 https://github.com/chenlu-hung/literature-review.git tools/literature-review
+
+      - name: Search literature
+        run: |
+          mkdir -p build/research
+          while IFS= read -r q; do
+            [ -z "$q" ] && continue
+            slug=$(echo "$q" | tr -cs 'a-zA-Z0-9' '-')
+            python3 tools/literature-review/scripts/search_arxiv.py \
+              "$q" --categories cs.AI,cs.CL,cs.SE --year-start 2024 \
+              --max-results 40 --output "build/research/arxiv-${slug}.json"
+          done < <(python3 -c "import yaml; print('\n'.join(yaml.safe_load(open('research/literature-queries.yml'))['queries']))")
+          python3 tools/literature-review/scripts/aggregate.py \
+            build/research/arxiv-*.json \
+            --deduplicate --rank year --format markdown \
+            --output research/literature-candidates.md
+
+      - name: Build gap report
+        run: python3 scripts/research/literature_gate.py --report-only
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: literature-watch
+          path: build/research/literature*

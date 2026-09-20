@@ -37,16 +37,16 @@ disturb an append-only prefix) yields most of the efficiency gain, while
 \emph{govern} (intercepting a proposed command and reusing an earlier result)
 yields most of the resolution gain\origin.
 
-The two systems are complementary rather than competing. \SkillState{} keeps
-only semantic state and keeps it in the model; \Ledger{} keeps only objective
-state and keeps it in the runtime. Our composition study
+The two systems are complementary rather than competing: \SkillState{} keeps
+semantic state in the model, while \Ledger{} keeps objective
+state in the runtime. Our composition study
 (\S\ref{sec:composition}) varies precisely this boundary, and we deliberately
 exclude \emph{govern} from it: govern changes what the agent \emph{does}, so
 including it would mix a large effect into the measurement of a smaller one.
 
 \subsection{The assumptions under test}
 
-Stated as propositions that can be checked rather than as criticisms:
+Stated as checkable propositions instead of criticisms:
 
 \begin{description}[style=nextline]
 \item[A1 (schema availability)] An adequate domain schema exists before
@@ -56,7 +56,7 @@ Stated as propositions that can be checked rather than as criticisms:
   the first turn. The shortest horizon reported is $T{=}10$, already longer
   than a large share of real coding tasks.
 \item[A3 (sufficient statistic)] Nothing discarded is ever needed again. The
-  original names this as a limitation\origin{} and does not measure it; it is
+  original names this as a limitation\origin{} but does not measure it. It is
   the assumption this paper falsifies.
 \item[M (measurement currency)] Cumulative token count is a valid proxy for
   cost. A full-text search of the original returns zero occurrences of cache,

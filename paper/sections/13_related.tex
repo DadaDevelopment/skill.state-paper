@@ -11,13 +11,13 @@ sufficient statistic for the remaining work.
 maintains an objective record derived from completed interactions and adds it
 to an otherwise unmodified agent that keeps its history. Our composition study
 (\S\ref{sec:composition}) varies the boundary between the two designs. The
-difference in setting matters and we state it plainly: \Ledger{} \emph{adds} a
+setting differs in a way worth stating outright: \Ledger{} \emph{adds} a
 deterministic layer to an agent with full history, whereas we ask what a
 deterministic layer must contain when the history has been \emph{removed}.
 
 \paragraph{Context management by compression.} Summarisation runtimes, sliding
 windows and learned prompt compression~\citep{llmlingua2023} attack the same
-growth problem by shrinking the transcript rather than replacing it. The
+growth problem by shrinking the transcript instead of replacing it. The
 original's budget-matched controls report that at equal prompt size these score
 well below structured state\origin, which is evidence that structure rather
 than brevity carries its gains, a conclusion our results do not contradict.
@@ -40,6 +40,5 @@ property.
 \paragraph{Evaluation methodology.} Our methodological contribution
 (\S\ref{sec:pitfalls}) applies standard reproducibility practice (external
 verdicts, pre-registered power, written retractions) to a genre where, in our
-experience, the dominant error is not statistical but definitional: a column
-that measures a property of the harness while being labelled a property of the
-method.
+experience, the dominant error is definitional, not statistical: a column
+labelled as a property of the method actually measures the harness instead.

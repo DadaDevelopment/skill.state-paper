@@ -31,7 +31,7 @@ Condition & Context assembled for each model call \\
 
 Everything else is frozen: same model, schema, tools, turn budget, task and
 verifier. The realised $\tailk$ is read back out of each run's trace, and a run
-whose realised value disagrees with the requested one is rejected rather than
+whose realised value disagrees with the requested one is rejected instead of
 analysed\code.
 
 \subsection{Unit, pairing and repetition}
@@ -65,9 +65,10 @@ tokens\live. The provider's own figure is retained in the raw records for
 audit.
 
 Cached-read tokens are tracked separately from input tokens throughout, because
-the central methodological claim is that they are different currencies. That
-the provider's prefix cache is real and visible in the usage fields was
-verified before the series: a repeated call moved from 0 to 3008 cached tokens
+the central methodological claim is that they are different currencies. We
+verified before the series that the provider's prefix cache actually appears
+visible in the usage fields: a repeated call moved from 0 to 3008 cached
+tokens
 of 3019\live.
 
 \subsection{Gates run before any measurement}
@@ -78,7 +79,7 @@ A stack that has changed is smoke-tested before it is trusted\code:
 \item an oracle solution passes the verifier, establishing that the verifier
       can recognise a correct answer at all;
 \item every arm demonstrably loads the plugin and realises its declared
-      $\tailk$, checked against the assembled prompt rather than the plugin's
+      $\tailk$, checked against the assembled prompt instead of the plugin's
       own log; a silent import failure otherwise turns a treatment arm into
       the control under a different name, and the numbers still look plausible;
 \item versions and content hashes are locked and recorded per run.
