@@ -1,0 +1,54 @@
+name: Publish PDF
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tectonic
+        run: |
+          curl -sL https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/tectonic-0.17.0-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv tectonic /usr/local/bin/tectonic
+
+      - name: Build EN paper
+        run: sh paper/build.sh
+
+      - name: Build RU paper
+        run: sh paper-ru/build.sh
+
+      - name: Stage release assets
+        run: |
+          mkdir -p dist
+          cp paper/main.pdf dist/skill-state-paper-en.pdf
+          cp paper-ru/main.pdf dist/skill-state-paper-ru.pdf
+          tar czf dist/paper-en-source.tar.gz paper
+          tar czf dist/paper-ru-source.tar.gz paper-ru
+          echo "commit: ${GITHUB_SHA}" > dist/BUILD_INFO.txt
+          echo "built:  $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> dist/BUILD_INFO.txt
+
+      - name: Publish rolling "latest" release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: latest
+          name: "Latest build (${{ github.sha }})"
+          body: |
+            Automatically rebuilt from `${{ github.sha }}` on every push to `main`.
+            This release is overwritten on each push - it always tracks the current
+            state of `main`, not a specific reviewed version.
+
+            - `skill-state-paper-en.pdf` / `skill-state-paper-ru.pdf` - compiled papers
+            - `paper-en-source.tar.gz` / `paper-ru-source.tar.gz` - full LaTeX source
+              (sections, figures, tables, generated macros) as committed at this SHA
+          files: dist/*
+          make_latest: true

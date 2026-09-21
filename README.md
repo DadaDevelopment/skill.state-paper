@@ -63,8 +63,37 @@ measured. Section 10 is written but gated:
 
 ## Status
 
-The manuscript is a working draft. Authors, affiliation and venue are not yet
-filled in; the title page carries a placeholder note where they belong.
+The manuscript is a working draft.
+
+## Always-current PDF and LaTeX source
+
+Every push to `main` rebuilds both papers and republishes them to a rolling
+GitHub Release tagged `latest` (`.github/workflows/publish-pdf.yml`), so you
+never need to know which commit is current or run the build yourself:
+
+```
+gh release download latest --repo DadaDevelopment/skill.state-paper \
+  --pattern '*.pdf' --pattern '*.tar.gz' --clobber
+```
+
+or download directly from the releases page:
+`https://github.com/DadaDevelopment/skill.state-paper/releases/tag/latest`
+
+That release always carries, rebuilt from the exact commit named in its own
+`BUILD_INFO.txt`:
+
+| asset | what |
+|---|---|
+| `skill-state-paper-en.pdf` | compiled English paper |
+| `skill-state-paper-ru.pdf` | compiled Russian paper |
+| `paper-en-source.tar.gz` | full `paper/` LaTeX source (sections, figures, tables, generated macros) |
+| `paper-ru-source.tar.gz` | full `paper-ru/` LaTeX source |
+| `BUILD_INFO.txt` | commit SHA and UTC build timestamp |
+
+This publish workflow only requires the paper to compile - it is independent
+of `make audit` below, which additionally checks prose quality, references,
+data invariants and literature coverage and is allowed to be red while the
+PDF itself is still correct and current.
 
 ## Research CI
 
@@ -94,10 +123,7 @@ npm install --save-dev github:bheijden/slop bibtex-tidy
 `make audit` is red until every finding in `research/waivers.yml` is either
 fixed or has `approved_by` changed from `PENDING_HUMAN_REVIEW` to an actual
 name by a human - an agent is never allowed to approve its own waiver. See
-`research/waivers.yml` for what is currently pending and why, and
-`research/literature-decisions.yml` for one citation still pending a human
-read (`arxiv:2609.20804`, a closely related harness-ablation study found by
-the literature watch and not yet added to `references.bib`).
+`research/waivers.yml` for what is currently pending and why.
 
 `make results` currently fails: the mechanism (`07_results_mechanism.tex`)
 and composition (`10_results_composition_v.tex`) sections carry ~20 numbers
