@@ -43,6 +43,24 @@ configuration that wins on this corpus keeps both, and the open question we are
 measuring next is what a runtime-maintained state must contain for the
 remaining gap to close (\S\ref{sec:composition}).
 
+The composition ladder of \S\ref{sec:composition} stops at v7 (records of what
+was tried and failed) because that is where our own runs stop; it is not where
+the design space stops. Two mechanisms surfaced in \S\ref{sec:related} sit one
+step further out and neither has been run on this corpus. VISTA's
+proprioception channel~\citep{vista2026} would give the agent an explicit
+signal for what the runtime-written state already contains, which bears
+directly on the re-derivation we measure in \S\ref{sec:mechanism}: a state
+block the agent cannot see the shape of is a state block it will re-verify.
+LCM's recursive lossless pointers~\citep{lcm2026} would let a rung summarise
+its own history instead of only accumulating it, addressing the one failure
+mode the ladder cannot fix by adding more fields: unbounded growth of the
+state block itself at high rungs. A rung that combines both, a
+runtime-written state the agent can query the shape of, recursively
+summarised without losing the ability to retrieve what was summarised, is the
+natural v8 and the most direct test of whether the ladder's rise continues or
+was already visible to plateau by v6. We have not built or run it; it is
+named here as the next measurement, not claimed as a result.
+
 The methodological conclusion may outlast the empirical one. In this genre the
 difference between a finding and an artefact is rarely the model, the method or
 the benchmark. It is the accounting: which currency the cost is measured in,

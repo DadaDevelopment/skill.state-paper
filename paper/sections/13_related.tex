@@ -24,6 +24,42 @@ than brevity carries its gains, a conclusion our results do not contradict.
 Our finding is about what is lost when the transcript is discarded entirely,
 not about how well it can be compressed.
 
+\paragraph{Harness components in isolation.} \citet{harnessdesign2026} run 176
+matched settings that vary planning, action space and context management
+independently inside one fixed execution loop, across four models on
+SWE-Bench Verified and Terminal-Bench 2.1. Their elision-and-recall context
+condition is the closest published analogue to our tail axis
+(\S\ref{sec:capability}): both cut the transcript and give the agent a
+mechanism to pull back what was cut. Their recall channel is reported to add
+little once elision is in place, which mirrors a finding of our own: the
+plugin's \texttt{verified\_*} coverage counters read identically zero across
+every run in the composition series (\S\ref{sec:composition}), a channel built
+to be checked that nothing in \VRuns{} runs exercises. We read this as the
+same failure mode arrived at from two different designs, not a coincidence of
+naming.
+
+\paragraph{Context blindness.} \citet{vista2026} argue that a model cannot
+reliably infer block size, recency, or remaining budget from the prompt alone,
+and introduce a visible internal-state channel so the agent can see what it
+is managing. Our mechanism result (\S\ref{sec:mechanism}) is consistent with
+this diagnosis without needing to invoke it: a failing state-only run spends a
+majority of its commands re-deriving facts it already produced, which is what
+context blindness predicts an agent under-informed about its own history
+would do. Their fix operates on the model's view of its context; ours
+(\S\ref{sec:composition}) operates on who writes the record in the first
+place. The two are not competing, and \S\ref{sec:conclusion} names their
+combination as a direction we have not measured.
+
+\paragraph{Lossless recursive context.} \citet{lcm2026} maintain a
+deterministic tree of hierarchical summaries with lossless pointers back to
+the original text, letting an agent recurse into a summary node without
+discarding the ability to retrieve what was summarised. This is the same
+underlying claim as \Ledger{}'s in our setting (a deterministic layer can
+carry information the model's own free-text summary would drop) applied
+recursively rather than as one additional layer. It suggests the boundary we
+study in \S\ref{sec:composition}, model-written versus runtime-written state,
+is not the only axis available; a deterministic layer can also vary in depth.
+
 \paragraph{Agentic reasoning loops.} The transcript baseline is
 ReAct-style~\citep{react2022}: interleaved reasoning and acting with an
 append-only history. Its cost profile under prefix caching is what makes the
