@@ -13,8 +13,9 @@
     ladder's own instrumentation counters are dead/underused). Their axis
     (how much transcript-management machinery) is orthogonal to ours
     (state vs transcript), which makes it a genuine related-work citation,
-    not a competing claim. Still needs the related-work paragraph written.
-    STATUS: PENDING_HUMAN_ACTION - read complete, paragraph not yet drafted.
+    not a competing claim.
+    STATUS: APPLIED - cited as harnessdesign2026 with a dedicated
+    related-work paragraph in paper/sections/13_related.tex.
 
 - id: "arxiv:2606.30005"
   title: "LLM Agents Are Latent Context Managers: Eliciting Self-Managed Context via State Proprioception (VISTA)"
@@ -35,7 +36,8 @@
     runtime-written composition axis (v1-v7). Worth a related-work
     paragraph and possibly a discussion-section mention as a candidate
     mechanism we did not isolate.
-    STATUS: PENDING_HUMAN_ACTION - abstract read, full paper not yet read.
+    STATUS: APPLIED - cited as vista2026 with a dedicated related-work
+    paragraph in paper/sections/13_related.tex; full paper read.
 
 - id: "arxiv:2605.04050"
   title: "LCM: Lossless Context Management"
@@ -50,7 +52,8 @@
     specific claim (recursive compression beats flat summarization) is a
     design point our composition ladder (v1-v7) does not test and should
     at minimum be named as a design this study did not include.
-    STATUS: PENDING_HUMAN_ACTION - abstract read, full paper not yet read.
+    STATUS: APPLIED - cited as lcm2026 with a dedicated related-work
+    paragraph in paper/sections/13_related.tex; full paper read.
 
 - id: "arxiv:2609.20754"
   title: "RAFT: A Stateful Retrieval-Augmented Framework for Troubleshooting Agents"

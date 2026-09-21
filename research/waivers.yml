@@ -30,6 +30,6 @@
 
 - check: slop-ru
   rule: em-dash-overuse-ru
-  location: "paper-ru/sections/03_model.tex (notation-definition sentences: 'P -- spec, o_t -- observation, a_t -- action, R_t -- reasoning' and 'h_t -- cached fraction of the prompt')"
-  reason: "Each dash marks a separate subject-predicate-omission clause defining one symbol in a list of notation, not a chain of rhetorical dashes in narrative prose. Standard Russian mathematical-notation convention ('P -- eto X, Q -- eto Y'); rewriting to avoid dashes would require awkward repeated 'eto' or splitting one definitional sentence into four, degrading the notation block's readability for no accuracy gain."
+  location: "paper-ru/sections/03_model.tex (notation-definition sentence: 'P -- spec, o_t -- observation, a_t -- action, R_t -- reasoning') and paper-ru/sections/03b_study_design.tex (verifier-selection list: 'test A -- for X, test B -- for Y, test C -- for Z')"
+  reason: "Each dash marks a separate subject-predicate-omission clause defining one symbol or one test in a list, not a chain of rhetorical dashes in narrative prose. Standard Russian mathematical-notation convention ('P -- eto X, Q -- eto Y'); rewriting to avoid dashes would require awkward repeated 'eto' or splitting one definitional sentence into four, degrading the notation block's readability for no accuracy gain."
   approved_by: PENDING_HUMAN_REVIEW
