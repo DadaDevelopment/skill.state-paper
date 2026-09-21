@@ -4,14 +4,16 @@
 % EXTENSION POINTS ARE MARKED WITH  %% EXTEND:
 % Nothing in this file should ever contain a measured number.
 
-% Cyrillic typesetting: fontspec + polyglossia/babel under XeTeX (tectonic
-% auto-selects the XeTeX backend once fontspec is loaded). DejaVu Serif
-% carries full Cyrillic coverage and matches the Latin Modern proportions
-% used by the English original closely enough for a parallel edition.
+% Cyrillic typesetting: fontspec + babel under XeTeX (tectonic auto-selects
+% the XeTeX backend once fontspec is loaded). Liberation Serif/Sans/Mono are
+% metric-compatible clones of Times/Arial/Courier with full Cyrillic
+% coverage, matching the Latin Modern proportions of the English original
+% much more closely than DejaVu (which is noticeably wider/heavier and was
+% tried first, then rejected on sight - see paper-ru changelog).
 \usepackage{fontspec}
-\setmainfont{DejaVu Serif}
-\setsansfont{DejaVu Sans}
-\setmonofont{DejaVu Sans Mono}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont{Liberation Mono}
 \usepackage[main=russian,english]{babel}
 \usepackage{microtype}
 \usepackage{amsmath,amssymb}
