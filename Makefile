@@ -30,7 +30,16 @@ review:
 	. .venv-research/bin/activate && python3 scripts/research/llm_review.py
 	@echo "review requires a dispatched independent subagent - see build/research/review-bundle.json"
 
+paper-ru:
+	sh paper-ru/build.sh
+
+prose-ru:
+	sh scripts/research/extract_text_ru.sh
+	. .venv-research/bin/activate && python3 scripts/research/slop_check_ru.py
+
 audit: paper prose references data results literature links
+
+audit-ru: paper-ru prose-ru
 
 clean:
 	rm -rf build/research
