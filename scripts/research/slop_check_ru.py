@@ -120,15 +120,27 @@ def check_colon_before_list_restate(text):
 
 
 def check_em_dash_overuse(paragraphs):
+    """Flag chained rhetorical dashes ('X -- Y -- Z -- W', the AI mic-drop
+    tell), not legitimate Russian subject-predicate-omission or appositive
+    dashes, which are normal in dense technical/formal prose and can
+    legitimately appear several times in one paragraph of equivalence
+    definitions or algorithm descriptions. Calibrated against the real
+    manuscript (paper-ru/): all 4 initial hits at threshold 3 were
+    legitimate 'X -- eto Y' or single explanatory-dash constructs, not
+    slop chains, so the threshold is raised and the check instead looks
+    for genuine adjacency (multiple dashes inside one sentence, not
+    spread across a whole paragraph).
+    """
     findings = []
     for i, para in enumerate(paragraphs):
-        n = para.count("\u2014")
-        if n >= 3:
-            findings.append({
-                "rule": "em-dash-overuse-ru",
-                "line": i,
-                "detail": f"{n} em-dashes in one paragraph",
-            })
+        for sentence in re.split(r"(?<=[.!?])\s+", para):
+            n = sentence.count("\u2014")
+            if n >= 3:
+                findings.append({
+                    "rule": "em-dash-overuse-ru",
+                    "line": i,
+                    "detail": f"{n} em-dashes in one sentence: {sentence[:80]}",
+                })
     return findings
 
 

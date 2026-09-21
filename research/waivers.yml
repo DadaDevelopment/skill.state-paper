@@ -27,3 +27,9 @@
   location: "whole document (69 occurrences, 6.58 per 1000 words, doc-level statistic)"
   reason: "Colon-led explanatory clauses are standard scientific-writing structure for stating a result then unpacking it (see the reference papers this manuscript models its form on). Converting all 69 to periods/commas would flatten the paper's register rather than fix a real defect."
   approved_by: PENDING_HUMAN_REVIEW
+
+- check: slop-ru
+  rule: em-dash-overuse-ru
+  location: "paper-ru/sections/03_model.tex (notation-definition sentences: 'P -- spec, o_t -- observation, a_t -- action, R_t -- reasoning' and 'h_t -- cached fraction of the prompt')"
+  reason: "Each dash marks a separate subject-predicate-omission clause defining one symbol in a list of notation, not a chain of rhetorical dashes in narrative prose. Standard Russian mathematical-notation convention ('P -- eto X, Q -- eto Y'); rewriting to avoid dashes would require awkward repeated 'eto' or splitting one definitional sentence into four, degrading the notation block's readability for no accuracy gain."
+  approved_by: PENDING_HUMAN_REVIEW
