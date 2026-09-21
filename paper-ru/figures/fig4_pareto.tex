@@ -1,0 +1,40 @@
+% Figure 4: the Pareto view. Solved tasks against dollars spent - the frontier
+% that decides which configuration a practitioner should actually run.
+% Coordinates from figures/data/pareto.dat.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small]
+\begin{axis}[
+  width=0.92\linewidth, height=5.2cm,
+  xmin=10.5, xmax=19.5, ymin=75, ymax=180,
+  xlabel={стоимость серии (USD, меньше — лучше)},
+  ylabel={решённых задач (больше — лучше)},
+  grid=major, grid style={black!12},
+  nodes near coords={\scriptsize\pgfplotspointmeta},
+  point meta=explicit symbolic,
+  every node near coord/.append style={anchor=south, yshift=3pt},
+]
+\addplot[only marks, mark=*, mark size=3pt, draw=black!70, fill=blue!45]
+  table[x=cost, y=solved, meta=label] {figures/data/pareto.dat};
+
+\draw[->, thick, black!45] (axis cs:18.6,96) -- (axis cs:17.4,96);
+\node[font=\scriptsize, text=black!55, anchor=west] at (axis cs:18.4,90)
+  {лучше};
+\draw[->, thick, black!45] (axis cs:18.9,98) -- (axis cs:18.9,110);
+\end{axis}
+\end{tikzpicture}
+\caption{Граница, которая имеет значение на практике: решённые задачи против
+потраченных денег, вся серия. Опубликованная конфигурация ($k{=}0$)
+доминируема: она тратит меньше контрольной группы, но решает намного меньше
+задач, и обе $k{=}2$ и $k{=}6$ превосходят её по обеим осям одновременно.
+Читайте этот рисунок только как обобщение на уровне серии. Поскольку
+неуспешный запуск останавливается раньше и потому стоит немного, итоги по
+серии приукрашивают руки, которые проваливаются чаще, поэтому именно
+сравнение при совпадающем исходе из Таблицы~\ref{tab:cost}, а не этот
+рисунок, несёт утверждение статьи о стоимости. По этому честному сравнению
+$k{=}6$ \emph{не} дешевле контрольной группы (\CostRatioTailSix$\times$,
+$p={}$\CostSignPTailSix). Что рисунок действительно показывает — это то, что
+ни один из крайних случаев оси хвоста не является правильным ответом.}
+\label{fig:pareto}
+\end{figure}

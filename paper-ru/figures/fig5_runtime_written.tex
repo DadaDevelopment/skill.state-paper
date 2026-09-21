@@ -1,0 +1,104 @@
+% Figure: the third runtime - state written by the RUNTIME, not by the model.
+%
+% Same visual language as fig1_architecture (box column, group frame, growth
+% panel) so the three designs can be compared at a glance. The point of the
+% figure is WHERE the state block comes from: in Figure 1 the model emits it as
+% generated text, here the runtime derives it from what already happened.
+%
+% Contains no measured numbers; the measured ladder is the composition figure.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, minimum width=3.4cm,
+              minimum height=0.6cm, align=center, inner sep=2pt},
+  hist/.style={box, fill=red!8},
+  state/.style={box, fill=blue!10, draw=blue!60, thick},
+  rtstate/.style={box, fill=green!12, draw=green!55!black, thick},
+  plain/.style={box, fill=black!3},
+  llm/.style={box, fill=black!8, minimum height=0.85cm, thick},
+  rt/.style={box, fill=green!8, draw=green!55!black, minimum height=0.85cm, thick},
+  grp/.style={draw, dashed, rounded corners=3pt, inner sep=7pt},
+  arr/.style={-latex, thick},
+]
+
+\node[font=\bfseries] at (0,4.55) {Состояние, написанное моделью (\SkillState{})};
+\node[plain]  (p1) at (0, 3.05) {спецификация задачи $P$};
+\node[state]  (s1) at (0, 2.35) {состояние выполнения $\Sigma_{t-1}$};
+\node[plain]  (o1) at (0, 1.65) {последнее наблюдение $o_t$};
+\node[grp, fit=(p1)(s1)(o1)] (g1) {};
+\node[above=2pt of g1, font=\bfseries\footnotesize, text=blue!60!black]
+  {промпт ограничен};
+\node[llm] (m1) at (0,0.35) {языковая модель};
+\draw[arr] (g1.south) -- (m1.north);
+\node[plain, dashed] (a1) at (0,-0.85) {выполнить действие $a_t$};
+\draw[arr] (m1) -- (a1);
+\draw[arr, blue!60!black] (m1.west) -- ++(-1.3,0) |- (s1.west)
+  node[pos=0.26, left, font=\scriptsize, text=blue!60!black, align=center]
+  {модель выдаёт\\$\Delta\Sigma_t$ как текст};
+\node[font=\scriptsize, text=red!65!black, align=center] at (0,-1.75)
+  {состояние стоит выходных токенов;\\модель может перезаписать свои факты};
+
+\begin{scope}[xshift=7.8cm]
+\node[font=\bfseries] at (0,4.55) {Состояние, написанное рантаймом (эта работа)};
+\node[plain]   (p2) at (0, 3.05) {спецификация задачи $P$};
+\node[rtstate] (s2) at (0, 2.35) {проверенное состояние $V_{t-1}$};
+\node[plain]   (o2) at (0, 1.65) {последнее наблюдение $o_t$};
+\node[grp, fit=(p2)(s2)(o2)] (g2) {};
+\node[above=2pt of g2, font=\bfseries\footnotesize, text=green!45!black]
+  {промпт ограничен};
+\node[llm] (m2) at (0,0.35) {языковая модель};
+\draw[arr] (g2.south) -- (m2.north);
+\node[plain, dashed] (a2) at (0,-0.85) {выполнить действие $a_t$};
+\draw[arr] (m2) -- (a2);
+
+\node[rt] (rec) at (4.6,-0.85) {регистратор рантайма};
+\draw[arr, green!50!black] (a2.east) -- (rec.west)
+  node[midway, below=1pt, font=\scriptsize, text=green!45!black, align=center]
+  {результат\\инструмента};
+\draw[arr, green!50!black] (rec.north) -- ++(0,1.45) -| (s2.east)
+  node[pos=0.28, right, font=\scriptsize, text=green!45!black, align=left]
+  {выведено, а не\\сгенерировано};
+\node[font=\scriptsize, text=green!35!black, align=center] at (0,-1.75)
+  {состояние не стоит выходных токенов;\\модель не может его перезаписать};
+\end{scope}
+
+\draw[dashed, black!30] (-3.4,-2.45) -- (11.2,-2.45);
+
+\node[font=\bfseries\small, align=center] at (3.9,-3.05)
+  {Что рантайм может записать, не спрашивая модель};
+\begin{scope}[yshift=-3.95cm]
+  \foreach \x/\tag/\what in {
+     -3.0/v1/{затронутые файлы},
+     -0.6/v2/{+ содержимое},
+      1.8/v3/{+ команды},
+      4.2/v4/{+ диагностика},
+      6.6/v5/{+ окружение},
+      9.0/v6/{+ тесты},
+     11.4/v7/{+ провалы}} {
+    \node[draw, rounded corners=2pt, fill=green!10, draw=green!55!black,
+          minimum width=2.05cm, minimum height=0.62cm, font=\scriptsize,
+          align=center] at (\x,0) {\textbf{\tag}\\\what};
+  }
+  \draw[arr, green!50!black] (-4.2,-0.68) -- (12.5,-0.68)
+    node[midway, below, font=\scriptsize, text=green!45!black]
+    {больше делегировано рантайму, один компонент на ступень};
+\end{scope}
+
+\end{tikzpicture}}
+\caption{Два способа ограничить промпт блоком состояния, различающихся тем,
+кто его пишет. \textbf{Слева:} модель выдаёт обновление состояния как
+сгенерированный текст, так что его поддержание тарифицируется по выходному
+тарифу, а модель вольна перезаписать ранее записанный факт, чему оригинал
+приписывает \SI{68}{\percent} своих отказов моделей с открытыми
+весами\origin. \textbf{Справа:} рантайм выводит ту же запись из результатов
+инструментов, которые уже произошли. Блок — это факт о том, что случилось, а
+не утверждение модели об этом, он не стоит сгенерированных токенов и не
+может быть перезаписан моделью. Полоса внизу — это фактор, варьируемый в
+\S\ref{sec:composition}: каждая ступень передаёт рантайму ещё один
+компонент, при замороженных хвосте и схеме, так что разрыв между соседями
+называет один делегированный компонент.}
+\label{fig:runtime-written}
+\end{figure*}

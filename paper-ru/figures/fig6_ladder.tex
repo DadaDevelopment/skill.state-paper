@@ -1,0 +1,64 @@
+% The composition ladder: capability and cost against how much is delegated.
+% Coordinates come from figures/data/ladder.dat, written by
+% analysis/build_composition.py from the run log.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\small]
+\begin{axis}[
+  name=L,
+  width=0.92\linewidth, height=4.6cm,
+  ybar, bar width=17pt,
+  ymin=0, ymax=0.68,
+  ylabel={доля решённых},
+  xtick={0,1,2,3},
+  xticklabels={v1 файлы,v3 +команды,v6 +тесты,v7 +провалы},
+  xticklabel style={font=\scriptsize},
+  enlarge x limits=0.17,
+  grid=major, grid style={black!12},
+  clip=false,
+]
+\addplot[draw=black!60, fill=green!30] table[x=x, y=rate]
+  {figures/data/ladder.dat};
+\draw[dashed, thick, red!70!black]
+  ({rel axis cs:0,0}|-{axis cs:0,\VBaseRate}) --
+  ({rel axis cs:1,0}|-{axis cs:0,\VBaseRate});
+\node[font=\scriptsize, text=red!70!black, anchor=south east]
+  at ({rel axis cs:0.99,0}|-{axis cs:0,\VBaseRate}) {контроль-транскрипт};
+\end{axis}
+
+\begin{axis}[
+  name=C, at={($(L.south)-(0,1.65cm)$)}, anchor=north,
+  width=0.92\linewidth, height=4.0cm,
+  ymin=0.6, ymax=2.6,
+  ylabel={стоимость, отношение к контролю},
+  xtick={0,1,2,3},
+  xticklabels={v1,v3,v6,v7},
+  xmin=-0.4, xmax=3.4,
+  grid=major, grid style={black!12},
+  nodes near coords={\scriptsize$\pgfmathprintnumber[fixed,precision=2]{\pgfplotspointmeta}\times$},
+  point meta=y,
+  every node near coord/.append style={anchor=south west, xshift=1pt},
+]
+\addplot[only marks, mark=*, mark size=2.6pt, draw=black!70, fill=blue!45]
+  table[x=x, y=cost] {figures/data/ladder.dat};
+\draw[dashed, black!45] (axis cs:-0.4,1) -- (axis cs:3.4,1);
+\node[font=\scriptsize, text=black!55, anchor=north east]
+  at (axis cs:3.35,0.99) {паритет с контролем};
+\end{axis}
+\end{tikzpicture}
+\caption{Делегирование большей части состояния рантайму двигает способность
+решать задачи и стоимость в одном направлении, что противоположно обычному
+компромиссу. \textbf{Сверху:} доля решённых задач по ступени против
+контрольной группы транскрипта внутри серии (пунктир). Первая ступень
+восстанавливает \VRateVOne{} задач; передача команд, тестов и записей о
+провалах достигает \VRateVSix, закрывая примерно половину дистанции до
+контрольной группы без восстановления какого-либо транскрипта.
+\textbf{Снизу:} медианная стоимость на задачах, которые решили и ступень, и
+контрольная группа. Те же добавления, что поднимают способность решать
+задачи, также снижают стоимость с \VCostVOne$\times$ контрольной группы до
+\VCostVSix$\times$, ниже паритета. Состояние, выведенное рантаймом, дешевле
+состояния, написанного моделью, потому что оно никогда не генерируется по
+выходному тарифу.}
+\label{fig:ladder}
+\end{figure}
