@@ -10,8 +10,8 @@ tables below give the same quantities exactly.
 
 Table~\ref{tab:solve} gives the unpaired picture. The published configuration
 solves \SolveTailZero{} of runs against the control's \SolveBase{}, and the
-intervals do not overlap. Restoring history recovers the rate monotonically:
-\SolveTailTwo{} at two exchanges, \SolveTailSix{} at six.
+confidence intervals do not overlap. Restoring history brings the rate back
+up step by step: \SolveTailTwo{} at two exchanges, \SolveTailSix{} at six.
 
 \begin{table}[t]
 \centering
@@ -23,9 +23,10 @@ intervals do not overlap. Restoring history recovers the rate monotonically:
 
 \subsection{Paired comparison}
 
-Unpaired rates understate the design: every condition ran every task, so the
-informative quantity is the set of tasks on which two arms disagree.
-Table~\ref{tab:mcnemar} pairs each arm against the control of the same trial.
+Unpaired rates understate what this design can say: every condition ran every
+task, so the informative quantity is the set of tasks on which two arms
+disagree. Table~\ref{tab:mcnemar} pairs each arm against the control of the
+same trial.
 
 \begin{table}[t]
 \centering
@@ -36,25 +37,26 @@ Only discordant cells carry information.}
 \end{table}
 
 The published configuration loses \McnCtlTailZero{} tasks and wins
-\McnArmTailZero{} ($p={}$\McnPTailZero). The effect is large, one-sided, and far
-past the significance threshold. At two retained exchanges the deficit is still
-clear (\McnCtlTailTwo{} vs.\ \McnArmTailTwo, $p={}$\McnPTailTwo). At six it is gone:
-\McnCtlTailSix{} vs.\ \McnArmTailSix{} is indistinguishable from noise
-($p={}$\McnPTailSix).
+\McnArmTailZero{} ($p={}$\McnPTailZero). The effect is large, one-sided, and
+far past the significance threshold. With two retained exchanges the deficit
+is still clear (\McnCtlTailTwo{} vs.\ \McnArmTailTwo, $p={}$\McnPTailTwo).
+With six it is gone: \McnCtlTailSix{} vs.\ \McnArmTailSix{} is
+indistinguishable from noise ($p={}$\McnPTailSix).
 
-That last row is the most informative in the paper. Six verbatim exchanges are
-a small addition to the prompt, yet they restore capability to parity. What
-does the damage, then, is neither summarising state nor
-structuring it: it is \emph{discarding the recent transcript}. What
-the state block costs in capability is repaid by the history it replaces, not
-by the state block itself.
+That last row is the most informative in the paper. Six verbatim exchanges
+add very little to the prompt, yet they bring capability back to parity.
+What does the damage is therefore neither the summarising nor the
+structuring of state: it is discarding the recent transcript. What the state
+block costs in capability is repaid by the small piece of history beside it,
+not by the state block itself.
 
 \subsection{Horizon: the loss grows where the benefit was promised}
 
 Tasks are split at the control's median turn count (\HorizonCut{} turns),
-giving \HorizonShort{} short and \HorizonLong{} long tasks. Horizon is taken
-from the \emph{control} arm: using the treatment's own turn count would be
-circular, since an arm that re-fetches takes more turns by construction.
+giving \HorizonShort{} short and \HorizonLong{} long tasks. The horizon is
+taken from the \emph{control} arm: using the treatment's own turn count
+would be circular, since an arm that re-fetches takes more turns by
+construction.
 
 \begin{table}[t]
 \centering
@@ -64,24 +66,24 @@ of \HorizonCut{} turns.}
 \input{tables/t4_horizon}
 \end{table}
 
-For the published configuration the deficit is \HorTailZeroShortCtl{} against
-\HorTailZeroShortArm{} on short tasks ($p={}$\HorTailZeroShortP) and widens to
-\HorTailZeroLongCtl{} against \HorTailZeroLongArm{} on long ones
+For the published configuration the deficit is \HorTailZeroShortCtl{}
+against \HorTailZeroShortArm{} on short tasks ($p={}$\HorTailZeroShortP) and
+widens to \HorTailZeroLongCtl{} against \HorTailZeroLongArm{} on long ones
 ($p={}$\HorTailZeroLongP).
 
-This inverts the argument for the method. Structured state is motivated by long
-horizons, where an unbounded transcript is supposed to become unmanageable. On
-this corpus the long horizon is where discarding the transcript costs most, so
-the deficit accumulates over a task in the same direction the benefit was
-expected to.
+This inverts the argument for the method. Structured state is motivated by
+long horizons, where an unbounded transcript is supposed to become
+unmanageable. On this corpus the long horizon is where discarding the
+transcript costs most: the deficit accumulates over a task in the same
+direction the benefit was expected to accumulate.
 
-At $\tailk{=}6$ neither stratum shows a difference, so the horizon effect is a
-property of how much history was removed, not of the state block.
+At $\tailk{=}6$ neither stratum shows a difference, so the horizon effect is
+a property of how much history was removed, not of the state block.
 
 \subsection{How runs ended}
 
-A capability comparison is only honest if a harness limit is not being counted
-as an inability. Table~\ref{tab:stop} separates the four terminal states.
+A capability comparison is only honest if a harness limit is not counted as
+an inability. Table~\ref{tab:stop} separates the four terminal states.
 
 \begin{table}[t]
 \centering
@@ -94,7 +96,7 @@ aggregation.}
 
 Turn-budget exhaustion appears in the state-bearing arms and never in the
 control or at $\tailk{=}6$\live. This is itself evidence for the mechanism of
-\S\ref{sec:mechanism}: the arm that must re-acquire its context is the arm that
-runs out of turns. It is also the pre-declared artefact trap of
-\S\ref{sec:design}, and it is why every cost claim in \S\ref{sec:economics} is
-computed only on pairs where both arms actually solved the task.
+\S\ref{sec:mechanism}: the arm that must re-acquire its context is the arm
+that runs out of turns. It is also the pre-declared artefact trap of
+\S\ref{sec:design}, and it is why every cost claim in \S\ref{sec:economics}
+is computed only on pairs where both arms actually solved the task.

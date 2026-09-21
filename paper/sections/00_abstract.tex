@@ -1,49 +1,56 @@
 \begin{abstract}
 \noindent
-Structured state memory replaces an agent's conversation history with a compact,
-model-maintained state block. On synthetic long-horizon benchmarks this bounds
-prompt growth at near-constant size and reports no loss of task quality. We test
-whether that result transfers to real coding work, on a closed pre-registered
-design: \EOneTasks{} Terminal-Bench 2.0 tasks $\times$ \EOneConditions{}
-conditions $\times$ \EOneTrials{} independent trials $=$ \EOneRuns{} runs, every
-cell filled, verdicts taken only from each task's own verifier.
+Structured state memory replaces an agent's conversation history with a compact
+state block that the model itself edits on every turn. On synthetic
+long-horizon benchmarks this keeps the prompt at a near-constant size and
+reports no loss of task quality. We test whether this result carries over to
+real coding work, on a closed, pre-registered design: \EOneTasks{} Terminal-Bench
+2.0 tasks $\times$ \EOneConditions{} conditions $\times$ \EOneTrials{}
+independent trials $=$ \EOneRuns{} runs, every cell filled, with each run's
+verdict taken only from that task's own automatic verifier (the pass/fail
+check shipped with the task, never the agent's own report of success).
 
-It does not transfer in this regime. The method as published solves \SolveTailZero{} of tasks
-against the transcript control's \SolveBase{}; paired on
-(task, trial), it loses \McnCtlTailZero{} tasks and wins \McnArmTailZero{}
-($p={}$\McnPTailZero). The loss is \emph{larger} on long-horizon tasks
-(\HorTailZeroLongCtl{} vs.\ \HorTailZeroLongArm, $p={}$\HorTailZeroLongP) than on short
-ones, the opposite of what a memory mechanism is meant to buy. Restoring six
-verbatim exchanges beside the state block leaves no detectable deficit
-(\McnCtlTailSix{} vs.\ \McnArmTailSix{} discordant tasks,
-$p={}$\McnPTailSix), which locates the damage in the discarded history rather
-than in the state block itself. We report this as a failure to detect a
-difference, not as demonstrated equivalence.
+The published method does not carry over to this setting. It solves
+\SolveTailZero{} of tasks against \SolveBase{} for the transcript control (the
+same agent run with its full conversation history and no state block instead).
+Comparing each run only against the control run on the same task and the same
+trial, it loses \McnCtlTailZero{} tasks and wins \McnArmTailZero{}
+($p={}$\McnPTailZero). The loss is larger on long-horizon tasks
+(\HorTailZeroLongCtl{} vs.\ \HorTailZeroLongArm, $p={}$\HorTailZeroLongP) than
+on short ones, the opposite of what a memory mechanism is meant to deliver.
+When we restore six verbatim exchanges beside the state block, the deficit
+becomes undetectable (\McnCtlTailSix{} vs.\ \McnArmTailSix{} discordant tasks,
+$p={}$\McnPTailSix), which points to the discarded conversation history, not
+the state block itself, as the source of the damage. We report this as a
+failure to detect a difference; that is not the same as showing the two
+conditions are equivalent.
 
-The runs show the mechanism. Bounding the \emph{prompt} does not
-bound \emph{information acquisition}: agents re-acquire discarded context
-through their tools, repeating byte-identical inspection commands at
-\SI{58}{\percent} of all commands in failing state-only runs against
-\SI{20}{\percent} for the control, and following pointers into files
-\num{12} times more often, so the tool loop spends in turns what the prompt
-saved in context. The economics follow: at equal outcome the state-only arm carries
-\PeakRatioTailZero$\times$ the control's peak prompt yet costs
-\CostRatioTailZero$\times$ as much, because state maintenance is billed at the
-output tariff (\OutRatioTailZero$\times$) and a state block rewritten each turn
-destroys the prefix cache the control enjoys (\TotCacheBase{}M cached tokens
-against \TotCacheTailSix{}M).
+Our measurements show why bounding the prompt does not bound how much
+information the agent can acquire: agents re-acquire discarded context through
+their own tools. In failing state-only runs, \SI{58}{\percent} of all commands
+repeat an inspection already performed, against \SI{20}{\percent} in the
+control, and the agent follows pointers into files \num{12} times more often,
+so the tool loop spends in extra turns what the prompt saved in context. This
+carries a cost consequence: at equal outcome the state-only arm (the condition
+that runs with the state block alone, no history) carries
+\PeakRatioTailZero$\times$ the control's peak prompt size yet costs
+\CostRatioTailZero$\times$ as much, because maintaining the state block is
+billed at the output token price (\OutRatioTailZero$\times$ the input price)
+and rewriting the block every turn destroys the prefix cache that the control
+benefits from (\TotCacheBase{}M cached tokens against \TotCacheTailSix{}M).
 
-The tested regime is one model family on one benchmark, and it is a regime in
-which the control never approaches its context limit, so these results bound
-what the mechanism buys when the window is not the binding constraint rather
-than when it is.
+The tested regime is one model family on one benchmark, and in it the control
+never comes close to its context limit, so these results describe what the
+mechanism buys when the context window is not the binding constraint, not what
+it buys when the window is the binding constraint.
 
 Our contributions are a falsification of the transfer claim on real coding
-tasks, an identification of the evaluation property that concealed it (fixing
-the number of model calls per episode makes compensatory re-acquisition
-impossible by construction), a cache-aware accounting method under which token
-reduction and cost reduction are shown to be different quantities, and a
-released dataset of \EOneRuns{} fully instrumented agent trajectories.
+tasks; an account of the evaluation property that concealed it (fixing the
+number of model calls per episode makes this kind of compensatory
+re-acquisition impossible to observe by construction); a cache-aware
+accounting method that shows token reduction and cost reduction to be
+different quantities; and a released dataset of \EOneRuns{} fully
+instrumented agent trajectories.
 \end{abstract}
 
 \vspace{0.5em}

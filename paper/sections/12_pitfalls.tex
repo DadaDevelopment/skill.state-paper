@@ -3,8 +3,8 @@
 
 Agent-memory evaluations have a specific failure mode: the numbers are real,
 the script is correct, and the label on the column is wrong. Each item below
-cost this project a series before it became a rule, and each is reported
-because the rule transfers even where our results do not.
+cost this project a series before it became a rule. We report them because
+the rules transfer even where our results may not.
 
 \subsection{Five pitfalls}
 
@@ -13,67 +13,69 @@ because the rule transfers even where our results do not.
       verifier decides. Every alternative we tried produced rows that looked
       like data and were not.
 
-\item \textbf{A treatment arm can silently become the control.} A plugin that
-      fails to load leaves an arm running as the baseline under a different
-      name, and its numbers remain plausible. The gate asserts the realised
-      context composition against the provider-facing prompt, not against the
-      plugin's own log\code.
+\item \textbf{A treatment arm can silently become the control.} A plugin
+      that fails to load leaves an arm running as the baseline under a
+      different name, and its numbers remain plausible. The gate therefore
+      asserts the realised context composition against the provider-facing
+      prompt, not against the plugin's own log\code.
 
-\item \textbf{A detector can match configuration instead of events.} A timeout
-      detector in this project matched a static retry-policy line printed in
-      every log, reporting 54 timeouts where there were none\live. The defect
-      surfaced only through an impossible downstream number: a solve rate
-      above \SI{100}{\percent}. Its unit test had encoded the same mistake, so
-      the suite was green because code and test were wrong identically. Rule
-      adopted: a detector is validated against a run whose ground truth is
-      known before it is allowed near the corpus.
+\item \textbf{A detector can match configuration instead of events.} A
+      timeout detector in this project matched a static retry-policy line
+      printed in every log, and reported 54 timeouts where there were
+      none\live. The defect surfaced only through an impossible downstream
+      number, a solve rate above \SI{100}{\percent}. Its unit test had
+      encoded the same mistake, so the suite was green because code and test
+      were wrong in the same way. Rule adopted: a detector is validated
+      against a run whose ground truth is known before it is allowed near
+      the corpus.
 
 \item \textbf{Provider saturation reads as method failure.} Run at a
-      concurrency above the provider's measured ceiling, \SI{68}{\percent} of
-      requests were rate-limited\live. A starved run still receives an honest
-      zero from its verifier, and that zero enters the table as ``the method
-      failed''. The contamination is one-directional by construction: the
-      control had already completed in clean conditions, so only the treatment
-      arms lost turns. The quarantine rule was fixed before the counts were
-      seen: clean means zero errored turns, nominal at most two and under
-      \SI{5}{\percent}, everything else excluded.
+      concurrency above the provider's measured ceiling, \SI{68}{\percent}
+      of requests were rate-limited\live. A starved run still receives an
+      honest zero from its verifier, and that zero enters the table as ``the
+      method failed''. The contamination is one-directional by construction:
+      the control had already completed in clean conditions, so only the
+      treatment arms lost turns. The quarantine rule was fixed before the
+      counts were seen: clean means zero errored turns, nominal means at
+      most two errored turns and under \SI{5}{\percent}, everything else is
+      excluded.
 
 \item \textbf{Underpowered binary endpoints.} Before this series we computed
-      that detecting a solve-rate difference required roughly 72 tasks at the
-      measured discordance rate, and said so rather than reporting a null as an
-      equivalence. The present series clears that requirement, which is why
-      \S\ref{sec:capability} makes a capability claim at all.
+      that detecting a solve-rate difference would require roughly 72 tasks
+      at the measured discordance rate, and we said so rather than reporting
+      a null as an equivalence. The present series clears that requirement,
+      which is why \S\ref{sec:capability} makes a capability claim at all.
 \end{enumerate}
 
 \subsection{Two retractions}
 
-Both are reported because a retraction is a result about measurement.
+Both are reported because a retraction is itself a result about measurement.
 
 \paragraph{``Time-limit censoring explains the capability gap'': withdrawn;
 the censoring never existed.} This was the successor claim to the detector
 defect in item~3. Once the detector was corrected, the true count of
 time-censored runs in the corpus was zero. The follow-up observation that
-raising the limit recovered four of seven failed tasks was then tested against
-the measured base rate of verdict recovery between unchanged repeat runs
-(\num{5}/\num{11}); the probability of seeing four or more recoveries from that
-base rate alone is \num{0.40}\live. Unremarkable, and withdrawn.
+raising the limit recovered four of seven failed tasks was then tested
+against the measured base rate of verdict recovery between unchanged repeat
+runs (\num{5}/\num{11}); the probability of seeing four or more recoveries
+from that base rate alone is \num{0.40}\live. Unremarkable, and withdrawn.
 
 \paragraph{``State-only is less stable'': withdrawn at the third trial.}
-After two trials the state-only arm showed higher trial-to-trial dispersion on
-10 of 12 tasks ($p={}$\num{0.039}). The third trial moved it to 8 of 12
+After two trials the state-only arm showed higher trial-to-trial dispersion
+on 10 of 12 tasks ($p={}$\num{0.039}). The third trial moved it to 8 of 12
 ($p={}$\num{0.388}). The claim died exactly as a two-trial $p$ just under
-\num{0.05} should be expected to. Had the series stopped at two trials, a false
-effect would have entered this paper.
+\num{0.05} should be expected to die. Had the series stopped at two trials,
+a false effect would have entered this paper.
 
 \paragraph{What the retractions did not touch.} Every cost, token and cache
 measurement in this paper is independent of verdicts, and the capability
-results of \S\ref{sec:capability} come from a design that postdates all of the
-above and clears the power requirement that motivated it.
+results of \S\ref{sec:capability} come from a design that postdates all of
+the above and clears the power requirement that motivated it.
 
 \subsection{An interim contamination case, kept as a warning}
 
-An early schema analysis in this project produced $p={}$\num{7.9e-08} in favour
-of a strong effect. Re-run on the quarantined-clean corpus with the same
-script, the same comparison gives $p={}$\num{9.2e-02}\live. The contaminated
-cells were concentrated in the arms being compared: the arithmetic was
-correct, and the column heading was the part that misled.
+An early schema analysis in this project produced $p={}$\num{7.9e-08} in
+favour of a strong effect. Re-run on the quarantined-clean corpus with the
+same script, the same comparison gives $p={}$\num{9.2e-02}\live. The
+contaminated cells were concentrated in the arms being compared: the
+arithmetic was correct, and the column heading was the part that misled.

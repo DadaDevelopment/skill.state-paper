@@ -3,22 +3,23 @@
 
 \paragraph{The dataset.} \EOneRuns{} runs, one row per run, with per-row
 provenance: run identifier, start and finish timestamps, repository revision,
-plugin content hash, schema hash, model, trial, condition, realised $\tailk$,
-verifier verdict, stop reason, turn and call counts, the three token counts
-separately, peak prompt, and derived cost. Every row was cross-checked field by
-field against the raw collector output with zero discrepancies\live.
+plugin content hash, schema hash, model, trial, condition, realised
+$\tailk$, verifier verdict, stop reason, turn and call counts, the three
+token counts separately, peak prompt, and derived cost. Every row was
+cross-checked field by field against the raw collector output with zero
+discrepancies\live.
 
-\paragraph{Regenerating the paper's numbers.} Every table, every figure
-coordinate and every inline figure in this paper is produced by one
-deterministic analysis from the released run data. No measured number is
-written into the manuscript source; the text references generated
-definitions, so a change in the data cannot leave a stale number in the prose.
+\paragraph{Regenerating the paper's numbers.} One deterministic analysis
+produces every table, every figure coordinate and every inline figure in
+this paper from the released run data. No measured number is written into
+the manuscript source; the text references generated definitions, so a
+change in the data cannot leave a stale number in the prose.
 
 The analysis additionally enforces an integrity gate, stated as
-Algorithm~\ref{alg:gate}: it recomputes the published headline values from the
-raw rows and refuses to emit the document if any of them disagrees. The gate
-was verified by construction: corrupting a sample of verdicts in the input
-causes it to fail and to name every affected quantity\live.
+Algorithm~\ref{alg:gate}: it recomputes the published headline values from
+the raw rows and refuses to emit the document if any of them disagrees. The
+gate was verified by construction: corrupting a sample of verdicts in the
+input causes it to fail and to name every affected quantity\live.
 
 \begin{algorithm}[h]
 \caption{Build-time integrity gate}
@@ -38,8 +39,7 @@ causes it to fail and to name every affected quantity\live.
 \end{algorithmic}
 \end{algorithm}
 
-The exact invocation lives in the repository's build instructions, not
-here.
+The exact invocation lives in the repository's build instructions, not here.
 
 \paragraph{Statistics.} Exact McNemar and exact sign tests are computed from
 the binomial distribution in closed form; Wilson intervals are used for
@@ -47,19 +47,20 @@ proportions; the horizon trend uses Spearman rank correlation with a
 permutation $p$-value under a fixed seed. The implementation depends only on
 the standard library, so it runs unchanged on the measurement host.
 
-\paragraph{Exclusions, with counts.} Attempts that returned no verifier verdict
-are recorded separately and excluded; the large majority were re-queued and
-later closed with a real verdict, and the residue is symmetric across arms.
-Runs measured under provider saturation are quarantined by the pre-declared
-rule of \S\ref{sec:pitfalls}. Where an orchestrator restart ran one cell twice,
-the builder keeps the earliest launch, a rule fixed before any verdict was
-read so that a repeat cannot promote itself by winning\code.
+\paragraph{Exclusions, with counts.} Attempts that returned no verifier
+verdict are recorded separately and excluded; the large majority were
+re-queued and later closed with a real verdict, and the residue is symmetric
+across arms. Runs measured under provider saturation are quarantined by the
+pre-declared rule of \S\ref{sec:pitfalls}. Where an orchestrator restart ran
+one cell twice, the builder keeps the earliest launch, a rule fixed before
+any verdict was read so that a repeat cannot promote itself by
+winning\code.
 
-\paragraph{Stack.} Agent, harness and plugin versions are pinned and recorded
-per run; content hashes for the plugin and schema are written into every row,
-so a run can be attributed to the exact code that produced it.
+\paragraph{Stack.} Agent, harness and plugin versions are pinned and
+recorded per run; content hashes for the plugin and schema are written into
+every row, so a run can be attributed to the exact code that produced it.
 
-\paragraph{Artefacts.} The dataset, the raw collector output, the analysis and
-the manuscript source are released together.
-\note{Zenodo DOI to be minted at submission; repository URL to be filled once
-the release is public}
+\paragraph{Artefacts.} The dataset, the raw collector output, the analysis
+and the manuscript source are released together.
+\note{Zenodo DOI to be minted at submission; repository URL to be filled
+once the release is public}

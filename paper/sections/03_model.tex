@@ -1,10 +1,10 @@
 \section{Formal model}
 \label{sec:model}
 
-This section fixes notation, states the two runtimes as algorithms, and derives
-the accounting identity that the rest of the paper measures against. The
-asymptotic argument is the original's\origin; our contribution here is to show
-which of its terms the standard evaluation holds constant, and what the
+This section fixes notation, states the two runtimes as algorithms, and
+derives the accounting identity that the rest of the paper measures against.
+The asymptotic argument is the original's\origin; our contribution here is to
+show which of its terms the standard evaluation holds constant, and what the
 identity becomes once that term is released.
 
 \subsection{Notation}
@@ -13,7 +13,8 @@ An agent executes a task over discrete turns $t = 1, 2, \dots$ Let $P$ be the
 task specification, $o_t$ the observation returned by the environment at turn
 $t$, $a_t$ the action the agent takes, and $R_t$ its intermediate reasoning.
 Write $\Sigma_t$ for the structured execution state and $C_t$ for the context
-assembled for the model call at turn $t$. We use $|\cdot|$ for size in tokens.
+assembled for the model call at turn $t$. We use $|\cdot|$ for size in
+tokens.
 
 The \emph{horizon} $T$ is the number of turns the episode actually takes.
 Whether $T$ is an input or an output is the distinction on which
@@ -48,8 +49,8 @@ which is independent of $t$ whenever the state is bounded, so
   \label{eq:sum-state}
 \end{equation}
 
-Equations~\eqref{eq:sum-transcript} and~\eqref{eq:sum-state} are the published
-argument, and we reproduce them without dispute\origin.
+Equations~\eqref{eq:sum-transcript} and~\eqref{eq:sum-state} are the
+published argument, and we reproduce them without dispute\origin.
 
 \subsection{The tail family that interpolates between them}
 
@@ -62,13 +63,13 @@ number of most recent exchanges retained verbatim beside the state:
   \label{eq:ctx-tail}
 \end{equation}
 At $\tailk = 0$ this is exactly \eqref{eq:ctx-state}; as $\tailk \to t$ it
-recovers \eqref{eq:ctx-transcript} with a redundant state block. The
-control carries no state block at all and is therefore not a member of the
-family; it is reported separately throughout.
+recovers \eqref{eq:ctx-transcript} with a redundant state block. The control
+carries no state block at all and is therefore not a member of the family; we
+report it separately throughout.
 
-Every condition in this paper is a value of $\tailk$ in \eqref{eq:ctx-tail},
-which is what makes the comparison a position on a curve, not a contest
-between named systems.
+Every condition in this paper is a value of $\tailk$ in \eqref{eq:ctx-tail}.
+This is what makes the comparison a position on a curve rather than a
+contest between named systems.
 
 \subsection{The runtimes as algorithms}
 
@@ -125,23 +126,24 @@ the context.
 
 The termination test in both (line~8 of Algorithm~\ref{alg:transcript} and
 line~13 of Algorithm~\ref{alg:state}) is the agent's own declaration of
-completion, not the expiry of an external counter. This is the only structural
-difference from the original's formulation, where the loop runs for a fixed
-$T^{\text{env}}$, and \S\ref{sec:repro} shows it is the difference that
-matters.
+completion, not the expiry of an external counter. This is the only
+structural difference from the original's formulation, where the loop runs
+for a fixed $T^{\text{env}}$, and \S\ref{sec:repro} shows it is the
+difference that matters.
 
 \subsection{What the standard accounting omits}
 
 Let $\mathcal{I}_t$ denote the information the agent requires at turn $t$ to
-choose a correct action. It can arrive by two routes: carried in the context,
-or re-acquired from the environment by spending a turn on an inspection
-action. Write $\rho$ for the fraction of turns spent on re-acquisition.
+choose a correct action. This information can arrive by two routes: carried
+in the context, or re-acquired from the environment by spending a turn on an
+inspection action. Write $\rho$ for the fraction of turns spent on
+re-acquisition.
 
-A transcript agent has already paid for its history (it is in the prompt),
-so $\rho^{\text{tr}}$ is small. A state agent has discarded whatever
-$\Sigma$ does not encode, so any needed fact outside $\Sigma$ must be
-re-acquired, and $\rho^{(\tailk)}$ grows as $\tailk$ shrinks. Since each
-re-acquisition consumes a turn, the realised horizon is inflated:
+A transcript agent has already paid for its history, because the history sits
+in its prompt, so $\rho^{\text{tr}}$ is small. A state agent has discarded
+whatever $\Sigma$ does not encode, so any needed fact outside $\Sigma$ must
+be re-acquired, and $\rho^{(\tailk)}$ grows as $\tailk$ shrinks. Each
+re-acquisition consumes a turn, so the realised horizon is inflated:
 \begin{equation}
   T^{\text{ag}}(\tailk) \;\approx\; \frac{T_0}{1 - \rho(\tailk)},
   \label{eq:horizon-inflation}
@@ -158,23 +160,23 @@ quantity the original's asymptotics do not contain:
 \end{equation}
 
 The published comparison evaluates \eqref{eq:sum-state} against
-\eqref{eq:sum-transcript} with $T = T^{\text{env}}$ held equal across arms. That
-choice sets $\rho$ outside the model: with the turn count fixed by the
+\eqref{eq:sum-transcript} with $T = T^{\text{env}}$ held equal across arms.
+That choice sets $\rho$ outside the model: with the turn count fixed by the
 environment, re-acquisition cannot lengthen an episode, and
-\eqref{eq:horizon-inflation} degenerates to $T^{\text{ag}} = T^{\text{env}}$ for
-every runtime regardless of how much was forgotten.
+\eqref{eq:horizon-inflation} degenerates to $T^{\text{ag}} = T^{\text{env}}$
+for every runtime, no matter how much was forgotten.
 
-This is the paper's central formal point: the asymptotic advantage of
-\eqref{eq:sum-state} holds in a variable ($T$) that the
-evaluation holds constant while the mechanism under test
-($\rho$) acts precisely on that variable. We measure $\rho$ directly in
-\S\ref{sec:mechanism} and $T^{\text{ag}}$ in \S\ref{sec:capability}.
+This is the paper's central formal point. The asymptotic advantage of
+\eqref{eq:sum-state} lives in a variable ($T$) that the evaluation holds
+constant, while the mechanism under test ($\rho$) acts on exactly that
+variable. We measure $\rho$ directly in \S\ref{sec:mechanism} and
+$T^{\text{ag}}$ in \S\ref{sec:capability}.
 
 \subsection{Cost is not token count}
 
 Let $\alpha$, $\gamma$, $\beta$ be the per-token prices of uncached input,
-cached input and output. With $h_t$ the cached fraction of the prompt at turn
-$t$, the billed cost of an episode is
+cached input and output. With $h_t$ the cached fraction of the prompt at
+turn $t$, the billed cost of an episode is
 \begin{equation}
   \mathrm{Cost} \;=\; \sum_{t=1}^{T}
   \Bigl[\, \alpha\,(1-h_t)\,|C_t| \;+\; \gamma\,h_t\,|C_t|
@@ -187,11 +189,12 @@ patch $\Delta\Sigma_t$. On current providers $\gamma \ll \alpha < \beta$.
 Two consequences follow, and both are measured in \S\ref{sec:economics}.
 A transcript context is append-only, so $C^{\text{tr}}_t$ extends
 $C^{\text{tr}}_{t-1}$ and $h_t \to 1$: the growing prompt of
-\eqref{eq:sum-transcript} is billed mostly at the cheap rate $\gamma$. A state
-block is rewritten each turn, so the prefix diverges at $\Sigma$ and $h_t$
-stays low despite the small $|C_t|$. Meanwhile maintaining state moves tokens
-from the $|C_t|$ terms into $|y_t|$, which carries the highest price $\beta$.
+\eqref{eq:sum-transcript} is billed mostly at the cheap rate $\gamma$. A
+state block is rewritten each turn, so the prefix diverges at $\Sigma$ and
+$h_t$ stays low despite the small $|C_t|$. Meanwhile maintaining state moves
+tokens from the $|C_t|$ terms into $|y_t|$, which carries the highest price
+$\beta$.
 
 Hence the identity this work is built on: minimising $\sum_t |C_t|$ and
-minimising \eqref{eq:cost} are different objectives, and on the corpus measured
-here they have opposite solutions.
+minimising \eqref{eq:cost} are different objectives, and on the corpus
+measured here they have opposite solutions.

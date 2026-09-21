@@ -1,85 +1,85 @@
 \section{Study design and protocol freeze}
 \label{sec:design}
 
-This section is placed before the results deliberately. The design was fixed in
-writing before the series ran, and the sequence
-\emph{hypothesis $\rightarrow$ frozen method $\rightarrow$ data $\rightarrow$
-interpretation} is what allows a reader to distinguish a finding from a story
-assembled after the fact.
+This section comes before the results on purpose. The design was fixed in
+writing before the series ran, and the sequence hypothesis $\rightarrow$
+frozen method $\rightarrow$ data $\rightarrow$ interpretation is what lets a
+reader tell a finding apart from a story assembled after the fact.
 
 \subsection{What was frozen, and when}
 
-The pre-registration is a repository artefact dated before the first run of the
-series\code. It fixes the question, the hypotheses with their falsification
-conditions, the intervention, the dependent variables, the confounders and
-their controls, the sample size with its power rationale, the stopping rule,
-the statistical tests, and the exclusion policy. Its amendment section is
-empty: nothing was changed after the first run started.
+The pre-registration is a repository artefact dated before the first run of
+the series\code. It fixes the question; the hypotheses with their
+falsification conditions; the intervention; the dependent variables; the
+confounders and their controls; the sample size with its power rationale;
+the stopping rule; the statistical tests; and the exclusion policy. Its
+amendment section is empty: nothing was changed after the first run started.
 
 Three commitments in it do the real work:
 
 \begin{enumerate}
-\item \textbf{The verdict is external.} A run's outcome is the exit status of
-      the task's own verifier, never the agent's report of its own success. A
-      run without a verifier verdict does not enter the dataset at all.
-\item \textbf{Tests were chosen before the data.} Paired exact McNemar for
-      capability, exact sign test on per-pair ratios for cost, Spearman rank
-      correlation for the horizon trend. No test was selected after seeing an
-      effect.
+\item \textbf{The verdict is external.} A run's outcome is the exit status
+      of the task's own verifier, never the agent's report of its own
+      success. A run without a verifier verdict does not enter the dataset
+      at all.
+\item \textbf{The statistical tests were chosen before the data.} Paired
+      exact McNemar for capability, an exact sign test on per-pair ratios
+      for cost, and a Spearman rank correlation for the horizon trend. No
+      test was selected after seeing an effect.
 \item \textbf{Exclusions were defined before the counts were seen.} The
-      contamination rule (\S\ref{sec:pitfalls}) and the duplicate-collapse rule
-      were both written before they were applied. The latter keeps the
-      \emph{earliest} launch of a re-run cell, so a repeat cannot promote
-      itself into the sample by winning.
+      contamination rule (\S\ref{sec:pitfalls}) and the duplicate-collapse
+      rule were both written down before they were applied. The latter
+      keeps the \emph{earliest} launch of a re-run cell, so a repeat cannot
+      promote itself into the sample by winning.
 \end{enumerate}
 
 \subsection{Hypotheses and how each could fail}
 
 \begin{description}[style=nextline]
-\item[H1 (cost).] The median cost ratio of state-only to control exceeds 1.0.
-  \emph{Refuted if} the ratio is $\le 1.0$, the sign test misses significance,
-  or the direction is inconsistent across the three trials.
-\item[H2 (horizon).] The cost ratio falls as horizon grows, crossing 1.0:
+\item[H1 (cost).] The median cost ratio of state-only to control exceeds
+  1.0. \emph{Refuted if} the ratio is $\le 1.0$, the sign test misses
+  significance, or the direction is inconsistent across the three trials.
+\item[H2 (horizon).] The cost ratio falls as horizon grows and crosses 1.0:
   the overhead amortises on long tasks. \emph{Refuted if} the correlation is
   absent, positive, or never approaches 1.0 in the observed range.
-\item[H3 (capability).] Reported with its interval and treated as underpowered
-  unless the observed discordance exceeds the pre-computed requirement of six
-  one-sided discordant pairs.
+\item[H3 (capability).] Reported with its interval and treated as
+  underpowered unless the observed discordance exceeds the pre-computed
+  requirement of six one-sided discordant pairs.
 \end{description}
 
 H2 is the hypothesis this study refutes in the pre-registered manner, and we
-report it as such in \S\ref{sec:economics} instead of setting it aside.
+report it that way in \S\ref{sec:economics} instead of setting it aside.
 
 \subsection{Multiple comparisons}
 
 Three hypotheses were pre-registered, and those three carry the study's
-confirmatory weight. Everything else this paper reports a $p$-value for, the
+confirmatory weight. Everything else this paper reports a $p$-value for (the
 per-stratum splits, the ladder steps of \S\ref{sec:composition}, the
-per-condition cost comparisons, is secondary and exploratory, and no
+per-condition cost comparisons) is secondary and exploratory, and no
 family-wise correction is applied to it.
 
-We state this explicitly because \S\ref{sec:gaps} criticises the original for
-not doing so, and the same standard has to apply here. The consequence is
-concrete: our headline result survives any correction one would care to apply
-($p={}$\McnPTailZero{} on the primary comparison, against a Bonferroni
+We state this openly because \S\ref{sec:gaps} criticises the original for
+not doing so, and the same standard applies to us. The consequence is
+concrete: our headline result survives any correction one would care to
+apply ($p={}$\McnPTailZero{} on the primary comparison, against a Bonferroni
 threshold of $0.05/3$ for the confirmatory family), but several secondary
 results sit close enough to $0.05$ that they would not. Where a secondary
-result is load-bearing for a claim in this paper we say so and treat it as
-provisional, not established.
+result carries weight for a claim in this paper, we say so and treat the
+claim as provisional rather than established.
 
 \subsection{A pre-declared artefact trap}
 
-One trap was named in advance because it would have produced a flattering
-result: a \emph{lower} cost on long tasks in the state-only arm could reflect
-more frequent turn-budget exhaustion, which is censoring rather than
-amortisation. The pre-registration therefore
-excludes budget-stopped runs from cost aggregation and reports their count per
-stratum separately. The trap was real: the stop-reason distribution in
-Table~\ref{tab:stop} shows budget stops concentrated in exactly that arm.
+One trap was named in advance, because it would have produced a flattering
+result: a \emph{lower} cost on long tasks in the state-only arm could simply
+reflect more frequent turn-budget exhaustion, which is censoring rather
+than amortisation. The pre-registration therefore excludes budget-stopped
+runs from cost aggregation and reports their count per stratum separately.
+The trap was real: the stop-reason distribution in Table~\ref{tab:stop}
+shows budget stops concentrated in exactly that arm.
 
 \subsection{Scope}
 
-This series addresses the cost and horizon questions, and reports capability.
+This series addresses the cost and horizon questions and reports capability.
 Schema sensitivity and state composition are separate designs with their own
 pre-registrations; their status is given in \S\ref{sec:composition}.
 \pending{if the owner elects to publish E1 alone, this paragraph becomes the

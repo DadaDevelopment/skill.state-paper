@@ -12,22 +12,22 @@
 \section{State composition: what a runtime state should contain}
 \label{sec:composition}
 
-Sections~\ref{sec:capability}--\ref{sec:economics} establish that the damage
-comes from discarded history and that the agent pays for it by re-acquiring
-information through its tools. That diagnosis implies a repair: if the state
-carried the facts the agent keeps re-deriving, the re-acquisition would not be
-necessary.
+Sections~\ref{sec:capability}--\ref{sec:economics} show that the damage comes
+from discarded history, and that the agent pays for the loss by re-acquiring
+information through its tools. That diagnosis suggests a repair: if the state
+carried the facts the agent keeps re-deriving, the re-acquisition would not
+be necessary.
 
-Two properties of the measured failure motivate the design. The failing state
-is empty of exactly the facts that get re-derived (zero exact versions, zero
-error text, zero commands (\S\ref{sec:mechanism})), and the original's own
-error taxonomy attributes \SI{68}{\percent} of open-weight failures to the
-model overwriting its own state\origin. A field the runtime writes cannot be
-overwritten by the model, and a fact the runtime derives need not be
+Two properties of the measured failure motivate the design. The failing
+state is empty of exactly the facts that get re-derived (zero exact versions,
+zero error text, zero commands (\S\ref{sec:mechanism})), and the original's
+own error taxonomy attributes \SI{68}{\percent} of open-weight failures to
+the model overwriting its own state\origin. A field the runtime writes cannot
+be overwritten by the model, and a fact the runtime derives need not be
 paraphrased at the output tariff.
 
 \paragraph{The factor.} The composition of the state is varied as a single
-ordered factor, one component added per rung, everything else frozen
+ordered factor: one component added per rung, everything else frozen
 ($\tailk{=}0$, one schema, no escalation):
 
 \begin{center}
@@ -45,23 +45,25 @@ v6 & $+$ parsed test outcome              & does a parsed verdict add anything o
 \end{tabular}
 \end{center}
 
-An all-or-nothing switch cannot answer any of these: a win would be
+An all-or-nothing switch cannot answer any of these questions: a win would be
 attributable to six design decisions at once, and a loss would hide whichever
-component was working. The ladder is enforced, not merely intended: tests
+component was working. The ladder is enforced, not merely intended: the tests
 fail if a rung adds more than one component, if two rungs render identical
 blocks, or if a run's realised rung disagrees with the rung it was launched
 as\code.
 
-\paragraph{Pre-registered prediction.} If carrying content is the right lever,
-then relative to the pointer-only rung the content rungs must cut the
+\paragraph{Pre-registered prediction.} If carrying content is the right
+lever, then relative to the pointer-only rung the content rungs must cut the
 redundant-inspect fraction from the measured \num{0.58} toward the control's
 \num{0.20}, \emph{and} that reduction must be the channel through which any
-solve-rate gain arrives. If solve rate moves while the redundancy does not, the
-gain came from somewhere else and the explanation in this paper would be wrong.
+solve-rate gain arrives. If the solve rate moves while the redundancy does
+not, the gain came from somewhere else, and the explanation in this paper
+would be wrong.
 
-\pending{The ladder is running. Trial~1 of the full corpus is complete and its
-direction is consistent with the prediction, but a single trial is not reported
-as a result in this work, for the reason given in \S\ref{sec:pitfalls}: an
-effect significant at two trials in this project has already died at the third.
-When the trial set closes, set \texttt{\textbackslash vtwotrue} in
-\texttt{preamble.tex} and section~09 replaces this stub.}
+\pending{The ladder is running. Trial~1 of the full corpus is complete and
+its direction is consistent with the prediction, but a single trial is not
+reported as a result in this work, for the reason given in
+\S\ref{sec:pitfalls}: an effect significant at two trials in this project has
+already died at the third. When the trial set closes, set
+\texttt{\textbackslash vtwotrue} in \texttt{preamble.tex} and section~09
+replaces this stub.}

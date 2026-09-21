@@ -2,29 +2,29 @@
 \label{sec:threats}
 
 \paragraph{One model family.} Every run uses \texttt{\EOneModel}. A paired
-pilot on a stronger model from the same provider solved no task the small model
-could not, at \num{22.7}$\times$ the median cost per cell\live, which is why
-the series was not moved. That pilot is 7--8 tasks and settles a budget
-question, not a transfer question. We claim nothing about models from other
-families, and in particular nothing about whether a model with stronger
-instruction-following would maintain state well enough to avoid the failure
-mode of \S\ref{sec:mechanism}.
+pilot on a stronger model from the same provider solved no task the small
+model could not, at \num{22.7}$\times$ the median cost per cell\live, which
+is why the series was not moved to it. That pilot covers 7--8 tasks and
+settles a budget question, not a transfer question. We claim nothing about
+models from other families, and in particular nothing about whether a model
+with stronger instruction-following would maintain state well enough to avoid
+the failure mode of \S\ref{sec:mechanism}.
 
-\paragraph{One corpus, and its horizon range.} Terminal-Bench 2.0 tasks
-utilise a median of roughly \SI{5}{\percent} of the context window under the
-control\live. The window is therefore rarely the binding constraint, which is
-the regime in which a memory mechanism should be least necessary. A pilot on
-the longer Terminal-Bench 4.0 shows a median peak of \SI{66}{\percent} of the
-window\live, and there the same mechanism appears an order of magnitude
-stronger (median repetition \num{3.26} against the control's \num{1.02}).
-That pilot is one trial on six tasks and is not a result. The honest statement
-of scope is that our finding holds where the window is not saturated, and that
-the direction of the effect in the saturated regime is measured but not
-established.
+\paragraph{One corpus, and its horizon range.} Under the control,
+Terminal-Bench 2.0 tasks use a median of roughly \SI{5}{\percent} of the
+context window\live. The window is therefore rarely the binding constraint,
+which is the regime in which a memory mechanism should be least necessary. A
+pilot on the longer Terminal-Bench 4.0 shows a median peak of
+\SI{66}{\percent} of the window\live, and there the same mechanism appears an
+order of magnitude stronger (median repetition \num{3.26} against the
+control's \num{1.02}). That pilot is one trial on six tasks and is not a
+result. The honest statement of scope is that our finding holds where the
+window is not saturated; the direction of the effect in the saturated regime
+is measured but not established.
 
 \paragraph{Implementation fidelity.} Our state block is thicker per step than
-the original reports\live, so absolute cost magnitudes are upper bounds
-(\S\ref{sec:repro}). Both corrections move against our headline.
+the original reports\live, so the absolute cost magnitudes are upper bounds
+(\S\ref{sec:repro}). Both corrections move against our headline result.
 
 \paragraph{Tariff transfer in the reproduction.} Section~\ref{sec:repro}
 applies our measured prices to the original's published token counts. The
@@ -32,31 +32,32 @@ order of magnitude does not depend on the exact multipliers, which are an
 estimate and are labelled as one.
 
 \paragraph{Contamination not detectable in principle.} The quarantine rule
-(\S\ref{sec:pitfalls}) keys on errored turns. A provider degradation below the
-error-visibility floor would not be caught. The bound on the damage is that the
-cost results do not depend on verdicts at all, and that the capability result
-survived removal of every cell the rule did catch.
+(\S\ref{sec:pitfalls}) keys on errored turns. A provider degradation below
+the error-visibility floor would not be caught. The bound on the damage is
+that the cost results do not depend on verdicts at all, and that the
+capability result survived removal of every cell the rule did catch.
 
-\paragraph{Two unrunnable tasks.} Two of 89 tasks fail during container setup
-in every condition\live{} and are absent from all arms equally. This removes
-two tasks from the corpus; it does not favour a condition.
+\paragraph{Two unrunnable tasks.} Two of the 89 tasks fail during container
+setup in every condition\live{} and are absent from all arms equally. This
+removes two tasks from the corpus; it does not favour any condition.
 
 \paragraph{The composition study carries one trial.}
-Section~\ref{sec:composition} reports \VRuns{} runs at a single trial, against
-three for E1. Given this project's own history (an effect significant at two
-trials that died at the third (\S\ref{sec:pitfalls})), the individual
+Section~\ref{sec:composition} reports \VRuns{} runs at a single trial,
+against three for E1. Given this project's own history (an effect significant
+at two trials that died at the third, \S\ref{sec:pitfalls}), the individual
 rung-to-rung steps there are provisional. The end-to-end comparison and the
-direction of the cost trend are consistent across every rung, which is why they
-are stated at all, but no claim in this paper's abstract or conclusion rests on
-them.
+direction of the cost trend are consistent across every rung, which is why
+they are stated at all, but no claim in this paper's abstract or conclusion
+rests on them.
 
 \paragraph{No tail-only arm.} The four E1 conditions are a control with no
 state block and three state-bearing arms at different tails. There is no arm
-carrying the last $\tailk$ exchanges and \emph{no} state block. Without it,
-\S\ref{sec:capability} can show that restoring history removes the deficit, but
-cannot separate how much of the remaining behaviour at $\tailk{=}6$ comes from
-the state block versus the history beside it. Table~\ref{tab:totals}
-contains a hint that this matters: \StateK{6} completes the series in fewer
-total turns than the control, which a purely additive account of the two
-components does not obviously predict. We flag it as unexplained instead of
-interpreting it, and the arm belongs in the next series.
+carrying the last $\tailk$ exchanges and \emph{no} state block. Without that
+arm, \S\ref{sec:capability} can show that restoring history removes the
+deficit, but it cannot separate how much of the remaining behaviour at
+$\tailk{=}6$ comes from the state block and how much from the history beside
+it. Table~\ref{tab:totals} contains a hint that this distinction matters:
+\StateK{6} completes the series in fewer total turns than the control, which
+a purely additive account of the two components does not obviously predict.
+We flag this as unexplained instead of interpreting it, and the arm belongs
+in the next series.
