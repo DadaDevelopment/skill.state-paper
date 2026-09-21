@@ -22,9 +22,13 @@ jobs:
           sudo mv tectonic /usr/local/bin/tectonic
 
       - name: Build EN paper
+        env:
+          TECTONIC: /usr/local/bin/tectonic
         run: sh paper/build.sh
 
       - name: Build RU paper
+        env:
+          TECTONIC: /usr/local/bin/tectonic
         run: sh paper-ru/build.sh
 
       - name: Stage release assets
