@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 :root{
-  --bg:#f5f6f8; --paper:#ffffff; --ink:#18202c; --muted:#5b6574; --line:#dde1e7;
+  --bg:#ffffff; --paper:#f7f8fa; --ink:#18202c; --muted:#5b6574; --line:#dde1e7;
   --accent:#1f6f78; --accent-soft:#d8ecee; --warn:#b4532a; --warn-soft:#f6e3da;
   --seg-instr:#9aa5b4; --seg-hist:#7fb3b9; --seg-state:#e0a15e; --seg-obs:#5a6b82;
   --sans:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -34,6 +34,7 @@ p:last-child{margin-bottom:0}
 .muted{color:var(--muted)}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
 strong{font-weight:600}
+a{color:var(--accent);text-underline-offset:2px}
 
 .prompts{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:18px}
 .prow{display:flex;flex-direction:column;gap:6px}
@@ -86,6 +87,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <h1>Состояние вместо истории: сжатый контекст не делает агента дешевле</h1>
   <p class="lede">Агент, который вместо всей истории диалога носит компактное структурированное состояние, держит промпт маленьким. Но задач он решает меньше, а каждая решённая обходится дороже. Возвращает качество и экономию одна простая вещь: оставить рядом с состоянием несколько последних сообщений.</p>
 </header>
+
+<section>
+  <h2>Исходная работа</h2>
+  <p>Сама идея не наша. Её предложили исследователи Google и Purdue в статье <a href="https://arxiv.org/abs/2608.26263">SKILL.state: Scalable Long-Horizon Agent Skills</a> (Badhe, Tiwari, Chung, 2026). На синтетическом бенчмарке управления складом с моделью Gemini-3-Flash агент на состоянии к 200-му событию держал промпт около <span class="num">1,8</span> тыс. символов против <span class="num">48</span> тыс. у обычного ReAct-агента, сохранял точность <span class="num">0,94</span> против <span class="num">0,74</span> и тратил примерно в <span class="num">20</span> раз меньше токенов. Похожий выигрыш авторы показали на InterCode CTF и τ-Bench.</p>
+  <p>Мы работаем поверх этой статьи: проверяем, переносится ли её результат, и уточняем его. Проверка отличается в двух местах. Первое: другая модель и реальные задачи, где агент сам выбирает действия и сам решает, когда остановиться (в складском бенчмарке поток событий задан заранее). Второе: считаем деньги с раздельным учётом входа, выхода и кеша, а не сумму токенов. Сжатие контекста воспроизводится. Экономия из него автоматически не следует.</p>
+</section>
 
 <section>
   <h2>Идея</h2>
