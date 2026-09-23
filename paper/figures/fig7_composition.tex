@@ -1,0 +1,43 @@
+% Descriptive component comparison; not an independent replication.
+\begin{figure}[tbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+width=.47\linewidth,height=5.4cm,
+title={Task success},title style={font=\small},
+ylabel={Solved rate (\%)},ymin=20,ymax=60,
+xmin=-.4,xmax=3.4,xtick={0,1,2,3},
+xticklabels={{File\\references},{+ action\\records},{+ context\\records},{+ failure\\records}},
+xticklabel style={font=\scriptsize,align=center},yticklabel style={font=\scriptsize},
+label style={font=\small},grid=major,grid style={black!12},
+legend style={font=\scriptsize,at={(.03,.97)},anchor=north west,draw=none,fill=white}]
+\addplot[only marks,mark=*,mark size=2.5pt,blue!65!black]
+table[col sep=comma,x=order,y=solved_pct]{../paper/generated/new-composition.csv};
+\addlegendentry{Hybrid memory}
+\addplot[dashed,black!65,domain=-.4:3.4] {\ExploreControlRate};
+\addlegendentry{Full history}
+\end{axis}
+\begin{axis}[
+at={(.52\linewidth,0)},anchor=south west,
+width=.47\linewidth,height=5.4cm,
+title={Cost efficiency},title style={font=\small},
+ylabel={Solved/\$},ymin=10,ymax=26,
+xmin=-.4,xmax=3.4,xtick={0,1,2,3},
+xticklabels={{File\\references},{+ action\\records},{+ context\\records},{+ failure\\records}},
+xticklabel style={font=\scriptsize,align=center},yticklabel style={font=\scriptsize},
+label style={font=\small},grid=major,grid style={black!12}]
+\addplot[only marks,mark=square*,mark size=2.5pt,green!45!black]
+table[col sep=comma,x=order,y=solved_per_dollar]{../paper/generated/new-composition.csv};
+\addplot[dashed,black!65,domain=-.4:3.4] {\ExploreControlSolvedPerDollar};
+\end{axis}
+\end{tikzpicture}
+\caption{Exploratory comparison of cumulative runtime-owned information. Each
+position adds records to the preceding configuration: action records cover
+file changes and commands; context records cover diagnostics, environment,
+and tests. Efficiency
+includes the cost of unsuccessful episodes. Dashed lines show the same
+full-history reference. These descriptive observations share their richer
+configurations and reference with the first repeat of the final comparison;
+they do not isolate individual components or establish a monotonic benefit.}
+\label{fig:composition}
+\end{figure}

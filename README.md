@@ -1,8 +1,9 @@
-# When Structured State Replaces Interaction History
+# Beyond Context Compression
 
 Empirical study of context policies for a terminal-based coding agent.
-The manuscript compares recent-history retention, model-written and hybrid
-memory, update protocols, state schemas, and resource use. It studies a
+The manuscript traces the quality and cost of replacing history with state,
+then examines runtime-record contents, recent-history retention, update
+protocols, and state schemas. It studies a
 transfer of the SKILL.state runtime idea, not a reproduction of its original
 experiments.
 
@@ -50,14 +51,21 @@ is not treated as a successful audit.
 |---|---|
 | data/e1-release/ | Canonical execution-level records for model-written memory |
 | data/followup-final/ | Final supplied aggregates for hybrid memory and protocol/schema comparisons |
+| data/v-axis/ | Complete historical first-repeat component records, used only for the exploratory comparison |
+| analysis/build_composition_exploratory.py | Validated component summaries, fixed-subset sensitivity, and figure data |
 | analysis/build_approach_tables.py | Current tables, inline numbers, bootstrap intervals, and plot data |
 | analysis/build_paper.py --check | Preserved integrity checks against the original execution-level release |
 | paper/generated/ and paper/tables/ | Generated at build time; shared by both manuscripts |
 | scripts/research/ and tests/research/ | Data, numeric-claim, source-contract, prose, reference, and link checks |
 
-The historical single-trial composition generator and unused manuscript
-sections remain in the repository for provenance but are not part of the
-current manuscript or its evidence. Design documents describe proposed
+The historical component comparison is explicitly exploratory. Its sparse
+configurations were discontinued after preliminary outcomes, some measured
+transitions add multiple components, and its control and richest configurations
+overlap the first repeat in the final hybrid summaries. It is not pooled with
+those summaries or presented as an independent replication. The new generator
+checks settings and costs and compares conditional cost ratios on both variable
+and fixed shared-success subsets. The legacy composition generator and unused
+manuscript sections remain inactive. Design documents describe proposed
 behavior; they are not substitutes for an execution-source snapshot.
 
 The final hybrid evidence is aggregate-only. It does not support invented

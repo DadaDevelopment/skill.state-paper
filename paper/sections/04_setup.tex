@@ -13,9 +13,13 @@ execution limit is 200 turns.
 The analyzed subset contains 87 tasks; two further benchmark tasks were
 excluded because their environments could not be initialized before agent
 execution. The model-written comparison has four conditions with three
-repetitions per task. The hybrid comparison has eight conditions with two
-repetitions per task. Each comparison includes its own full-history
-control. An observation is a task execution under a condition and
+repetitions per task. The final hybrid comparison has eight conditions with
+two repetitions per task. An exploratory component comparison covers four
+runtime-record configurations and a full-history control with one
+repetition on the same tasks. Its control and richest configurations
+overlap the first repetition of the final hybrid comparison; they are not
+an independent replication. Each comparison uses its own full-history
+reference. An observation is a task execution under a condition and
 repetition, and contrasts match the same task and repetition. We do not
 pool the controls or treat repeated executions as additional tasks.
 
@@ -27,6 +31,14 @@ history, or cross tool versus inline updates with an existing versus
 task-adapted schema. The reference condition is shared by these hybrid
 comparisons. The adapted schema was developed using experience from the
 same task set, so that comparison is exploratory and in-sample.
+
+The exploratory component comparison progressively groups file references,
+modifications and commands, diagnostics and environment and test records,
+and failed-attempt records. These are comparisons of bundled
+representations, not isolated effects of every field. The weaker
+configurations were discontinued after preliminary performance was
+observed. Their results describe the design search and do not constitute
+a confirmatory component study.
 
 The parameter $k$ denotes the configured retention setting. The available
 records do not resolve individual messages versus complete exchanges
@@ -55,9 +67,13 @@ tariff
 \end{equation}
 where $U$, $K$, and $O$ denote uncached input, cache-read, and output
 tokens. Costs are in US dollars under this convention, not provider
-invoices. The hybrid comparison supplies reported token and cost medians;
-its pricing calculation and per-call prompt peaks cannot be reconstructed
-from the available aggregates.
+invoices. Recorded costs in the exploratory component comparison agree
+with this tariff to rounding precision. The final hybrid comparison
+supplies reported token and cost medians; its pricing
+calculation and per-call prompt peaks cannot be reconstructed from the
+available aggregates. We therefore compare monetary values within each
+comparison and do not interpret them as verified provider invoices or
+cross-comparison price differences.
 
 We report median execution cost and cost per observed success,
 $\sum D/\sum Y$, over retained executions, including failures. Its
@@ -69,7 +85,9 @@ unretained retries. They do not estimate the cost of retrying until success.
 A second resource comparison is conditional on both policies solving the
 same task in the same repetition. For each resource, we report the median
 of within-match condition/reference ratios. The selected subset differs by
-condition. This estimand describes relative resource use on shared
+condition. For the exploratory component comparison, a sensitivity analysis
+also fixes the subset to tasks solved by every included configuration.
+This estimand describes relative resource use on shared
 successes, whereas cost per success also reflects failures and differences
 in capability. A ratio of marginal medians is not substituted for a median
 of matched ratios.
@@ -103,8 +121,9 @@ trajectories; it does not measure a causal effect of horizon.
 \subsection{Analysis material}
 
 The model-written results are recomputed from released execution-level
-records using their canonical inclusion rules. The hybrid results use
-final condition summaries and matched discordant counts. This distinction
+records using their canonical inclusion rules. The exploratory component
+results likewise use execution-level records, while the final hybrid
+results use condition summaries and matched discordant counts. This distinction
 sets the resolution of the analyses: the latter support the reported
 contrasts but not reconstruction of individual trajectories. The
 reproducibility appendix specifies the available material and derived

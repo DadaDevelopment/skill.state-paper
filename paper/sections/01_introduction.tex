@@ -1,46 +1,52 @@
 \section{Introduction}
 \label{sec:introduction}
 
-A coding agent learns about a task while trying to solve it. A command
-reveals a dependency, a test invalidates a proposed fix, or an unsuccessful
-edit rules out an approach. Subsequent decisions depend on which of these
-results remain available. Choosing what to keep in context therefore
-changes both what the agent can use and the resources needed to present it.
+A coding agent accumulates evidence as it works. A command exposes a
+dependency, an edit changes the meaning of an earlier observation, and a
+test rules out a proposed fix. An interaction transcript preserves these
+events together with their context. Replacing that transcript with compact
+state requires deciding which information later decisions will need.
+The consequences extend beyond the length of the next prompt.
 
-An append-only transcript preserves earlier messages without requiring
-the agent to decide immediately which details will matter later. Its
-disadvantage is growth: more of the record must be presented at each step.
-Structured state makes the opposite choice. Selected facts and pending
-work are retained in mutable fields, while the original messages can be
-discarded. This can remove redundancy, but it asks the state writer to
-anticipate which details will matter later.
+SKILL.state makes this replacement an explicit runtime
+design~\citep{skillstate2026}. Persistent instructions, mutable structured
+state, and the current observation replace an expanding conversation.
+The attraction is clear: when those inputs are bounded, context need not
+grow with the trajectory. But a bound on context is not a bound on the
+work required to solve the task. A smaller representation may omit evidence,
+require additional state-writing output, or change how the agent acts and
+stops. Cache-aware pricing further separates prompt size from monetary cost.
 
-SKILL.state proposes such a runtime architecture in place of conversational
-history~\citep{skillstate2026}. We study its transfer to a terminal-based
-coding agent. We ask whether state can replace history without reducing
-task success, and what resource savings remain over a complete task. We
-test context policies with a different model, agent, and benchmark. This
-does not reproduce the original study.
+We study this tension in a terminal-based coding agent. The evaluation
+transfers the state-based runtime idea to a different model, agent, and
+benchmark; it is not a reproduction of the original study. Our central
+question is what information must survive history replacement for
+compression to remain useful over a complete task.
 
-Three design choices motivate the comparisons. Keeping recent history
-preserves records without rewriting them. State ownership determines
-whether the model must record an event or the runtime can preserve it
-directly. Finally, the update protocol and schema
-determine how the model expresses changes to its memory. A failure under
-one set of choices does not identify which choice was responsible.
+The comparisons separate decisions that are easily conflated under
+agent memory. First, who writes the memory? A model can maintain a
+semantic account of its work, while the runtime can retain observed tool
+events directly. This motivates hybrid state: execution records and
+model-written interpretation have different owners. Second, what does the
+runtime retain? File references, modifications, command outcomes, and
+diagnostics convey different amounts of execution evidence. Third, which
+original interactions remain available? A recent-history window preserves
+detail without requiring the state writer to anticipate its relevance.
+Finally, the update protocol and schema determine how the model expresses
+its semantic memory.
 
-We compare full history with model-written state and with hybrid state
-combining model-written content and runtime-derived records. Within these
-families, we vary how much recent history is kept; within the hybrid family, we
-also vary failure records, update protocol, and schema. Success and resource
-use are evaluated together. Peak prompt size measures a different property
-from cumulative output or cost per observed success, and a memory policy
-can improve one while worsening another.
+The results connect these design choices to task success and resource use.
+Model-written state substantially reduces peak prompts while lowering
+success and increasing conditional successful-execution cost. An
+exploratory component comparison shows why hybrid memory cannot be treated
+as a single intervention: richer execution records perform better than
+file references alone, but additional records do not yield continuous
+improvement. Retaining recent interactions produces the clearest recovery
+in both state families. The tested schema and protocol changes do not.
 
-Restoring recent history improves the observed solved rate in both
-state-based families.
-The tested protocol and schema changes do not recover the full-history
-result. Resource comparisons show why a compact prompt alone cannot tell
-us whether an agent solves tasks efficiently. Retained records remain
-useful in these state-based agents, but the tests do not establish that state adds value over
-the same amount of history alone.
+These findings motivate evaluating structured state together with its
+retained evidence and surrounding history. We distinguish partial recovery from a complete
+replacement for history, and separate measured results from proposed
+adaptive switching or archival retrieval. The practical outcome is a set
+of quality--cost trade-offs, not a universal recommendation to discard or
+retain every transcript.

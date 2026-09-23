@@ -1,42 +1,45 @@
-\section{Update protocol and state schema}
+\section{Can schema or protocol changes replace history retention?}
 \label{sec:protocol}
 
-The hybrid comparison crosses the update interface with the semantic
-schema (Table~\ref{tab:protocol}). The tool-based reference with the existing
-schema reaches \HybridRate\%. Replacing that schema with the task-adapted
-version raises the observed solved rate to \TaskAdaptedRate\%, a
-\TaskAdaptedVsHybridDelta{} percentage-point change. Inline updates with
-the existing schema instead reach \InlineRate\%, a
-$\InlineVsHybridDelta$ point change from the reference.
+A state-based agent might lose capability because its schema fits the task
+poorly or because a separate update tool changes the intended runtime
+contract. The hybrid comparison tests these alternatives by crossing
+the update interface with the semantic schema while leaving recent
+history absent (Table~\ref{tab:protocol}).
 
 \begin{table}[htbp]
 \centering\small
-\caption{Update protocol and schema within hybrid state. Output tokens
-and cost are per-execution medians. Exact McNemar tests compare each
-configuration with Tool + Existing schema.}
+\caption{Update protocol and schema within hybrid state. Output and cost
+are per-execution medians; cost per success includes retained failures.
+Exact McNemar tests compare each configuration with Tool + Existing schema.}
 \label{tab:protocol}
 \input{tables/new-protocol}
 \end{table}
 
-Combining inline updates with the adapted schema yields
-\InlineAdaptedRate\%, below either change in isolation. The descriptive
-difference-in-differences for protocol and schema is
-$\ProtocolSchemaInteraction$ percentage points. This is the difference
-between the inline effect under the adapted schema and its effect under
-the existing schema, not the joint configuration's difference from
-the reference. The available aggregates do not support a task-level
-interaction test.
+The task-adapted schema changes success from \HybridRate\% to
+\TaskAdaptedRate\%, a \TaskAdaptedVsHybridDelta{} percentage-point
+increase, while median cost rises from \$\HybridCostMedian{} to
+\$\TaskAdaptedCostMedian{}. This is a small observed gain, not a recovery
+comparable to retaining the larger history window. Its cost per success,
+\$\TaskAdaptedCostPerSuccess{}, is also slightly above the reference
+value of \$\HybridCostPerSuccess{}.
 
-Neither intervention recovers the within-comparison full-history rate of
-\HybridControlRate\%. The result does not support the hypothesis that
-these particular protocol or schema changes are sufficient to repair the
-observed deficit. It also does not rule out better schemas or more faithful
-implementations of the published runtime.
+Inline updates have a less favorable outcome. With the existing schema,
+success falls to \InlineRate\% and median cost rises to
+\$\InlineCostMedian{}. Combining inline updates with the adapted schema
+gives \InlineAdaptedRate\% success and
+\$\InlineAdaptedCostPerSuccess{} per observed success.
+The descriptive protocol--schema difference-in-differences is
+$\ProtocolSchemaInteraction$ percentage points: the inline effect is
+more negative under the adapted schema. The available summaries do not
+support a task-level interaction test.
 
-The inline representation changes both how actions are expressed and when
-state maintenance occurs. Its larger reported output median may include
-additional patch content or changes elsewhere in the trajectory.
-Attributing the success difference to formatting burden, patch validity,
-or a specific omitted field would require a controlled trace-level
-analysis. Schema adaptation is likewise an implementation choice here,
-not an independently validated memory abstraction.
+These comparisons do not support either tested change as a substitute for
+recent-history retention. They also show why matching the shape of a
+published patch--action interface is insufficient evidence of matching its
+behavior in a different agent. Inline output changes the relationship
+between state maintenance and actions, and its output-token median is
+higher in both schema conditions. The measurements do not isolate patch
+content, invalid updates, or another trajectory change as the cause.
+Better schemas or implementations remain possible; the specific
+interventions tested here do not remove the deficit.

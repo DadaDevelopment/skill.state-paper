@@ -2,8 +2,9 @@
 \label{app:reproducibility}
 
 The analysis artifact contains execution-level records for the
-model-written policies and final aggregate summaries for the hybrid
-policies. Table entries and numerical claims are generated from those
+model-written policies and the exploratory runtime-record comparison,
+alongside final aggregate summaries for the hybrid policies.
+Table entries and numerical claims are generated from those
 inputs. The aggregate summaries contain solved-rate margins and matched
 discordant outcomes, sufficient to reconstruct the reported success
 contrasts and exact McNemar tests. They do not contain complete
@@ -34,7 +35,55 @@ uncached tokens. Hybrid cost efficiencies are approximate because the
 available aggregate costs are rounded. Unavailable token totals and
 prompt peaks are not reconstructed from marginal medians.
 
-\clearpage
+\section{Sensitivity of exploratory component costs}
+\label{app:composition}
+
+The exploratory comparison permits a check of outcome-conditioned
+selection. A separate shared-success subset for each configuration changes
+the tasks contributing to its cost ratio. To compare the configurations
+on the same tasks, we additionally restrict all ratios to the intersection
+of successes across every included configuration and the control.
+Table~\ref{tab:composition-sensitivity} reports both calculations.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Exploratory resource sensitivity. Variable-subset cost ratios use
+each configuration's shared successes with full history. Fixed-subset
+ratios use the same all-configuration success intersection. Entries are
+medians of task-wise ratios to full history, not ratios of marginal
+medians.}
+\label{tab:composition-sensitivity}
+\input{tables/new-composition-sensitivity}
+\end{table}
+
+The two richest representations have variable-subset cost ratios of
+\ExploreRichVariableCostRatio{} and
+\ExploreFailuresVariableCostRatio{}, but fixed-subset ratios of
+\ExploreRichFixedCostRatio{} and \ExploreFailuresFixedCostRatio{}.
+The large reduction relative to file references remains. A cost advantage
+over full history does not. The fixed subset is still selected on outcomes,
+so this sensitivity check describes successful-task resource use rather
+than an unconditional causal effect.
+
+\section{Complete efficiency breakdown}
+\label{app:efficiency}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Cost and efficiency over retained executions, including failures.
+Successes per dollar use aggregate cost and observed successes, not ratios
+of medians. Token efficiency is reported where cumulative totals are
+available. Final hybrid efficiencies use rounded reported cost totals.}
+\label{tab:economics}
+\input{tables/new-economics}
+\end{table}
+
+Table~\ref{tab:economics} supplements the cost-per-success comparisons in
+the main text. Median execution cost and aggregate cost per success answer
+different questions: the latter also includes the cost of failures and the
+shape of the cost distribution. Neither estimates the cost of repeated
+attempts until success.
+
 \section{Success by reference trajectory length}
 \label{app:horizon}
 

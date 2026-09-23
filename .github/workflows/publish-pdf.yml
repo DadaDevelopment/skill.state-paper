@@ -47,7 +47,7 @@ jobs:
           cp paper/main.pdf dist/skill-state-paper-en.pdf
           cp paper-ru/main.pdf dist/skill-state-paper-ru.pdf
           tar --exclude='*.log' --exclude='*.aux' --exclude='*.DS_Store' --exclude='__pycache__' \
-            -czf dist/paper-en-source.tar.gz paper paper-ru analysis data/e1-release data/followup-final README.md Makefile requirements-research.txt package.json scripts research tests docs design results
+            -czf dist/paper-en-source.tar.gz paper paper-ru analysis data/e1-release data/followup-final data/v-axis README.md Makefile requirements-research.txt package.json scripts research tests docs design results
           cp dist/paper-en-source.tar.gz dist/paper-ru-source.tar.gz
           echo "commit: ${GITHUB_SHA}" > dist/BUILD_INFO.txt
           echo "built:  $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> dist/BUILD_INFO.txt

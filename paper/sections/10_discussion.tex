@@ -1,0 +1,61 @@
+\section{Implications for memory design}
+\label{sec:discussion}
+
+\subsection{Preserve evidence, not only a compact account}
+
+The results support the motivation for structured memory while identifying
+where the tested replacements fail. Smaller peak prompts demonstrate that
+the active record can be compressed. The accompanying success and cost
+deficits show that compression quality cannot be judged from its size.
+A memory policy must be evaluated through what the agent can still do
+with it.
+
+Hybrid ownership offers a concrete way to separate two responsibilities.
+The runtime retains observed execution evidence; the model maintains its
+interpretation and next steps. The component comparison suggests that
+recording modifications and commands is more useful than remembering file
+references alone. It does not show that every added record improves the
+agent, or that the richer representation is sufficient. This distinction
+matters when choosing a schema: a larger collection of fields is not
+necessarily a better record of the task.
+
+\subsection{Retain a path back to the interaction}
+
+Among the tested changes, recent-history retention gives the clearest
+recovery. It preserves observations together with neighboring actions
+instead of requiring the state writer to identify their future relevance.
+This is a plausible explanation for its benefit, not an identified causal
+mechanism. The practical result is nevertheless direct: the tested compact
+state performs better when some original interactions remain available.
+
+The choice depends on the objective. Model-written state with the larger
+history window combines a near-control success estimate with lower cost
+per observed success, but its confidence interval still permits a
+meaningful capability deficit. The corresponding hybrid policy recovers
+success without beating its control on that cost measure. Neither policy
+dominates full history on every relevant criterion. A deployment with a
+strict context budget may value a different point from one prioritizing
+completion probability or cost.
+
+\subsection{What would establish a stronger solution?}
+
+The evidence motivates selective preservation of evidence in both
+state and history. An adaptive policy could retain
+full history while trajectories are short and introduce state as the
+record grows. A retrievable archive could retain older evidence without
+keeping it in every prompt. These are design hypotheses, not evaluated
+features of the present system. Their thresholds, retrieval reliability,
+and complete-task costs require separate experiments.
+
+A decisive next comparison would hold the recent-history window constant
+and remove the state block. It would determine whether structured memory
+adds value beyond the interactions already retained. A separate test of
+schema degradation would be needed to establish whether runtime-owned
+records reduce sensitivity to semantic schema design. The current
+task-adapted-schema comparison does not answer that question.
+
+The measured result is therefore a partial repair with a clear boundary:
+richer execution records improve on a sparse representation in exploratory
+data, and recent interactions recover much of the observed capability
+loss. Full replacement of history, reliable adaptive switching, and
+recovery of discarded evidence remain open.

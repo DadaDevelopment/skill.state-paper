@@ -1,13 +1,14 @@
-\section{Prompt size, token use, and cost}
+\section{Compression and the cost of completing a task}
 \label{sec:economics}
 
-A smaller prompt does not necessarily make successful execution cheaper.
-For model-written state without retained history, the median peak-prompt
-ratio is \ModelStatePeakRatio{}, but the cost ratio is
-\ModelStateCostRatio{} on shared successes
-(Table~\ref{tab:resources}). The corresponding output-token ratio is
-\ModelStateOutputRatio{}. The compact representation therefore coexists
-with higher output use and higher reference-tariff cost in this subset.
+Model-written state delivers the intended compression but does not preserve
+task success. Without recent history, its solved rate is
+\ModelStateRate\%, compared with \ModelControlRate\% for full history.
+On shared successes, the median peak-prompt ratio is
+\ModelStatePeakRatio{}, yet cost is \ModelStateCostRatio{} times the
+reference and output use is \ModelStateOutputRatio{} times higher
+(Table~\ref{tab:resources}). The smaller input context therefore coexists
+with more expensive successful execution.
 
 \begin{table}[htbp]
 \centering\small
@@ -18,44 +19,14 @@ token columns are cumulative. The exact sign test concerns cost ratios.}
 \input{tables/new-resources}
 \end{table}
 
-Retaining history brings the conditional cost ratio toward one:
-\ModelHistoryTwoCostRatio{} at $k=2$ and
-\ModelHistorySixCostRatio{} at $k=6$. These ratios do not describe the
-whole workload. They omit both failures and successes that only one
-condition achieves, precisely the outcomes on which capability differs.
-
-Table~\ref{tab:economics} includes retained failures and reports cost and
-successes per dollar. Taking the reciprocal of the latter gives cost per
-observed success. State without history costs
-\$\ModelStateCostPerSuccess{} per success, compared with
-\$\ModelControlCostPerSuccess{} for full history. At $k=6$, the value is
-\$\ModelHistorySixCostPerSuccess{}, below that reference despite the
-higher conditional cost ratio. There is no contradiction: the conditional
-comparison measures resources on shared successes, while the all-execution
-comparison includes changes in success and termination.
-
-\begin{table}[htbp]
-\centering\small
-\caption{Cost and efficiency over retained executions, including failures.
-Successes per dollar use aggregate cost and observed successes, not ratios
-of medians. Token efficiency is reported where
-cumulative totals are available. Cost conventions differ between panels.}
-\label{tab:economics}
-\input{tables/new-economics}
-\end{table}
-
-Figure~\ref{fig:pareto} places these history-retention policies in the
-success--cost plane. The panels keep their own controls and accounting
-conventions, so horizontal positions are compared only within a panel.
-\input{../paper/figures/fig4_pareto}
-
-Across retained executions, model-written state alone has a lower median
-peak prompt but higher median output and more recorded turns than full
-history (Table~\ref{tab:tokens}). The largest history-retention setting
-increases uncached input, while bringing output closer to the full-history
-level. Cache-read counts differ substantially across policies. These
-observations establish resource differences, but do not isolate cache
-invalidation, repeated inspection, or patch generation as their causes.
+The token breakdown shows why prompt reduction cannot be used as a cost
+estimate (Table~\ref{tab:tokens}). Across retained executions, state alone
+has a smaller peak prompt but more recorded turns and higher output.
+Retaining recent history raises input volume while bringing output closer
+to the full-history level. Cache reads also change substantially across
+policies. Under the reference tariff, uncached input, cached input, and
+output have different prices, so neither peak context nor total token
+volume captures their monetary consequences.
 
 \begin{table}[htbp]
 \centering\small
@@ -68,11 +39,19 @@ medians and cannot be summed to obtain median total tokens.}
 \input{tables/new-tokens}
 \end{table}
 
-The economic objective determines which comparison matters. Peak prompt
-size concerns context capacity; cost per success concerns the retained
-workload; conditional ratios compare resources when both policies finish.
-An evaluation based only on compression can miss a capability deficit,
-while one based only on aggregate expense can favor cheap unsuccessful
-executions. Reporting these quantities together makes the trade-off
-visible without treating any single measure as a universal efficiency
-score.
+Including failures does not reverse the state-only result: cost per
+observed success is \$\ModelStateCostPerSuccess{}, versus
+\$\ModelControlCostPerSuccess{} for full history. This measures the
+retained workload, whereas the conditional ratios compare successful
+execution of the same task. Both expose costs that a prompt-size-only
+evaluation would miss.
+
+The breakdown is consistent with several mechanisms. Generating state
+updates consumes output; incomplete memory may require additional
+inspection; changing the prompt can alter cache reuse. The aggregate
+measurements do not identify how much each mechanism contributes.
+They do establish the design problem: reducing active context is
+insufficient if the resulting policy loses task-relevant evidence or
+requires more work to finish. The next comparisons examine what the
+runtime can retain directly and what remains useful in the original
+interaction record.

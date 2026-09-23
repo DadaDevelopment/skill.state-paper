@@ -2,7 +2,9 @@
 
 This table transcribes the final two-repeat report and the user's final token
 corrections. It supersedes the earlier trial-only data in `data/v-axis/` for the
-revised manuscript. Source: supplied `FULL-REPORT-vaxis-t1t2.md`, with median
+final comparisons. Complete first-repeat composition rows are retained only in
+a separately labeled exploratory analysis; see `data/v-axis/README.md`.
+Source: supplied `FULL-REPORT-vaxis-t1t2.md`, with median
 input/output/cache values taken from the user's later message where they differ
 by one token. Source-level arm identifiers are retained only for traceability;
 the paper names the approaches being compared.
@@ -24,4 +26,6 @@ normalized tariff, not actual provider invoices.
 The `hybrid-v7` row is the reference for the protocol/schema and failure-record
 contrasts. The `control` row is the full-history reference for the hybrid-memory
 history-window comparison. Neither is pooled with the earlier model-written
-memory study or with the repository's obsolete trial-only release.
+memory study. The control and richer composition configurations from the first
+repeat also appear in the exploratory table and are explicitly identified as
+overlapping evidence, not an independent replication.

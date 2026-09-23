@@ -1,18 +1,23 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-The tested state representations do not preserve the task success of full
-interaction history when used as its replacement. Retaining recent records
-raises the solved rate in both model-written and hybrid state policies,
-while the tested inline protocol and task-adapted schema do not recover
-the full-history result. These findings identify useful information in the
-retained interaction record without establishing the incremental benefit
-of state over an equally sized history window.
+SKILL.state's context-management idea remains useful as a way to reduce
+the active record presented to an agent. In the tested coding setting,
+however, model-written state exchanges a smaller prompt for lower task
+success and higher conditional successful-execution cost. Context
+compression alone does not establish an efficient replacement for history.
 
-Resource savings depend on the objective. Smaller peak prompts coexist
-with higher conditional successful-execution costs, whereas all-execution
-cost per success can improve when recent history is retained. State-based
-context management should therefore be evaluated through task completion,
-token categories, and cost together. The next discriminating comparison is
-a matched history-only policy, followed by replication across models and
-workloads before broader claims about structured memory are warranted.
+The design comparisons identify partial remedies and their limits.
+Runtime-owned execution records make hybrid memory more informative than
+file references alone, but further enrichment does not consistently
+improve outcomes. Retaining recent interactions gives the clearest
+capability recovery in both state families. The tested schema and protocol
+changes do not offer comparable recovery, and the economic value of
+history retention differs between implementations.
+
+Structured memory should therefore be judged by the evidence it preserves
+and the cost of completing the task with that evidence. Recent-history
+retention is a measured partial remedy, while the
+incremental benefit of state itself requires a matched history-only
+control. Adaptive switching and archival retrieval are motivated next
+steps, not solutions established by these results.

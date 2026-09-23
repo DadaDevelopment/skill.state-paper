@@ -1,35 +1,27 @@
-\section{Размер контекста, токены и стоимость}
+\section{Сжатие контекста и цена решения задачи}
 \label{sec:economics}
-Меньший контекст не обязательно удешевляет успешное выполнение. Для состояния модели без истории медианное отношение пикового контекста к полной истории составляет \ModelStatePeakRatio{}, а отношение стоимости на общих успехах --- \ModelStateCostRatio{} (табл.~\ref{tab:resources}). Отношение выходных токенов равно \ModelStateOutputRatio{}. В этом подмножестве компактное представление сочетается с большим выходом и более высокой стоимостью по фиксированному тарифу.
+\subsection{Компактное представление не сохраняет результат автоматически}
+Состояние модели без истории выполняет основную функцию сжатия: на задачах, успешно завершённых и им, и контролем, медианное отношение пикового контекста составляет \ModelStatePeakRatio{}. Однако общая успешность снижается с \ModelControlRate\% до \ModelStateRate\%. Бутстрэп-интервал разности равен $\ModelStateDeltaCI$ процентного пункта. Сокращение входа отдельного вызова здесь не сопровождается сохранением способности завершать задачи.
+
+Стоимость тех же общих успехов показывает другую сторону компромисса. Её медианное отношение к полной истории равно \ModelStateCostRatio{}, а отношение выходных токенов --- \ModelStateOutputRatio{} (табл.~\ref{tab:resources}). На этом подмножестве агент получает меньший пиковый контекст, но суммарно генерирует больше и обходится дороже по фиксированному тарифу.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Resource ratios on shared successes: median of matched condition/full-history ratios. Peak prompt is a per-call maximum; the token columns are cumulative. The exact sign test concerns cost ratios.}
+\caption{Resource ratios on shared successes: median of matched condition/full-history ratios. Peak prompt is a per-call maximum; token columns are cumulative. The exact sign test concerns cost ratios. Each condition has its own shared-success subset.}
 \label{tab:resources}
 \input{../paper/tables/new-resources}
 \end{table}
 
-Сохранение истории приближает условное отношение стоимости к единице: \ModelHistoryTwoCostRatio{} при $k=2$ и \ModelHistorySixCostRatio{} при $k=6$. Однако эти отношения не описывают всю нагрузку. В них не входят ни неудачи, ни выполнения, успешные только при одном условии, --- то есть именно те исходы, на которых проявляется различие успешности.
-
-Таблица~\ref{tab:economics} включает учтённые неудачи и показывает стоимость вместе с числом успехов на доллар. Обратная величина последнего показателя --- стоимость на наблюдаемый успех. Для состояния без истории она составляет \$\ModelStateCostPerSuccess{}, для полной истории --- \$\ModelControlCostPerSuccess{}. При $k=6$ стоимость на успех равна \$\ModelHistorySixCostPerSuccess{}, ниже контроля, несмотря на большее условное отношение стоимости. Противоречия здесь нет: условное сравнение описывает общие успехи, а сравнение всех выполнений учитывает также изменения успешности и остановки.
-
-\begin{table}[htbp]
-\centering\small
-\caption{Cost and efficiency over retained executions, including failures. Successes per dollar use aggregate cost and observed successes, not ratios of medians. Token efficiency is reported where cumulative totals are available. Cost conventions differ between panels.}
-\label{tab:economics}
-\input{../paper/tables/new-economics}
-\end{table}
-
-Рисунок~\ref{fig:pareto} сопоставляет успешность и среднюю стоимость вариантов с сохранением истории. В каждой панели используются собственный контроль и способ учёта затрат; положения по горизонтали сравниваются только внутри панели.
-\input{../paper/figures/fig4_pareto}
-
-По всем включённым выполнениям состояние модели без истории имеет меньшую медиану пикового контекста, но больший медианный выход и больше ходов, чем полная история (табл.~\ref{tab:tokens}). Наибольшее окно недавней истории увеличивает некешированный вход и приближает выход к контрольному уровню. Объём чтения из кеша заметно различается между подходами. Это подтверждает различия в потреблении ресурсов, но не выделяет сброс кеша, повторное изучение среды или генерацию обновлений как их причины.
+\subsection{Из чего складываются издержки}
+Таблица~\ref{tab:tokens} показывает, что различие не ограничивается размером памяти. По всем включённым выполнениям состояние без истории имеет больше ходов и больший медианный выход, чем полная история. Обновления памяти тоже должны быть сгенерированы; дополнительные действия требуют новых обращений к модели. При этом длинный вход не обязательно целиком оплачивается по тарифу некешированных токенов. Полная история и изменяемое состояние дают разные возможности повторного использования префикса.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Median recorded turns $T$, per-execution peak prompt, and cumulative token use for model-written state policies. Token counts are in thousands; input excludes cache reads. Peak is the median of execution maxima, not the median per-call prompt. Token columns are separate marginal medians and cannot be summed to obtain median total tokens.}
+\caption{Median recorded turns $T$, per-execution peak prompt, and cumulative token use for model-written memory. Token counts are in thousands; input excludes cache reads. Peak is the median of execution maxima. Token columns are separate marginal medians, not an additive median total.}
 \label{tab:tokens}
 \input{../paper/tables/new-tokens}
 \end{table}
 
-Выбор показателя зависит от цели. Пиковый контекст характеризует потребность в контекстном окне; стоимость на успех --- затраты на учтённую нагрузку; условные отношения --- ресурсы там, где оба подхода завершили задачу. Оценка только по сжатию может скрыть потерю успешности, а оценка только по суммарной стоимости --- отдать предпочтение дешёвым неудачам. Совместное представление этих величин показывает компромисс без попытки свести эффективность к одному универсальному числу.
+Эти соображения объясняют, почему сжатие нужно оценивать по всему выполнению. Счётчики подтверждают различия в ходах, выходе и использовании кеша, но не позволяют определить, какая доля издержек вызвана повторным изучением среды, текстом обновлений или иными изменениями поведения. Проверяемый результат уже достаточен для следующего шага: уменьшить контекст оказалось недостаточно; требуется исследовать содержание сохраняемой памяти.
+
+Стоимость на наблюдаемый успех с учётом неудач составляет \$\ModelStateCostPerSuccess{} для состояния без истории против \$\ModelControlCostPerSuccess{} для полной истории. Это другой показатель, чем условное отношение \ModelStateCostRatio{}: он учитывает весь сохранённый в данных объём работы. Дальнейшие сравнения приводят успешность вместе со стоимостью, чтобы улучшение одного показателя не скрывало ухудшения другого.

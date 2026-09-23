@@ -22,7 +22,9 @@ In model-written memory, the model maintains semantic state $S_t$ through explic
  V_{t+1}=\operatorname{Record}(V_t,a_t,r_t).
  \label{eq:ownership}
 \end{equation}
-The recorder derives entries from observed tool events $r_t$; the model cannot edit those entries through its semantic patch. This ownership distinction does not guarantee complete capture or correct interpretation of every event. The evaluated hybrid variants differ in whether failed-attempt records are included. Recent history is an independent addition to either state family.
+The recorder derives entries from observed tool events $r_t$; the model cannot edit those entries through its semantic patch. File references identify observed artifacts. Modification records describe changes reported by the tools, and command records preserve observed invocations and outcomes. Richer variants add diagnostic, environment, test-related, and failed-attempt records. These records let the system retain some evidence without asking the model to generate a new description of it.
+
+The semantic state stores goals, hypotheses, interpretations, and pending work. For example, a command result belongs in $V$, while the hypothesis that it explains a failure belongs in $S$. This division assigns responsibility for maintaining information; it does not make $V$ a complete or infallible account of the environment. Unobserved changes can be missed, and recognizing a test outcome from command text can require heuristics. Recent history is an independent addition to either state family. We reserve ``hybrid'' for the ownership distinction.
 
 \subsection{How is an update coupled to an action?}
 A separate update tool lets the model submit a state patch through the tool interface. An inline protocol instead asks for a joint envelope containing $\{\Delta S_t,a_t\}$, following the form of the published SKILL.state contract~\citep{skillstate2026}. These protocols differ in the relationship between state maintenance and environment actions; a tool-mediated policy step need not correspond to a single model invocation.

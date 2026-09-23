@@ -217,17 +217,20 @@ def generate():
     macros["ModelHistorySixVsStateDelta"] = f"{model['tail6']['rate'] - model['tail0']['rate']:+.1f}"
     macros["ModelHistoryTwoVsStateDelta"] = f"{model['tail2']['rate'] - model['tail0']['rate']:+.1f}"
 
-    history = [panel("Model-written memory", 5)]
+    history = [panel("Model-written memory", 6)]
     for arm, k in zip(MODEL_ARMS, ("--", "0", "2", "6")):
         history.append(["Full history" if arm == "baseline" else "Model-written state", k,
-                        f"{model[arm]['rate']:.1f}", "--" if arm == "baseline" else macros[PREFIX[arm] + "Delta"],
+                        f"{model[arm]['rate']:.1f}", macros[PREFIX[arm] + "CostPerSuccess"],
+                        "--" if arm == "baseline" else macros[PREFIX[arm] + "Delta"],
                         "--" if arm == "baseline" else macros[PREFIX[arm] + "P"]])
-    history += [r"\midrule", panel("Hybrid memory", 5)]
+    history += [r"\midrule", panel("Hybrid memory", 6)]
     for arm, k in zip(HYBRID_ARMS, ("--", "0", "2", "6")):
         history.append(["Full history" if arm == "control" else "Hybrid state", k, macros[PREFIX[arm] + "Rate"],
+                        macros[PREFIX[arm] + "CostPerSuccess"],
                         "--" if arm == "control" else macros[PREFIX[arm] + "Delta"],
                         "--" if arm == "control" else macros[PREFIX[arm] + "P"]])
-    add("history", ["Approach", "$k$", r"Solved rate (\%)", r"$\Delta$ (pp)", "$p$"], history)
+    add("history", ["Approach", "$k$", r"\shortstack{Solved rate\\(\%)}",
+                    r"\shortstack{Cost/success\\(\$)}", r"$\Delta$ (pp)", "$p$"], history)
 
     runtime = []
     for arm in ("control", "hybrid-v6", "hybrid-v7"):
@@ -242,9 +245,11 @@ def generate():
         result = hybrid[arm]
         protocol.append([result["protocol"].title(), "Existing" if result["schema"] == "existing" else "Task-adapted",
                          macros[PREFIX[arm] + "Rate"], f"{result['median_output_tokens'] / 1000:.1f}",
-                         f"{result['median_cost_usd']:.4f}", "--" if arm == "hybrid-v7" else macros[PREFIX[arm] + "VsHybridP"]])
-    add("protocol", ["Protocol", "Schema", r"\shortstack{Solved rate\\(\%)}", r"\shortstack{Output\\(ktok)}", r"\shortstack{Median cost\\(\$)}", "$p$"], protocol,
-        "@{}llrrrr@{}")
+                         f"{result['median_cost_usd']:.4f}", macros[PREFIX[arm] + "CostPerSuccess"],
+                         "--" if arm == "hybrid-v7" else macros[PREFIX[arm] + "VsHybridP"]])
+    add("protocol", ["Protocol", "Schema", r"\shortstack{Solved rate\\(\%)}", r"\shortstack{Output\\(ktok)}",
+                     r"\shortstack{Median cost\\(\$)}", r"\shortstack{Cost/success\\(\$)}", "$p$"], protocol,
+        "@{}llrrrrr@{}")
 
     resource = []
     for arm in MODEL_ARMS[1:]:

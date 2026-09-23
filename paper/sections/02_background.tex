@@ -6,7 +6,7 @@ records in their original order. State rewrites selected details into
 fields that describe the current task. A state field may
 record that a test failed without preserving its complete output or the
 edits preceding it. Conversely, keeping those edits does not
-guarantee that a model will use it effectively.
+guarantee that a model will use them effectively.
 
 There are also different ways to produce state. A model can maintain
 semantic content such as hypotheses and pending work. A runtime can record
@@ -24,10 +24,10 @@ while the schema comparison tests how the patch is organized. These
 changes test specific aspects of the port, not every way in which it
 differs from the published system.
 
-We ask how keeping recent history affects success, whether hybrid state
-and failure records preserve useful details, and how protocol and schema
-choices change the outcome. We also ask whether smaller prompts lead to
-lower cost and more successes per dollar spent. Each comparison requires
-within-family controls. In particular, adding recent history to
-state tests the value of that history within a state-based agent; it does
-not isolate the value of the state block itself.
+We first ask whether prompt compression remains beneficial after accounting
+for task success, cumulative generation, and cost. We then examine what
+the runtime should record, whether recent interactions recover capability
+beyond those records, and whether schema or protocol changes offer an
+alternative remedy. Each comparison uses a within-family control.
+Adding recent history to state tests the value of that history within a
+state-based agent; it does not isolate the value of the state block itself.

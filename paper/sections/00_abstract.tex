@@ -1,21 +1,25 @@
 \begin{abstract}
-Replacing an agent's interaction history with structured state can reduce
-prompt size, but the replacement must preserve information needed for later
-decisions. We evaluate this trade-off for a terminal-based coding agent,
-comparing model-written state, hybrid state with runtime-derived records,
-and state augmented with recent history. Additional comparisons vary the
-state-update protocol and schema. With model-written state alone, the
-solved rate falls from \ModelControlRate\% for full history to
-\ModelStateRate\%; retaining recent history raises it to
-\ModelHistorySixRate\%. The corresponding hybrid policy reaches
-\HybridHistorySixRate\%, against its own full-history reference of
-\HybridControlRate\%. Neither the tested inline update protocol nor a
-task-adapted schema closes that gap. Smaller prompts also do not imply
-cheaper successful execution: on jointly successful executions,
-model-written state alone has a median peak-prompt ratio of
-\ModelStatePeakRatio{} and a cost ratio of \ModelStateCostRatio{} relative
-to full history. These results characterize a capability--resource
-trade-off in the evaluated implementations. They support retaining recent
-interaction records within those systems, while leaving the incremental
-benefit of state over an equally sized history window unresolved.
+Structured state offers a way to bound a coding agent's active context
+without carrying its full interaction history. Whether this also reduces
+the cost of solving tasks depends on what the replacement memory preserves.
+We evaluate SKILL.state-inspired context policies on Terminal-Bench,
+varying state ownership, retained evidence, recent history, update protocol,
+and schema. Model-written state reduces the median peak-prompt ratio to
+\ModelStatePeakRatio{} on shared successes, yet raises the cost ratio to
+\ModelStateCostRatio{} and lowers overall task success from
+\ModelControlRate\% to \ModelStateRate\%. An exploratory comparison of
+hybrid memory, which separates runtime records from model-written
+interpretation, associates richer execution records with better success
+and lower overhead than file references alone. Further enrichment does
+not remove the full-history deficit. Retaining recent interactions gives
+the clearest recovery: model-written and hybrid policies reach
+\ModelHistorySixRate\% and \HybridHistorySixRate\%, against their respective
+controls of \ModelControlRate\% and \HybridControlRate\%. The economic
+outcomes differ: cost per observed success falls below the control for
+model-written memory but remains above it for the hybrid variant.
+The tested schema and protocol changes do not produce comparable recovery.
+These results support evaluating structured memory through the evidence
+it retains and the work needed to finish a task, rather than compression
+alone. Recent-history retention is a measured partial remedy; the
+incremental benefit of state over the same history window remains open.
 \end{abstract}

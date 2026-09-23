@@ -1,47 +1,64 @@
-\section{Retaining recent interaction history}
+\section{Recovering capability with recent history}
 \label{sec:capability}
 
-Replacing full history with model-written state reduces the solved rate
-from \ModelControlRate\% to \ModelStateRate\%
-(Table~\ref{tab:history}). Retaining recent history changes the result:
-the rate reaches \ModelHistoryTwoRate\% at $k=2$ and
-\ModelHistorySixRate\% at $k=6$. The largest setting's difference from
-full history is $\ModelHistorySixDelta$ percentage points.
+A recent-history window preserves original interactions without requiring
+the state writer to select every relevant detail in advance. This is an
+independent change to either memory family. It adds a source of evidence
+without changing who writes the state.
+
+For model-written memory, success rises from \ModelStateRate\% without
+history to \ModelHistoryTwoRate\% at $k=2$ and
+\ModelHistorySixRate\% at $k=6$ (Table~\ref{tab:history}). The largest
+setting recovers much of the deficit relative to the
+\ModelControlRate\% full-history control. The task-bundle interval for its
+difference is $\ModelHistorySixDeltaCI$ percentage points, compared with
+$\ModelStateDeltaCI$ for state alone. Proximity of the point estimates does
+not establish equivalence.
 
 \begin{table}[htbp]
 \centering\small
-\caption{History retention and task success. Each policy family has its own
-full-history reference. Differences and exact McNemar tests use that
-reference; the panels are not pooled.}
+\caption{Recent-history retention, task success, and cost per observed
+success. Each family has its own full-history reference. Differences and
+exact McNemar tests use that reference; panels are not pooled.
+Cost per success includes retained failures.}
 \label{tab:history}
 \input{tables/new-history}
 \end{table}
 
-The task-bundle interval for the state-only difference is
-$\ModelStateDeltaCI$ percentage points. For state with $k=6$, it is
-$\ModelHistorySixDeltaCI$. The latter permits both a practically relevant
-deficit and a modest improvement, so proximity of the point estimates does
-not establish equivalence.
-
-Recent history also improves the hybrid policy. Its solved rate rises
+Hybrid state shows the same direction of recovery. Its solved rate rises
 from \HybridRate\% without retained history to
 \HybridHistoryTwoRate\% at $k=2$ and \HybridHistorySixRate\% at $k=6$.
 The largest setting improves on hybrid state by
-\HybridHistorySixVsHybridDelta{} percentage points, while its full-history
-reference reaches \HybridControlRate\%. The agreement in direction across
-the two families is useful, but the effects describe different
-implementations and must not be combined into a single estimate.
+\HybridHistorySixVsHybridDelta{} percentage points
+($p=\HybridHistorySixVsHybridP$), against a full-history reference of
+\HybridControlRate\%. Recent interactions improve the outcome even when the runtime
+already retains rich execution records.
 
-These comparisons identify retained interaction records as a consequential
-design choice. Such records can preserve details that a state writer omits,
-including the context of an observation or the sequence linking an edit to
-a test outcome. That is a possible explanation, not a measured failure
-taxonomy. The experiment does not separate loss of information from poor
-use of preserved information, changes in formatting, or altered stopping
-behavior.
+\subsection{Recovery has different economic consequences}
 
-The result also leaves the role of state itself open. State plus recent
-history is compared with state alone, not with the same recent-history
-window without state. A history-only control is needed before attributing
-an additional benefit to the state block. The supplementary comparison by
-reference trajectory length appears in Appendix~\ref{app:horizon}.
+For model-written memory with $k=6$, cost per observed success is
+\$\ModelHistorySixCostPerSuccess{}, below the control's
+\$\ModelControlCostPerSuccess{}. For hybrid memory with $k=6$, it is
+\$\HybridHistorySixCostPerSuccess{}, above its own control's
+\$\HybridControlCostPerSuccess{}. Figure~\ref{fig:pareto} shows the
+resulting trade-offs. The histories improve success in both families,
+but do not confer the same economic advantage.
+
+\input{../paper/figures/fig4_pareto}
+
+The model-written result is compatible with the conditional cost ratio
+of \ModelHistorySixCostRatio{} in Table~\ref{tab:resources}. Cost per
+success includes failures, termination behavior, and tasks solved by only
+one policy; conditional ratios include only shared successes. A policy
+can therefore have lower cost per observed success on the retained
+workload without being cheaper on the tasks both policies solve.
+The complete efficiency breakdown appears in
+Appendix~\ref{app:efficiency}.
+
+These results make recent-history retention the clearest measured partial
+remedy among the tested changes. They do not establish that structured
+state adds value over an equally sized history window: that requires a
+history-only control. Nor do they identify whether the useful material is
+an omitted observation, action order, formatting, or another property of
+the interaction record. The supplementary trajectory-length comparison
+in Appendix~\ref{app:horizon} describes where the observed deficits occur.

@@ -78,6 +78,16 @@ def test_history_panels_keep_both_references(outputs):
     assert history.count("Full history") == 2
     assert "61.3" in history and "51.7" in history
     assert "Model-written memory" in history and "Hybrid memory" in history
+    assert r"Cost/success\\(\$)" in history
+    assert "0.1116" in history and "0.0768" in history
+    assert "0.0473" in history and "0.0501" in history
+
+
+def test_protocol_price_is_shown_next_to_success(outputs):
+    protocol = outputs["paper/tables/new-protocol.tex"]
+    assert r"Cost/success\\(\$)" in protocol
+    assert "0.0468" in protocol and "0.1008" in protocol
+    assert "0.0120" in protocol and "0.0190" in protocol
 
 
 def test_macros_use_task_bundle_bootstrap_intervals(outputs):
