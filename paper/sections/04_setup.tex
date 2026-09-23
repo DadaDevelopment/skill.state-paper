@@ -1,91 +1,111 @@
-\section{Experimental setup}
+\section{Experimental methodology}
 \label{sec:setup}
 
-\subsection{Agent, corpus and conditions}
+\subsection{Agent, tasks, and comparisons}
 
-The agent is an unmodified open-source coding agent; the state mechanism is a
-plugin that replaces the context assembled for each model call and adds a
-validated patch tool\code. Versions, the plugin content hash and the schema
-hash are frozen for the series and recorded in every run row (plugin
-\texttt{\EOnePlugin}, schema \texttt{\EOneSchema})\live.
+The evaluation uses \texttt{zai/glm-5.3-flash}, Pi coding agent version
+0.85.1, and the Harbor 0.22 release family. Tasks come from Terminal-Bench
+2.0, which supplies executable environments and task-specific verification
+tests~\citep{terminalbench}. The agent works through coding and terminal
+tools. Success is the binary task-verifier outcome, and the recorded
+execution limit is 200 turns.
 
-The corpus is Terminal-Bench 2.0. Of 89 tasks runnable in principle, this
-stand reaches \EOneTasks: two fail during container setup, before the agent
-starts, on every attempt and in every condition\live. The model is
-\texttt{\EOneModel} throughout.
+The analyzed subset contains 87 tasks; two further benchmark tasks were
+excluded because their environments could not be initialized before agent
+execution. The model-written comparison has four conditions with three
+repetitions per task. The hybrid comparison has eight conditions with two
+repetitions per task. Each comparison includes its own full-history
+control. An observation is a task execution under a condition and
+repetition, and contrasts match the same task and repetition. We do not
+pool the controls or treat repeated executions as additional tasks.
 
-The four conditions differ in exactly one property:
+The model-written conditions use a separate state-update tool and retain
+recent history at settings $k=0,2,6$. The hybrid reference combines
+runtime-derived records, including failed attempts, with model-written
+semantic content. Its variants remove failure records, retain recent
+history, or cross tool versus inline updates with an existing versus
+task-adapted schema. The reference condition is shared by these hybrid
+comparisons. The adapted schema was developed using experience from the
+same task set, so that comparison is exploratory and in-sample.
 
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-Condition & Context assembled for each model call \\
-\midrule
-\Control        & full transcript, no state block (unmodified agent) \\
-\StateOnly{}    & state block replaces the transcript ($\tailk{=}0$) \\
-\StateK{2}      & state block $+$ 2 most recent exchanges \\
-\StateK{6}      & state block $+$ 6 most recent exchanges \\
-\bottomrule
-\end{tabular}
-\end{center}
+The parameter $k$ denotes the configured retention setting. The available
+records do not resolve individual messages versus complete exchanges
+consistently across implementations. We therefore do not interpret equal
+values of $k$ as a verified equality of serialized context. The formal
+model describes information sources and update order; it does not specify
+hidden reasoning retention or an exact API message layout.
 
-Everything else is frozen: same model, schema, tools, turn budget, task and
-verifier. The realised $\tailk$ is read back out of each run's trace, and a
-run whose realised value disagrees with the requested one is rejected
-instead of analysed\code.
+\subsection{Outcomes and resources}
 
-\subsection{Unit, pairing and repetition}
+For a condition $a$, task $i$, and repetition $r$, let $Y_{iar}$ denote
+binary success. With $n$ tasks and $R$ repetitions, the solved rate is
+\begin{equation}
+  \widehat{s}_a=\frac{1}{nR}\sum_{i=1}^{n}\sum_{r=1}^{R}Y_{iar}.
+\end{equation}
+Differences in solved rate are percentage-point differences against the
+named reference within the same comparison.
 
-The experimental unit is one run of one task under one condition in one
-trial. Every comparison is paired within \emph{(task, trial)} against the
-control of the \emph{same} trial, never against a pooled control: single
-runs of an identical cell have been measured at 15, 51 and 65 model
-calls\live, so cross-trial pooling would compare a condition against a
-different sample of the same noise. Three independent trials give
-\EOneRuns{} runs in total.
+Token measures distinguish peak prompt size, the maximum input context of
+a model call, from cumulative uncached input, cache reads, and output over
+the execution. The model-written comparison uses the fixed reference
+tariff
+\begin{equation}
+ D=10^{-6}(0.15U+0.03K+0.50O),
+ \label{eq:referencecost}
+\end{equation}
+where $U$, $K$, and $O$ denote uncached input, cache-read, and output
+tokens. Costs are in US dollars under this convention, not provider
+invoices. The hybrid comparison supplies reported token and cost medians;
+its pricing calculation and per-call prompt peaks cannot be reconstructed
+from the available aggregates.
 
-\subsection{Verdicts}
+We report median execution cost and cost per observed success,
+$\sum D/\sum Y$, over retained executions, including failures. Its
+reciprocal is successes per dollar. Successes per million tokens use total
+recorded input, cache-read, and output tokens as the denominator. These
+metrics describe the retained workload, excluding discarded attempts and
+unretained retries. They do not estimate the cost of retrying until success.
 
-The verdict is the exit status of the task's own verifier. This is not a
-formality: in an earlier phase of this project, a model's self-report and a
-broken verifier container between them produced a full series of rows that
-looked like data and were not (\S\ref{sec:pitfalls}).
+A second resource comparison is conditional on both policies solving the
+same task in the same repetition. For each resource, we report the median
+of within-match condition/reference ratios. The selected subset differs by
+condition. This estimand describes relative resource use on shared
+successes, whereas cost per success also reflects failures and differences
+in capability. A ratio of marginal medians is not substituted for a median
+of matched ratios.
 
-Runs are additionally classified by how they ended (\StopReasonList{}), and
-the distribution is reported in Table~\ref{tab:stop}, because scoring a
-budget stop or an output-ceiling stop as an ordinary failure attributes a
-harness property to the method.
+\subsection{Statistical analysis}
 
-\subsection{Cost accounting}
+Solved-rate tables report two-sided exact McNemar $p$-values for the named
+matched contrasts. Conditional cost-ratio tables use a two-sided exact sign
+test against a ratio of one, excluding ties. These are unadjusted,
+exploratory reference tests under an independence assumption for matched
+observations. Repeated tasks and possible execution dependencies limit
+that interpretation. The tests do not adjust for within-task dependence
+or control the familywise error rate.
 
-Per-call usage (input, cached-read and output tokens) is taken from the
-session journal. Cost is derived from those measured tokens at one fixed
-published price table, not read from the provider, for two measured reasons:
-the account's two wallets bill identical token counts exactly a factor of
-two apart\live, and the custom-endpoint path reports zero cost while
-returning real tokens\live. The provider's own figure is retained in the raw
-records for audit.
+For the model-written comparison, pointwise task-bundle bootstrap intervals
+provide a complementary assessment of solved-rate differences. We resample
+task identities with all their conditions and repetitions, using 100,000
+resamples and seed 20260922. Percentile endpoints define the 95\% intervals.
+This preserves the observed within-task structure under a task-resampling
+interpretation, without establishing that the benchmark is a random sample.
+The hybrid aggregates do not retain the task-level covariance needed for
+the same analysis. Small differences or non-significant tests are not
+interpreted as equivalence.
 
-Cached-read tokens are tracked separately from input tokens throughout,
-because the central methodological claim is that they are different
-currencies. We verified before the series that the provider's prefix cache
-actually appears in the usage fields: a repeated call moved from 0 to 3008
-cached tokens of 3019\live.
+The supplementary horizon analysis partitions tasks by the full-history
+control's median recorded turns, $T$, at
+$T=\HistoryHorizonCutoff$. Membership is fixed across state conditions.
+This post-hoc stratification describes shorter and longer reference
+trajectories; it does not measure a causal effect of horizon.
 
-\subsection{Gates run before any measurement}
+\subsection{Analysis material}
 
-A stack that has changed is smoke-tested before it is trusted\code:
-
-\begin{enumerate}
-\item an oracle solution passes the verifier, establishing that the verifier
-      can recognise a correct answer at all;
-\item every arm demonstrably loads the plugin and realises its declared
-      $\tailk$, checked against the assembled prompt instead of the plugin's
-      own log; a silent import failure otherwise turns a treatment arm into
-      the control under a different name, and the numbers still look
-      plausible;
-\item versions and content hashes are locked and recorded per run.
-\end{enumerate}
-
-Gate 2 has caught a real staging defect in this project\live, which is why
-it checks the provider-facing prompt and not an internal trace.
+The model-written results are recomputed from released execution-level
+records using their canonical inclusion rules. The hybrid results use
+final condition summaries and matched discordant counts. This distinction
+sets the resolution of the analyses: the latter support the reported
+contrasts but not reconstruction of individual trajectories. The
+reproducibility appendix specifies the available material and derived
+metrics.

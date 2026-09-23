@@ -17,7 +17,7 @@ import sys
 import yaml
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MANUSCRIPT = os.path.join(REPO, "build", "research", "manuscript.txt")
+MANUSCRIPT = os.path.join(REPO, "build", "research", "manuscript-prose.txt")
 WAIVERS_PATH = os.path.join(REPO, "research", "waivers.yml")
 
 
@@ -30,6 +30,8 @@ def load_waivers():
 
 
 def run_slop():
+    if not os.path.isfile(MANUSCRIPT) or not open(MANUSCRIPT, encoding="utf-8").read().strip():
+        raise ValueError("missing or empty prose extraction")
     result = subprocess.run(
         ["npx", "slop", "check", MANUSCRIPT, "--format", "json"],
         cwd=REPO,
@@ -37,8 +39,11 @@ def run_slop():
         text=True,
     )
     try:
-        return json.loads(result.stdout)
-    except json.JSONDecodeError:
+        report = json.loads(result.stdout)
+        if not isinstance(report, dict) or not report.get("files"):
+            raise ValueError("slop returned no checked files")
+        return report
+    except (json.JSONDecodeError, ValueError):
         print("slop_gate: could not parse slop output", file=sys.stderr)
         print(result.stdout[-2000:], file=sys.stderr)
         sys.exit(1)

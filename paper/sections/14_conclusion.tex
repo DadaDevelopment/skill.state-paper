@@ -1,70 +1,18 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Structured state memory is motivated by a correct observation: an unbounded
-transcript is a poor working memory, and its cost grows with everything that
-came before. The published evaluation of \SkillState{} shows that a
-model-maintained state block bounds prompt growth at near-constant size
-while preserving quality, and on its own benchmark that result reproduces,
-including under cache-aware accounting.
+The tested state representations do not preserve the task success of full
+interaction history when used as its replacement. Retaining recent records
+raises the solved rate in both model-written and hybrid state policies,
+while the tested inline protocol and task-adapted schema do not recover
+the full-history result. These findings identify useful information in the
+retained interaction record without establishing the incremental benefit
+of state over an equally sized history window.
 
-On real coding tasks it does not hold. Across \EOneRuns{} runs of a
-pre-registered design, the method as published solves \SolveTailZero{} of
-tasks against \SolveBase{} for a transcript control, losing \McnCtlTailZero{}
-paired tasks and winning \McnArmTailZero{} ($p={}$\McnPTailZero), with the
-deficit widening on long horizons, where the mechanism is supposed to pay
-for itself. Restoring six verbatim exchanges beside the state block removes
-the difference entirely, which places the damage in the discarded history
-rather than in the state abstraction.
-
-The reason the two settings disagree is structural rather than empirical.
-The synthetic benchmark fixes the number of model calls per episode, so an
-agent that has discarded something it later needs cannot spend anything to
-recover it. Real agents can, and do: in failing state-only runs
-\SI{58}{\percent} of all commands are repeats of an inspection already
-performed, against \SI{20}{\percent} for the control. The thesis of this
-paper in one sentence: bounding the prompt does not bound the information
-the task requires, and the difference is paid through the tool loop, where
-no prompt-size metric looks.
-
-The economics follow from the same mechanism and invert the usual reading.
-At equal outcome the state-only arm carries half the control's peak prompt
-and costs \CostRatioTailZero$\times$ as much, because state maintenance is
-billed at the output tariff and a block rewritten each turn forfeits the
-prefix cache that makes an append-only transcript cheap. Measured per token,
-the state arms look efficient; measured per solved task per dollar over the
-whole series, the published configuration is the worst of the four. On the
-matched-outcome comparison that this paper treats as the fair one, however,
-every state configuration including the best one costs more than the control
-(\CostRatioTailSix$\times$ at $\tailk{=}6$, $p={}$\CostSignPTailSix).
-
-The practical conclusion is therefore not that structured state should be
-abandoned, but that it should not be used to \emph{replace} recent history.
-The configuration that wins on this corpus keeps both, and the open question
-we are measuring next is what a runtime-maintained state must contain for
-the remaining gap to close (\S\ref{sec:composition}).
-
-The composition ladder of \S\ref{sec:composition} stops at v7 (records of
-what was tried and failed) because that is where our own runs stop; it is
-not where the design space stops. Two mechanisms surfaced in
-\S\ref{sec:related} sit one step further out, and neither has been run on
-this corpus. VISTA's proprioception channel~\citep{vista2026} would give the
-agent an explicit signal for what the runtime-written state already
-contains, which bears directly on the re-derivation we measure in
-\S\ref{sec:mechanism}: a state block whose shape the agent cannot see is a
-state block it will re-verify. LCM's recursive lossless
-pointers~\citep{lcm2026} would let a rung summarise its own history instead
-of only accumulating it, addressing the one failure mode the ladder cannot
-fix by adding more fields: unbounded growth of the state block itself at
-high rungs. A rung that combines both, a runtime-written state the agent can
-query the shape of, recursively summarised without losing the ability to
-retrieve what was summarised, is the natural v8 and the most direct test of
-whether the ladder's rise continues or was already visible to plateau by
-v6. It is named here as the next measurement, a design we have not built or
-run, not a claimed result.
-
-The methodological conclusion may outlast the empirical one. In this genre,
-the difference between a finding and an artefact is rarely the model, the
-method or the benchmark. It is the accounting: which currency the cost is
-measured in, which arm a harness limit penalises, and whether the column
-heading still describes what the column contains.
+Resource savings depend on the objective. Smaller peak prompts coexist
+with higher conditional successful-execution costs, whereas all-execution
+cost per success can improve when recent history is retained. State-based
+context management should therefore be evaluated through task completion,
+token categories, and cost together. The next discriminating comparison is
+a matched history-only policy, followed by replication across models and
+workloads before broader claims about structured memory are warranted.

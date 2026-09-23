@@ -1,90 +1,33 @@
-\section{Background}
+\section{Context policies and research questions}
 \label{sec:background}
 
-\subsection{Structured state memory}
+History and state differ in what they preserve. History retains
+records in their original order. State rewrites selected details into
+fields that describe the current task. A state field may
+record that a test failed without preserving its complete output or the
+edits preceding it. Conversely, keeping those edits does not
+guarantee that a model will use it effectively.
 
-\SkillState{}~\citep{skillstate2026} maintains a persistent structured state
-$\Sigma_t$ and assembles each prompt as
-\[
-  \text{prompt}_t \;=\; [\,\text{task spec}\,] \;+\; [\,\Sigma_t\,] \;+\;
-  [\,o_t\,],
-\]
-where $o_t$ is the latest observation and the interaction history is thrown
-away. In one generation the model emits its reasoning, a state patch and an
-action, $(R_t, \Delta\Sigma_t, a_t)$, as a single JSON object with exactly
-the two keys \texttt{state\_patch} and \texttt{action}\origin. The runtime
-checks each patch against a schema and rejects invalid ones with a
-rollback-retry cycle. Schemas are written once per domain; across 100
-InterCode CTF instances a single five-field schema is reused\origin.
+There are also different ways to produce state. A model can maintain
+semantic content such as hypotheses and pending work. A runtime can record
+facts directly observable as the agent works, such as completed commands and
+their outcomes. We call a state that combines these sources
+\emph{hybrid state}. Runtime-derived records reduce the need to restate
+observable events, but do not by themselves explain what those events mean
+or what the agent should do next.
 
-The reported evidence is a horizon sweep on a procedural generator: the
-prompt stays near \num{1800} characters from $T{=}10$ to $T{=}200$ while the
-baselines grow to \num{48000}, and quality is preserved or improved\origin.
-The paper's own error taxonomy for open-weight models attributes
-\SI{68}{\percent} of failures to premature state overwrite or deletion\origin,
-a figure we return to in \S\ref{sec:composition}, because it is an argument
-for moving part of the state out of the model's hands.
+The published SKILL.state contract jointly emits a state patch and an
+action~\citep{skillstate2026}. A separate state-update tool changes that
+interface: the agent updates memory through a tool call within its main
+loop. Our inline policy emits the patch and action together,
+while the schema comparison tests how the patch is organized. These
+changes test specific aspects of the port, not every way in which it
+differs from the published system.
 
-\subsection{Deterministic execution state}
-
-\Ledger{}~\citep{ledger2026} sits in the opposite design corner: a record
-maintained by the runtime and derived mechanically from completed
-interactions: observation records, per-file and global modification
-counters, normalised command records with their outcomes. It adds no model
-calls and does not modify the agent. Its own ablation separates its two
-mechanisms cleanly: \emph{inform} (rendering the record at the end of the
-input, where it cannot disturb an append-only prefix) produces most of the
-efficiency gain, while \emph{govern} (intercepting a proposed command and
-reusing an earlier result) produces most of the resolution gain\origin.
-
-The two systems are complementary rather than competing: \SkillState{} keeps
-semantic state in the model, \Ledger{} keeps objective state in the runtime.
-Our composition study (\S\ref{sec:composition}) varies exactly this boundary,
-and we deliberately exclude \emph{govern} from it: govern changes what the
-agent does, so including it would mix a large effect into the measurement of
-a smaller one.
-
-\subsection{The assumptions under test}
-
-Stated as checkable propositions rather than criticisms:
-
-\begin{description}[style=nextline]
-\item[A1 (schema availability)] An adequate domain schema exists before
-  execution. The original gives no schema-design method and reports a
-  verbatim field list for only one of its four domains\origin.
-\item[A2 (positive from turn one)] Maintaining state is at worst neutral
-  from the first turn. The shortest horizon reported is $T{=}10$, already
-  longer than a large share of real coding tasks.
-\item[A3 (sufficient statistic)] Nothing discarded is ever needed again.
-  The original names this as a limitation\origin{} but does not measure it.
-  This is the assumption this paper falsifies.
-\item[M (measurement currency)] Cumulative token count is a valid proxy for
-  cost. A full-text search of the original returns zero occurrences of
-  cache, billing or monetary terminology\origin.
-\end{description}
-
-A1 and A3 are properties of the method. M is a property of how the method
-was evaluated, and it is the one that hides the other two: a metric that
-counts logical tokens can represent neither the cache discount that rewards
-an append-only prefix nor the tool calls spent re-acquiring what the prompt
-no longer carries.
-
-\subsection{The design axis this paper uses}
-
-Instead of comparing named architectures, we hold the mechanism fixed and
-vary one integer: the number $\tailk$ of most recent verbatim exchanges kept
-next to the state block.
-\[
-  \text{prompt}_t \;=\; [\,\text{task spec}\,] \;+\;
-  [\,\text{last } \tailk \text{ exchanges}\,] \;+\; [\,\Sigma_t\,]
-\]
-At $\tailk{=}0$ this is exactly \SkillState{} as published. As $\tailk$
-grows, the configuration approaches a transcript agent. The control is not a
-point on this axis (it carries no state block at all) and is always reported
-separately.
-
-This buys three things a three-arm comparison cannot buy. It removes the
-arbitrary constant that an intermediate ``hybrid'' arm would introduce; it
-changes the question from \emph{which architecture} to \emph{where on the
-axis the optimum lies}; and it makes the shape of the dependence visible,
-which is what ultimately localises the damage (\S\ref{sec:capability}).
+We ask how keeping recent history affects success, whether hybrid state
+and failure records preserve useful details, and how protocol and schema
+choices change the outcome. We also ask whether smaller prompts lead to
+lower cost and more successes per dollar spent. Each comparison requires
+within-family controls. In particular, adding recent history to
+state tests the value of that history within a state-based agent; it does
+not isolate the value of the state block itself.

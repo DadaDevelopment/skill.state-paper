@@ -1,110 +1,45 @@
-% Figure 1: architecture. Drawn in TikZ so it needs no external asset.
-% Mirrors the reference papers' opening figure: the two context policies side
-% by side, plus what each does to prompt growth.
-%
-% This figure contains NO measured numbers - it is a diagram of mechanism.
-% The measured story is Figures 2-4.
-%
-% Geometry note: the whole picture is scaled to \textwidth at the end. Keep
-% new elements inside x in [-3.6, 11.4] or they will push past the margin.
-
-\begin{figure*}[t]
+% Adapted from the repository's original two-column architecture figure.
+\begin{figure}[tbp]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rounded corners=2pt, minimum width=3.4cm,
-              minimum height=0.6cm, align=center, inner sep=2pt},
-  hist/.style={box, fill=red!8},
-  state/.style={box, fill=blue!10, draw=blue!60, thick},
-  plain/.style={box, fill=black!3},
-  llm/.style={box, fill=black!8, minimum height=0.85cm, thick},
-  grp/.style={draw, dashed, rounded corners=3pt, inner sep=7pt},
-  arr/.style={-latex, thick},
-]
-
-\node[font=\bfseries] at (0,4.55) {Transcript runtime (control)};
-\node[plain] (p1)  at (0, 3.05) {task specification $P$};
-\node[hist]  (h1)  at (0, 2.35) {observation--action history};
-\node[hist]  (h2)  at (0, 1.65) {previous reasoning $R_{<t}$};
-\node[plain] (o1)  at (0, 0.95) {latest observation $o_t$};
-\node[grp, fit=(p1)(h1)(h2)(o1)] (g1) {};
-\node[above=2pt of g1, font=\bfseries\footnotesize, text=red!65!black]
-  {context $|C_t| = \mathcal{O}(t)$};
-\node[llm] (m1) at (0,-0.35) {language model};
-\draw[arr] (g1.south) -- (m1.north);
-\node[plain, dashed] (a1) at (0,-1.45) {execute action $a_t$};
-\draw[arr] (m1) -- (a1);
-\draw[arr, red!60!black] (a1.west) -- ++(-1.25,0) |- (h1.west)
-  node[pos=0.28, left, font=\scriptsize, text=red!60!black, align=center]
-  {history\\grows};
-
-\begin{scope}[xshift=7.8cm]
-\node[font=\bfseries] at (0,4.55) {State runtime, tail $k$};
-\node[plain] (p2)  at (0, 3.05) {task specification $P$};
-\node[hist]  (t2)  at (0, 2.35) {last $k$ exchanges};
-\node[state] (s2)  at (0, 1.65) {execution state $\Sigma_{t-1}$};
-\node[plain] (o2)  at (0, 0.95) {latest observation $o_t$};
-\node[grp, fit=(p2)(t2)(s2)(o2)] (g2) {};
-\node[above=2pt of g2, font=\bfseries\footnotesize, text=blue!60!black]
-  {context $|C_t| = \mathcal{O}(|P|{+}|\Sigma|{+}|o|)$};
-\node[right=10pt of t2, font=\scriptsize, text=black!55, align=left]
-  {$k{=}0$: empty};
-\node[llm] (m2) at (0,-0.35) {language model};
-\draw[arr] (g2.south) -- (m2.north);
-\node[plain, dashed] (a2) at (0,-1.45) {execute action $a_t$};
-\draw[arr] (m2) -- (a2);
-\draw[arr, blue!60!black] (m2.east) -- ++(1.15,0) |- (s2.east)
-  node[pos=0.26, right, font=\scriptsize, text=blue!60!black, align=left]
-  {validated\\patch $\Delta\Sigma_t$};
-\node[draw, dashed, text=black!45, minimum width=2.1cm, minimum height=0.55cm,
-      rounded corners=2pt, font=\footnotesize] (disc) at (-3.15,-0.35)
-      {reasoning $R_t$};
-\draw[arr, dashed, black!45] (m2.west) -- (disc.east);
-\node[below=0pt of disc, font=\scriptsize, text=black!45] {discarded};
+font=\small,
+box/.style={draw,rounded corners=2pt,minimum width=3.5cm,minimum height=.62cm,align=center,inner sep=3pt},
+hist/.style={box,fill=red!8},
+state/.style={box,fill=blue!10,draw=blue!60,thick},
+plain/.style={box,fill=black!3},
+llm/.style={box,fill=black!8,minimum height=.8cm,thick},
+grp/.style={draw,dashed,rounded corners=3pt,inner sep=7pt},
+arr/.style={-latex,thick}]
+\node[font=\bfseries] at (0,4.2) {Full history};
+\node[plain] (p1) at (0,3.25) {task instructions $P$};
+\node[hist] (h1) at (0,2.4) {retained transcript $H_{<t}$};
+\node[plain] (o1) at (0,1.55) {latest observation $o_t$};
+\node[grp,fit=(p1)(h1)(o1)] (g1) {};
+\node[llm] (m1) at (0,.2) {language model};
+\node[plain] (a1) at (0,-1) {execute action $a_t$};
+\draw[arr] (g1.south)--(m1.north);
+\draw[arr] (m1)--(a1);
+\draw[arr,red!60!black] (a1.west)--++(-1,0)|-(h1.west)
+ node[pos=.3,left,font=\scriptsize,align=center]{append\\interaction};
+\begin{scope}[xshift=7.5cm]
+\node[font=\bfseries] at (0,4.2) {State with optional recent history};
+\node[plain] (p2) at (0,3.25) {task instructions $P$};
+\node[hist] (h2) at (0,2.4) {recent records $\tau_k(H_{<t})$};
+\node[state] (s2) at (0,1.55) {structured state $\Sigma_t$};
+\node[plain] (o2) at (0,.7) {latest observation $o_t$};
+\node[grp,fit=(p2)(h2)(s2)(o2)] (g2) {};
+\node[llm] (m2) at (0,-.7) {language model};
+\node[plain] (a2) at (0,-1.9) {execute action $a_t$};
+\draw[arr] (g2.south)--(m2.north);
+\draw[arr] (m2)--(a2);
+\draw[arr,blue!60!black] (m2.east)--++(1.2,0)|-(s2.east)
+ node[pos=.25,right,font=\scriptsize,align=left]{model update\\to semantic state};
+\node[right=3pt of h2,font=\scriptsize] {$k=0$: empty};
 \end{scope}
-
-\draw[dashed, black!30] (-3.4,-2.35) -- (11.2,-2.35);
-
-\node[font=\bfseries\small] at (0,-2.75) {prompt growth};
-\begin{scope}[yshift=-3.25cm, xshift=-1.9cm]
-  \draw[->] (0,0) -- (4.1,0) node[right, font=\scriptsize] {$|C_t|$};
-  \draw[->] (0,0) -- (0,-1.15);
-  \foreach \y/\w/\lab in {-0.25/0.55/{$t{=}1$}, -0.58/1.7/{$t{=}50$},
-                          -0.91/3.35/{$t{=}200$}} {
-    \fill[red!35] (0,\y-0.09) rectangle (\w,\y+0.09);
-    \node[left, font=\scriptsize] at (0,\y) {\lab};
-  }
-  \draw[dashed, red] (3.75,0.05) -- (3.75,-1.05);
-  \node[font=\scriptsize, text=red, anchor=south] at (3.75,0.05) {window};
-  \node[right, font=\scriptsize, text=red!70!black] at (3.38,-0.91) {grows};
-\end{scope}
-
-\node[font=\bfseries\small] at (7.8,-2.75) {prompt growth};
-\begin{scope}[yshift=-3.25cm, xshift=5.9cm]
-  \draw[->] (0,0) -- (4.1,0) node[right, font=\scriptsize] {$|C_t|$};
-  \draw[->] (0,0) -- (0,-1.15);
-  \foreach \y/\w/\lab in {-0.25/0.75/{$t{=}1$}, -0.58/0.8/{$t{=}50$},
-                          -0.91/0.85/{$t{=}200$}} {
-    \fill[blue!35] (0,\y-0.09) rectangle (\w,\y+0.09);
-    \node[left, font=\scriptsize] at (0,\y) {\lab};
-  }
-  \draw[dashed, red] (3.75,0.05) -- (3.75,-1.05);
-  \node[font=\scriptsize, text=red, anchor=south] at (3.75,0.05) {window};
-  \node[right, font=\scriptsize, text=blue!70!black] at (0.9,-0.91) {bounded};
-\end{scope}
-
+\node[font=\footnotesize,align=center] at (0,-2.75) {Earlier records remain available\\without rewriting them as state.};
+\node[font=\footnotesize,align=center] at (7.5,-2.75) {Earlier records outside the window\\must be represented in state to persist.};
 \end{tikzpicture}}
-\caption{The two context policies of Algorithms~\ref{alg:transcript}
-and~\ref{alg:state}. \textbf{Left:} the transcript runtime appends every
-exchange, so the prompt grows with the episode (Eq.~\ref{eq:ctx-transcript})
-and eventually meets the context window. \textbf{Right:} the state runtime
-carries a validated state block and, at $k{=}0$, no history at all
-(Eq.~\ref{eq:ctx-state}); its prompt is bounded independently of $t$. Both
-discard intermediate reasoning. The bounded prompt is the published benefit.
-What the diagram cannot show is the quantity this paper measures: bounding
-$|C_t|$ does not bound the information the task requires, so the agent
-re-acquires it through tool calls, inflating the realised horizon
-(Eq.~\ref{eq:horizon-inflation}) at no cost visible to any prompt-size metric.}
+\caption{Context policies. State replaces the older transcript, while the retention parameter $k$ controls the recent suffix. The arrows show information flow, not the number of model calls.}
 \label{fig:architecture}
-\end{figure*}
+\end{figure}

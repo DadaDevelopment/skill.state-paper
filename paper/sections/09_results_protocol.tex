@@ -1,0 +1,42 @@
+\section{Update protocol and state schema}
+\label{sec:protocol}
+
+The hybrid comparison crosses the update interface with the semantic
+schema (Table~\ref{tab:protocol}). The tool-based reference with the existing
+schema reaches \HybridRate\%. Replacing that schema with the task-adapted
+version raises the observed solved rate to \TaskAdaptedRate\%, a
+\TaskAdaptedVsHybridDelta{} percentage-point change. Inline updates with
+the existing schema instead reach \InlineRate\%, a
+$\InlineVsHybridDelta$ point change from the reference.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Update protocol and schema within hybrid state. Output tokens
+and cost are per-execution medians. Exact McNemar tests compare each
+configuration with Tool + Existing schema.}
+\label{tab:protocol}
+\input{tables/new-protocol}
+\end{table}
+
+Combining inline updates with the adapted schema yields
+\InlineAdaptedRate\%, below either change in isolation. The descriptive
+difference-in-differences for protocol and schema is
+$\ProtocolSchemaInteraction$ percentage points. This is the difference
+between the inline effect under the adapted schema and its effect under
+the existing schema, not the joint configuration's difference from
+the reference. The available aggregates do not support a task-level
+interaction test.
+
+Neither intervention recovers the within-comparison full-history rate of
+\HybridControlRate\%. The result does not support the hypothesis that
+these particular protocol or schema changes are sufficient to repair the
+observed deficit. It also does not rule out better schemas or more faithful
+implementations of the published runtime.
+
+The inline representation changes both how actions are expressed and when
+state maintenance occurs. Its larger reported output median may include
+additional patch content or changes elsewhere in the trajectory.
+Attributing the success difference to formatting burden, patch validity,
+or a specific omitted field would require a controlled trace-level
+analysis. Schema adaptation is likewise an implementation choice here,
+not an independently validated memory abstraction.

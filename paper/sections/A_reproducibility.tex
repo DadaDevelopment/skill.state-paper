@@ -1,66 +1,56 @@
-\section{Reproducibility}
-\label{sec:repro-appendix}
+\section{Reproducibility and metric definitions}
+\label{app:reproducibility}
 
-\paragraph{The dataset.} \EOneRuns{} runs, one row per run, with per-row
-provenance: run identifier, start and finish timestamps, repository revision,
-plugin content hash, schema hash, model, trial, condition, realised
-$\tailk$, verifier verdict, stop reason, turn and call counts, the three
-token counts separately, peak prompt, and derived cost. Every row was
-cross-checked field by field against the raw collector output with zero
-discrepancies\live.
+The analysis artifact contains execution-level records for the
+model-written policies and final aggregate summaries for the hybrid
+policies. Table entries and numerical claims are generated from those
+inputs. The aggregate summaries contain solved-rate margins and matched
+discordant outcomes, sufficient to reconstruct the reported success
+contrasts and exact McNemar tests. They do not contain complete
+trajectories, per-call prompt measurements, or joint task-level outcomes
+for all configurations.
 
-\paragraph{Regenerating the paper's numbers.} One deterministic analysis
-produces every table, every figure coordinate and every inline figure in
-this paper from the released run data. No measured number is written into
-the manuscript source; the text references generated definitions, so a
-change in the data cannot leave a stale number in the prose.
+Resource ratios are computed separately for each condition against its
+own full-history reference, restricting to shared successes. For a
+resource $X$, the reported statistic is
+\[
+ \operatorname{median}_{(i,r):\,Y_{iar}=Y_{i0r}=1}
+ \frac{X_{iar}}{X_{i0r}}.
+\]
+A zero reference denominator would make an individual ratio undefined.
+The analysis does not replace such a denominator with an arbitrary
+constant. Input and cached tokens are separate recorded counters.
 
-The analysis additionally enforces an integrity gate, stated as
-Algorithm~\ref{alg:gate}: it recomputes the published headline values from
-the raw rows and refuses to emit the document if any of them disagrees. The
-gate was verified by construction: corrupting a sample of verdicts in the
-input causes it to fail and to name every affected quantity\live.
+The efficiency measures use all retained outcomes:
+\[
+ \text{Solved/\$}=\frac{\sum Y}{\sum D},
+ \qquad
+ \text{Solved/Mtok}=
+ \frac{10^{6}\sum Y}{\sum(U+K+O)}.
+\]
+The latter measures logical token volume under the recorded counter
+convention, not equivalence of computational work across cached and
+uncached tokens. Hybrid cost efficiencies are approximate because the
+available aggregate costs are rounded. Unavailable token totals and
+prompt peaks are not reconstructed from marginal medians.
 
-\begin{algorithm}[h]
-\caption{Build-time integrity gate}
-\label{alg:gate}
-\begin{algorithmic}[1]
-\Require canonical run table $D$; published headline values $V$
-\State recompute every table and inline quantity from $D$
-\State $M \gets$ the recomputed headline values
-\For{each $v \in V$}
-  \If{$M[v] \neq V[v]$}
-    \State report $v$ with both values
-    \State \textbf{abort the build}
-  \EndIf
-\EndFor
-\State emit tables, figure data and macro definitions
-\State typeset the document
-\end{algorithmic}
-\end{algorithm}
+\clearpage
+\section{Success by reference trajectory length}
+\label{app:horizon}
 
-The exact invocation lives in the repository's build instructions, not here.
+Table~\ref{tab:horizon} separates tasks using the full-history control's
+median recorded trajectory length. All state policies use the same
+partition. The larger state-only deficit appears in the longer-reference
+subset, while recent-history retention improves the observed solved rate
+in both subsets. Because the partition is post-hoc and trajectory length
+also reflects task characteristics, this pattern does not identify a
+causal horizon effect or a context-window crossover.
 
-\paragraph{Statistics.} Exact McNemar and exact sign tests are computed from
-the binomial distribution in closed form; Wilson intervals are used for
-proportions; the horizon trend uses Spearman rank correlation with a
-permutation $p$-value under a fixed seed. The implementation depends only on
-the standard library, so it runs unchanged on the measurement host.
-
-\paragraph{Exclusions, with counts.} Attempts that returned no verifier
-verdict are recorded separately and excluded; the large majority were
-re-queued and later closed with a real verdict, and the residue is symmetric
-across arms. Runs measured under provider saturation are quarantined by the
-pre-declared rule of \S\ref{sec:pitfalls}. Where an orchestrator restart ran
-one cell twice, the builder keeps the earliest launch, a rule fixed before
-any verdict was read so that a repeat cannot promote itself by
-winning\code.
-
-\paragraph{Stack.} Agent, harness and plugin versions are pinned and
-recorded per run; content hashes for the plugin and schema are written into
-every row, so a run can be attributed to the exact code that produced it.
-
-\paragraph{Artefacts.} The dataset, the raw collector output, the analysis
-and the manuscript source are released together.
-\note{Zenodo DOI to be minted at submission; repository URL to be filled
-once the release is public}
+\begin{table}[htbp]
+\centering\small
+\caption{Solved rate by the full-history control's median recorded turns
+$T$. Differences and exact McNemar tests use full history within the same
+subset. The grouping is descriptive and held fixed across conditions.}
+\label{tab:horizon}
+\input{tables/new-horizon}
+\end{table}

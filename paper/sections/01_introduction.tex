@@ -1,103 +1,46 @@
 \section{Introduction}
-\label{sec:intro}
+\label{sec:introduction}
 
-A coding agent that works for hours accumulates a transcript that never stops
-growing. Every observation, every tool result and every intermediate thought
-is sent to the model again on the next call, so the prompt grows with the
-task and the cost of a turn grows with everything that came before it.
-Structured state memory is the most direct answer to this problem: throw the
-transcript away and let the model maintain a compact structured state that is
-meant to summarise everything still relevant to the task.
-\SkillState{}~\citep{skillstate2026} reports that this keeps the prompt size
-nearly constant from 10 to 200 environment events while task quality does not
-degrade\origin.
+A coding agent learns about a task while trying to solve it. A command
+reveals a dependency, a test invalidates a proposed fix, or an unsuccessful
+edit rules out an approach. Subsequent decisions depend on which of these
+results remain available. Choosing what to keep in context therefore
+changes both what the agent can use and the resources needed to present it.
 
-That result was measured on a synthetic generator. This paper asks whether it
-survives on real software tasks, where the agent decides for itself what to
-inspect and when it is finished.
+An append-only transcript preserves earlier messages without requiring
+the agent to decide immediately which details will matter later. Its
+disadvantage is growth: more of the record must be presented at each step.
+Structured state makes the opposite choice. Selected facts and pending
+work are retained in mutable fields, while the original messages can be
+discarded. This can remove redundancy, but it asks the state writer to
+anticipate which details will matter later.
 
-\paragraph{What we test.}
-We do not ask whether structured state is useful in general. We test the
-specific transfer claim that follows from the published evaluation: replacing
-the transcript with a maintained state block preserves task capability while
-bounding the context. We test it on Terminal-Bench 2.0, under a design fixed
-in writing before any run (\S\ref{sec:design}), with every verdict taken from
-the task's own verifier.
+SKILL.state proposes such a runtime architecture in place of conversational
+history~\citep{skillstate2026}. We study its transfer to a terminal-based
+coding agent. We ask whether state can replace history without reducing
+task success, and what resource savings remain over a complete task. We
+test context policies with a different model, agent, and benchmark. This
+does not reproduce the original study.
 
-\paragraph{Main result.}
-The transfer claim fails. Across \EOneRuns{} runs, the published configuration
-solves \SolveTailZero{} of the tasks, while the transcript control (the same
-agent with its full history and no state block) solves \SolveBase{}. In the
-paired comparison on (task, trial), it loses \McnCtlTailZero{} tasks and wins
-\McnArmTailZero{} ($p={}$\McnPTailZero). A hard benchmark or a weak model does
-not explain this: the same model on the same tasks, with its history intact,
-solves them.
+Three design choices motivate the comparisons. Keeping recent history
+preserves records without rewriting them. State ownership determines
+whether the model must record an event or the runtime can preserve it
+directly. Finally, the update protocol and schema
+determine how the model expresses changes to its memory. A failure under
+one set of choices does not identify which choice was responsible.
 
-Two further observations turn the negative result into an explanation.
-First, the loss grows with task horizon (\S\ref{sec:capability}); a memory
-mechanism is supposed to help most on long tasks, and here it hurts most on
-them. Second, restoring six verbatim exchanges next to the state block leaves
-no deficit we can detect ($p={}$\McnPTailSix; we could not detect a
-difference, which is not the same as showing the two conditions are equal).
-The damage therefore comes from the discarded history, not from the state
-abstraction itself.
+We compare full history with model-written state and with hybrid state
+combining model-written content and runtime-derived records. Within these
+families, we vary how much recent history is kept; within the hybrid family, we
+also vary failure records, update protocol, and schema. Success and resource
+use are evaluated together. Peak prompt size measures a different property
+from cumulative output or cost per observed success, and a memory policy
+can improve one while worsening another.
 
-\paragraph{Why the original evaluation could not see this.}
-In the synthetic setting the number of model calls per episode is fixed by
-construction: the environment emits $T$ events and every runtime answers each
-event exactly once\origin. An agent that has forgotten something cannot pay
-to recover it, because the design offers no way for re-acquisition to show up
-as a cost. In an agentic setting the step count is an outcome rather than a
-control, and that is where the price appears (\S\ref{sec:repro}).
-
-\paragraph{The mechanism.}
-\begin{quote}
-\itshape
-Bounded conversational context does not imply bounded effective information
-acquisition, because coding agents compensate by re-reading the environment.
-\end{quote}
-The state block bounds what the agent is told; it does not bound what the
-agent needs. The difference is paid in the tool loop, which no prompt-size
-metric observes. We measure it directly: in failing state-only runs
-\SI{58}{\percent} of all commands repeat an inspection already performed,
-against \SI{20}{\percent} in the control\live{} (\S\ref{sec:mechanism}).
-
-\paragraph{The same mechanism drives cost.}
-State maintenance is emitted as generated text, so it is billed at the output
-price; and because the block is rewritten every turn, it destroys the prefix
-cache from which an append-only transcript is almost entirely served. At
-equal outcome the state-only arm carries \PeakRatioTailZero$\times$ the
-control's peak prompt size and costs \CostRatioTailZero$\times$ as much\live.
-Reducing tokens is not the same as reducing cost, and on this corpus the
-token count does not even predict the direction of the cost change.
-
-\input{figures/fig1_architecture}
-
-\paragraph{Contributions.}
-\begin{enumerate}
-\item A falsification, on a closed pre-registered design of \EOneRuns{} runs,
-      of the claim that structured state memory preserves capability on real
-      coding tasks (\S\ref{sec:capability}).
-\item An account of the evaluation property that hid this failure: fixing
-      the per-episode model-call count makes compensatory re-acquisition
-      unmeasurable by construction (\S\ref{sec:repro}).
-\item A mechanism measured at the level of individual tool calls, linking
-      discarded history to redundant environment inspection
-      (\S\ref{sec:mechanism}).
-\item A cache-aware cost methodology that separates token reduction from
-      monetary reduction, and under which no configuration of structured
-      state is cheaper than a transcript at equal outcome
-      (\S\ref{sec:economics}).
-\item A released dataset of \EOneRuns{} fully instrumented trajectories with
-      per-run provenance, and the deterministic analysis that regenerates
-      every number in this paper (\S\ref{sec:repro-appendix}).
-\end{enumerate}
-
-\paragraph{What we do not claim.}
-We do not claim that structured state is a bad idea. We claim that its
-published evaluation measures a regime in which its central failure mode
-cannot occur, and that on real coding tasks the mechanism trades capability
-for prompt size at a rate the original metric cannot express.
-Section~\ref{sec:threats} states the boundaries plainly: the study covers one
-model family, one benchmark corpus, and a composition study still in
-progress.
+Restoring recent history improves the observed solved rate in both
+state-based families.
+The tested protocol and schema changes do not recover the full-history
+result. Resource comparisons show why a compact prompt alone cannot tell
+us whether an agent solves tasks efficiently. Retained records remain
+useful in these state-based agents, but the tests do not establish that state adds value over
+the same amount of history alone.

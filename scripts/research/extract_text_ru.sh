@@ -4,6 +4,7 @@ set -eu
 cd "$(dirname "$0")/../.."
 
 mkdir -p build/research
+python3 scripts/research/manuscript_contract.py
 
 if [ ! -d paper-ru ]; then
   echo "extract_text_ru: paper-ru/ does not exist yet - nothing to extract" >&2
@@ -19,6 +20,11 @@ pandoc \
   -t plain \
   build/research/manuscript-ru.expanded.tex \
   -o build/research/manuscript-ru.txt
+
+python3 scripts/research/prose_only.py \
+  build/research/manuscript-ru.expanded.tex build/research/manuscript-ru-prose.tex
+pandoc -f latex -t plain build/research/manuscript-ru-prose.tex \
+  -o build/research/manuscript-ru-prose.txt
 
 WORDS=$(wc -w < build/research/manuscript-ru.txt)
 echo "==> extracted ${WORDS} words"

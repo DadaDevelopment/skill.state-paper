@@ -1,0 +1,7 @@
+numpy>=1.24
+pandas>=2.1
+pandera>=0.20
+pytest>=8
+PyYAML>=6
+requests>=2.31
+academic-refchecker[llm,webui]>=3.0.117

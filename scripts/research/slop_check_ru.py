@@ -34,7 +34,7 @@ import sys
 import yaml
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MANUSCRIPT = os.path.join(REPO, "build", "research", "manuscript-ru.txt")
+MANUSCRIPT = os.path.join(REPO, "build", "research", "manuscript-ru-prose.txt")
 BANNED_PATH = os.path.join(REPO, "research", "banned-phrases-ru.txt")
 WAIVERS_PATH = os.path.join(REPO, "research", "waivers.yml")
 
@@ -152,6 +152,9 @@ def main():
 
     with open(MANUSCRIPT, encoding="utf-8") as fh:
         text = fh.read()
+    if not text.strip():
+        print("slop_check_ru: extracted prose is empty", file=sys.stderr)
+        return 1
     paragraphs = [p for p in text.split("\n\n") if p.strip()]
 
     phrases = load_banned_phrases()

@@ -1,115 +1,78 @@
-\section{Results III: economics}
+\section{Prompt size, token use, and cost}
 \label{sec:economics}
 
-\subsection{Cost at equal outcome}
-\label{sec:cost-fair}
+A smaller prompt does not necessarily make successful execution cheaper.
+For model-written state without retained history, the median peak-prompt
+ratio is \ModelStatePeakRatio{}, but the cost ratio is
+\ModelStateCostRatio{} on shared successes
+(Table~\ref{tab:resources}). The corresponding output-token ratio is
+\ModelStateOutputRatio{}. The compact representation therefore coexists
+with higher output use and higher reference-tariff cost in this subset.
 
-Comparing cost across arms that solve different numbers of tasks is
-meaningless: a failing run stops early and therefore costs little. Every
-ratio in Table~\ref{tab:cost} is computed only on pairs where \emph{both}
-arms solved the same task in the same trial, and each ratio is a per-pair
-median, so one expensive task cannot set the number.
-
-\begin{table}[t]
-\centering
-\caption{Resource ratios against the same-trial control, on pairs where both
-arms solved the task. Per-pair medians; $p$ from an exact sign test on the
-cost ratios.}
-\label{tab:cost}
-\input{tables/t3_cost}
+\begin{table}[htbp]
+\centering\small
+\caption{Resource ratios on shared successes: median of matched
+condition/full-history ratios. Peak prompt is a per-call maximum; the
+token columns are cumulative. The exact sign test concerns cost ratios.}
+\label{tab:resources}
+\input{tables/new-resources}
 \end{table}
 
-At equal outcome the published configuration carries
-\PeakRatioTailZero$\times$ the control's peak prompt and costs
-\CostRatioTailZero$\times$ as much ($p={}$\CostSignPTailZero). The prompt is
-half the size and the bill is two and a half times larger.
+Retaining history brings the conditional cost ratio toward one:
+\ModelHistoryTwoCostRatio{} at $k=2$ and
+\ModelHistorySixCostRatio{} at $k=6$. These ratios do not describe the
+whole workload. They omit both failures and successes that only one
+condition achieves, precisely the outcomes on which capability differs.
 
-\subsection{Where the money goes}
+Table~\ref{tab:economics} includes retained failures and reports cost and
+successes per dollar. Taking the reciprocal of the latter gives cost per
+observed success. State without history costs
+\$\ModelStateCostPerSuccess{} per success, compared with
+\$\ModelControlCostPerSuccess{} for full history. At $k=6$, the value is
+\$\ModelHistorySixCostPerSuccess{}, below that reference despite the
+higher conditional cost ratio. There is no contradiction: the conditional
+comparison measures resources on shared successes, while the all-execution
+comparison includes changes in success and termination.
 
-The same table carries the mechanism. Output tokens are
-\OutRatioTailZero$\times$ the control's: the state block is regenerated
-every turn, and generated text is billed at the most expensive tariff.
-Cached reads fall away as the retained history shrinks, and the series
-totals show the same effect from the other side: the control is served
-\TotCacheBase{}M cached tokens across the series against \TotCacheTailSix{}M
-for \StateK{6}\live.
-
-An append-only transcript is almost entirely cache-served, because every
-call shares the previous call's prefix. A state block rewritten each turn
-diverges from the previous prefix where the block begins, so the discount
-that makes the control cheap does not apply. Neither quantity is visible in
-a cumulative token count, and that is the concrete content of the
-methodological claim: token reduction and cost reduction are different
-measurements, and on this corpus they have opposite signs.
-
-\begin{table}[t]
-\centering
-\caption{Series totals. Reported for scale only: per-condition sums are not a
-fair comparison, because a failing run stops early.}
-\label{tab:totals}
-\input{tables/t5_totals}
+\begin{table}[htbp]
+\centering\small
+\caption{Cost and efficiency over retained executions, including failures.
+Successes per dollar use aggregate cost and observed successes, not ratios
+of medians. Token efficiency is reported where
+cumulative totals are available. Cost conventions differ between panels.}
+\label{tab:economics}
+\input{tables/new-economics}
 \end{table}
 
-\input{figures/fig3_tokens}
+Figure~\ref{fig:pareto} places these history-retention policies in the
+success--cost plane. The panels keep their own controls and accounting
+conventions, so horizontal positions are compared only within a panel.
+\input{../paper/figures/fig4_pareto}
 
-\subsection{Solved tasks per unit spend, at series level}
+Across retained executions, model-written state alone has a lower median
+peak prompt but higher median output and more recorded turns than full
+history (Table~\ref{tab:tokens}). The largest history-retention setting
+increases uncached input, while bringing output closer to the full-history
+level. Cache-read counts differ substantially across policies. These
+observations establish resource differences, but do not isolate cache
+invalidation, repeated inspection, or patch generation as their causes.
 
-A runtime that halves tokens and fails half the tasks is not an improvement.
-The efficiency view (Table~\ref{tab:efficiency}) divides outcomes by
-resources.
-
-\begin{table}[t]
-\centering
-\caption{Efficiency. Solved tasks per million tokens and per dollar across
-the whole series.}
-\label{tab:efficiency}
-\input{tables/t6_efficiency}
+\begin{table}[htbp]
+\centering\small
+\caption{Median recorded turns $T$, per-execution peak prompt, and
+cumulative token use for model-written state policies. Token counts are in
+thousands; input excludes cache reads. Peak is the median of execution
+maxima, not the median per-call prompt. Token columns are separate marginal
+medians and cannot be summed to obtain median total tokens.}
+\label{tab:tokens}
+\input{tables/new-tokens}
 \end{table}
 
-Two things follow. Per token, the state arms do look efficient
-(\EffTokTailZero{} against the control's \EffTokBase{} solved per million);
-this is the original's metric, and it is the reading a token-count
-evaluation produces. Per dollar, the ranking changes: \StateOnly{} is the
-worst of all four arms at \EffCostTailZero{} solved per dollar, below the
-control's \EffCostBase{}.
-
-By that series-level measure the best arm is \StateK{6} at
-\EffCostTailSix{} solved per dollar against \EffCostBase{}. That comparison
-must be read with the caveat of \S\ref{sec:cost-fair}: a failing run stops
-early and costs little, so series totals flatter whichever arm fails more,
-and they are reported here for scale, not as a verdict.
-
-The matched-outcome comparison is the one that decides. On it \StateK{6} is
-not cheaper than the control: \CostRatioTailSix$\times$ over
-\CostPairsTailSix{} tasks that both arms solved, more expensive in 78 of
-them against 53 ($p={}$\CostSignPTailSix)\live. The honest statement of the
-economics is therefore narrower than a token count suggests in either
-direction. Restoring a short tail removes the capability deficit
-(\S\ref{sec:capability}) and cuts the cost premium from
-\CostRatioTailZero$\times$ to \CostRatioTailSix$\times$, but on this corpus
-no configuration of structured state was cheaper than simply keeping the
-transcript at equal outcome.
-
-\input{figures/fig4_pareto}
-
-\subsection{H2 refuted as pre-registered}
-
-The pre-registration predicted that the cost ratio would fall with horizon
-and cross 1.0, that is, that the overhead would amortise on long tasks. It
-does not. The Spearman correlation between control horizon and per-task cost
-ratio is \RhoHorizonCost{} over \RhoHorizonCostN{} tasks
-($p={}$\RhoHorizonCostP): a correlation indistinguishable from zero and, if
-anything, of the wrong sign.
-
-The test covers \RhoHorizonCostN{} of the \EOneTasks{} tasks by the
-definition of the quantity, not by any exclusion rule: a per-task cost ratio
-exists only where the control and \StateOnly{} both solved the task in at
-least one trial, and \StateOnly{} solves \SolveTailZero{} of runs. The
-restriction follows from the capability result of \S\ref{sec:capability},
-and it cuts against us: the tasks where \StateOnly{} failed outright are the
-long ones on which the amortisation was predicted.
-
-No crossover exists within the observed horizon range. We report this as a
-refutation of our own hypothesis instead of dropping it, and it converges
-with \S\ref{sec:capability}: not only does the cost fail to amortise, the
-capability deficit widens with horizon.
+The economic objective determines which comparison matters. Peak prompt
+size concerns context capacity; cost per success concerns the retained
+workload; conditional ratios compare resources when both policies finish.
+An evaluation based only on compression can miss a capability deficit,
+while one based only on aggregate expense can favor cheap unsuccessful
+executions. Reporting these quantities together makes the trade-off
+visible without treating any single measure as a universal efficiency
+score.

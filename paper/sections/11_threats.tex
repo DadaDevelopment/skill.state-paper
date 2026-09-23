@@ -1,63 +1,32 @@
 \section{Threats to validity}
 \label{sec:threats}
 
-\paragraph{One model family.} Every run uses \texttt{\EOneModel}. A paired
-pilot on a stronger model from the same provider solved no task the small
-model could not, at \num{22.7}$\times$ the median cost per cell\live, which
-is why the series was not moved to it. That pilot covers 7--8 tasks and
-settles a budget question, not a transfer question. We claim nothing about
-models from other families, and in particular nothing about whether a model
-with stronger instruction-following would maintain state well enough to avoid
-the failure mode of \S\ref{sec:mechanism}.
+\paragraph{Implementation and selection.}
+The findings concern specific implementations, not structured memory in
+general. Complete execution-source snapshots, generation settings, and
+prompt traces are unavailable for independent replay. The model-written
+release specifies inclusion rules, but their prospective timing is not
+independently established. The hybrid collector description leaves
+budget-related exclusions ambiguous, so outcome-dependent selection cannot
+be ruled out. Conditions were not demonstrably balanced over execution
+time and provider route.
 
-\paragraph{One corpus, and its horizon range.} Under the control,
-Terminal-Bench 2.0 tasks use a median of roughly \SI{5}{\percent} of the
-context window\live. The window is therefore rarely the binding constraint,
-which is the regime in which a memory mechanism should be least necessary. A
-pilot on the longer Terminal-Bench 4.0 shows a median peak of
-\SI{66}{\percent} of the window\live, and there the same mechanism appears an
-order of magnitude stronger (median repetition \num{3.26} against the
-control's \num{1.02}). That pilot is one trial on six tasks and is not a
-result. The honest statement of scope is that our finding holds where the
-window is not saturated; the direction of the effect in the saturated regime
-is measured but not established.
+\paragraph{Measurement and inference.}
+Verifier-defined success measures benchmark completion rather than memory
+quality in isolation. The available retention parameter does not establish
+identical message semantics across implementations. Reference-tariff cost
+and reported cost are distinct accounting conventions, and neither
+includes all discarded attempts. Repeated tasks, outcome-conditioned
+resource subsets, and exploratory multiple comparisons limit statistical
+interpretation. The reported intervals do not establish representative
+task sampling, and the hybrid aggregates do not support the same
+task-level uncertainty analysis.
 
-\paragraph{Implementation fidelity.} Our state block is thicker per step than
-the original reports\live, so the absolute cost magnitudes are upper bounds
-(\S\ref{sec:repro}). Both corrections move against our headline result.
-
-\paragraph{Tariff transfer in the reproduction.} Section~\ref{sec:repro}
-applies our measured prices to the original's published token counts. The
-order of magnitude does not depend on the exact multipliers, which are an
-estimate and are labelled as one.
-
-\paragraph{Contamination not detectable in principle.} The quarantine rule
-(\S\ref{sec:pitfalls}) keys on errored turns. A provider degradation below
-the error-visibility floor would not be caught. The bound on the damage is
-that the cost results do not depend on verdicts at all, and that the
-capability result survived removal of every cell the rule did catch.
-
-\paragraph{Two unrunnable tasks.} Two of the 89 tasks fail during container
-setup in every condition\live{} and are absent from all arms equally. This
-removes two tasks from the corpus; it does not favour any condition.
-
-\paragraph{The composition study carries one trial.}
-Section~\ref{sec:composition} reports \VRuns{} runs at a single trial,
-against three for E1. Given this project's own history (an effect significant
-at two trials that died at the third, \S\ref{sec:pitfalls}), the individual
-rung-to-rung steps there are provisional. The end-to-end comparison and the
-direction of the cost trend are consistent across every rung, which is why
-they are stated at all, but no claim in this paper's abstract or conclusion
-rests on them.
-
-\paragraph{No tail-only arm.} The four E1 conditions are a control with no
-state block and three state-bearing arms at different tails. There is no arm
-carrying the last $\tailk$ exchanges and \emph{no} state block. Without that
-arm, \S\ref{sec:capability} can show that restoring history removes the
-deficit, but it cannot separate how much of the remaining behaviour at
-$\tailk{=}6$ comes from the state block and how much from the history beside
-it. Table~\ref{tab:totals} contains a hint that this distinction matters:
-\StateK{6} completes the series in fewer total turns than the control, which
-a purely additive account of the two components does not obviously predict.
-We flag this as unexplained instead of interpreting it, and the arm belongs
-in the next series.
+\paragraph{Generalization.}
+The evaluation uses one model and coding-agent configuration on a limited
+task collection. Schema adaptation used that same collection. Results need
+not transfer to other models, state writers, retrieval mechanisms, or
+workloads near a context-window limit. The missing history-only control
+prevents a claim that state and recent history are complementary. No
+validated trace-level analysis identifies a causal explanation for the
+observed deficits.

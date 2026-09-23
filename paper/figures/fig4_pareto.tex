@@ -1,38 +1,43 @@
-% Figure 4: the Pareto view. Solved tasks against dollars spent - the frontier
-% that decides which configuration a practitioner should actually run.
-% Coordinates from figures/data/pareto.dat.
-
-\begin{figure}[t]
+% Adapted from the repository's original trade-off scatter.
+\begin{figure}[tbp]
 \centering
-\begin{tikzpicture}[font=\small]
+\begin{tikzpicture}
 \begin{axis}[
-  width=0.92\linewidth, height=5.2cm,
-  xmin=10.5, xmax=19.5, ymin=75, ymax=180,
-  xlabel={series cost (USD, lower is better)},
-  ylabel={tasks solved (higher is better)},
-  grid=major, grid style={black!12},
-  nodes near coords={\scriptsize\pgfplotspointmeta},
-  point meta=explicit symbolic,
-  every node near coord/.append style={anchor=south, yshift=3pt},
-]
-\addplot[only marks, mark=*, mark size=3pt, draw=black!70, fill=blue!45]
-  table[x=cost, y=solved, meta=label] {figures/data/pareto.dat};
-
-\draw[->, thick, black!45] (axis cs:18.6,96) -- (axis cs:17.4,96);
-\node[font=\scriptsize, text=black!55, anchor=west] at (axis cs:18.4,90)
-  {better};
-\draw[->, thick, black!45] (axis cs:18.9,98) -- (axis cs:18.9,110);
+width=.47\linewidth,height=5.1cm,
+title={Model-written memory},title style={font=\small},
+xlabel={Mean cost (\$)},ylabel={Solved rate (\%)},
+xmin=.040,xmax=.078,ymin=30,ymax=68,
+xtick={.04,.05,.06,.07},scaled x ticks=false,
+xticklabel style={/pgf/number format/fixed,/pgf/number format/precision=2,font=\scriptsize},
+yticklabel style={font=\scriptsize},label style={font=\small},
+grid=major,grid style={black!12},
+nodes near coords={\pgfplotspointmeta},point meta=explicit symbolic,
+every node near coord/.append style={font=\scriptsize,anchor=south,yshift=3pt}]
+\addplot[only marks,mark=*,mark size=2.5pt,blue!65!black]
+table[col sep=comma,x=mean_cost_usd,y=solved_pct,meta=history]{../paper/generated/new-model-history.csv};
+\end{axis}
+\begin{axis}[
+at={(.52\linewidth,0)},anchor=south west,
+width=.47\linewidth,height=5.1cm,
+title={Hybrid memory},title style={font=\small},
+xlabel={Mean cost (\$)},
+xmin=.016,xmax=.028,ymin=30,ymax=68,
+xtick={.016,.020,.024,.028},scaled x ticks=false,
+xticklabel style={/pgf/number format/fixed,/pgf/number format/precision=3,font=\scriptsize},
+yticklabel style={font=\scriptsize},label style={font=\small},
+grid=major,grid style={black!12}]
+\addplot[only marks,mark=square*,mark size=2.5pt,green!45!black]
+table[col sep=comma,x=mean_cost_usd,y=solved_pct,meta=history]{../paper/generated/new-hybrid-history.csv};
+\node[font=\scriptsize,green!45!black,anchor=south west,xshift=3pt,yshift=3pt]
+ at (axis cs:\HybridControlCostMean,\HybridControlRate) {full};
+\node[font=\scriptsize,green!45!black,anchor=north east,xshift=-3pt,yshift=-3pt]
+ at (axis cs:\HybridHistorySixCostMean,\HybridHistorySixRate) {6};
+\node[font=\scriptsize,green!45!black,anchor=north east,xshift=-3pt,yshift=-3pt]
+ at (axis cs:\HybridCostMean,\HybridRate) {0};
+\node[font=\scriptsize,green!45!black,anchor=south west,xshift=3pt,yshift=3pt]
+ at (axis cs:\HybridHistoryTwoCostMean,\HybridHistoryTwoRate) {2};
 \end{axis}
 \end{tikzpicture}
-\caption{The frontier that matters in practice: tasks solved against money
-spent, whole series. The published configuration ($k{=}0$) is dominated: it
-spends less than the control but solves far fewer tasks, and both $k{=}2$ and
-$k{=}6$ beat it on both axes simultaneously. Read this figure as a series-level summary only. Because a
-failing run stops early and therefore costs little, series totals flatter the
-arms that fail more, which is why the matched-outcome comparison of
-Table~\ref{tab:cost} and not this figure carries the paper's cost claim. On
-that fair comparison $k{=}6$ is \emph{not} cheaper than the control
-(\CostRatioTailSix$\times$, $p={}$\CostSignPTailSix). What the figure does show
-is that neither extreme of the tail axis is the right answer.}
+\caption{Success--cost trade-offs when retaining history. Labels are the retention setting $k$; full denotes the full-history reference without a state block. Each panel includes failures in mean cost and uses its own control and cost convention. The horizontal scales differ.}
 \label{fig:pareto}
 \end{figure}

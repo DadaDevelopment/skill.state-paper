@@ -1,80 +1,38 @@
-# paper/ - the manuscript
+# Manuscript sources
 
-Build:
+The active section order is defined by main.tex. The Russian manuscript in
+../paper-ru uses the same table, figure, bibliography, and numerical sources.
 
-    sh paper/build.sh          # regenerates numbers, then typesets
-    # or, if you only touched prose:
-    cd paper && /opt/data/bin/tectonic main.tex
+## Build
 
-`build.sh` runs the analysis first and **fails the build** if the recomputed
-numbers disagree with the published release. That gate is the point: the PDF
-cannot be built from stale tables.
+From the repository root:
 
-## The rule that keeps this honest
-
-**No measured number is typed into a section file.** Every figure in the prose
-is a macro defined in `generated/numbers.tex`, which is written by
-`analysis/build_paper.py` from `data/e1-release/canonical-e1-full.csv`.
-
-To use a number in the text, add it to the builder and reference the macro. If
-you find yourself typing `2.57` into a `.tex` file, stop - that number will not
-update when the data does, and nothing will warn you.
-
-## Layout
-
-```
-main.tex              master file, section order, extension switches
-preamble.tex          packages, house macros, \ifvtwo / \ifetwo switches
-references.bib        bibliography
-build.sh              analysis + typeset, with the integrity gate
-sections/             one file per section
-tables/               GENERATED - complete tabular environments, do not edit
-generated/numbers.tex GENERATED - inline macros, do not edit
+```sh
+make paper paper-ru
+make audit
+make audit-ru
 ```
 
-Both generated directories are rewritten on every build. Edits there are lost.
+Build scripts first run the original release integrity check, then generate
+the current approach-centered tables with analysis/build_approach_tables.py.
+Tectonic compiles the manuscripts only after generation succeeds.
 
-## Source tags
+## Current structure
 
-Claims about our own system carry a tag, and the reader is told so in the
-abstract:
+Problem and research questions; formal context policies and algorithms;
+Methods; history retention; hybrid state; update protocol and schema;
+resources and economics; limitations; related work; conclusion; metric and
+trajectory-length appendices.
 
-- `\live` - measured on a real run
-- `\code` - a property of the code
-- `\origin` - a statement of the original papers
+Measured claims in the prose use generated/approaches.tex. All new-* tables
+and new-* plot datasets are generated from canonical run data or the final
+hybrid aggregates. Generated files must not be hand-edited.
 
-Untagged text is argument, not evidence. Keep it that way.
+Architecture figures retain the original visual language, but correct
+unverified reasoning-retention claims and show both components of hybrid
+state. Algorithms specify information flow and the inline reference
+contract; they do not claim to reconstruct unavailable implementation traces.
 
-## Adding the V2 results (composition ladder)
-
-The slot already exists. While `\vtwofalse` (the default in `preamble.tex`),
-`main.tex` typesets `sections/09_results_composition_stub.tex`, which states
-the design and the pre-registered prediction and contains no numbers. To bring
-in the real section:
-
-1. Close the trial set on the stand.
-2. Write `analysis/build_composition.py` on the model of `build_paper.py`. It
-   must emit complete tabulars into `paper/tables/`:
-   - `v1_ladder_solve.tex` - solve rate per rung plus control
-   - `v2_ladder_paired.tex` - paired McNemar against the control
-   - `v3_ladder_cost.tex` - cost/peak/output on both-solved pairs
-   - `v4_ladder_redundancy.tex` - redundant-inspect fraction per rung
-
-   and append its macros to `generated/numbers.tex`.
-3. Set `\vtwotrue` in `preamble.tex`.
-4. Fill the `\pending{}` blocks in `sections/09_results_composition.tex` with
-   the sentences the data supports, and delete the ones that no longer apply.
-
-The same pattern is wired for the schema x protocol matrix: `\ifetwo` guards
-`sections/10_results_schema_protocol.tex`, which does not exist yet - create it
-and flip the switch.
-
-Note that macro names cannot contain digits (LaTeX restriction). The builder
-converts them to words, so the key `CostRatioTail0` becomes the command
-`\CostRatioTailZero`. Follow that convention in any new builder.
-
-## Draft notes
-
-`\note{...}` (red) and `\pending{...}` (blue) render while
-`\draftnotestrue`. Set `\draftnotesfalse` in `preamble.tex` for submission;
-both then vanish without touching the text around them.
+Tables and captions remain English in both manuscripts. Old result sections,
+old diagrams not included by main.tex, and the historical composition
+generator are archival material, not current results.

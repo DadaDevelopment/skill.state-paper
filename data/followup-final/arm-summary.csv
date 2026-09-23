@@ -1,0 +1,9 @@
+arm,protocol,schema,tasks,repeats,runs,solved_t1,solved_t2,solved,arm_only_vs_control,control_only_vs_arm,arm_only_vs_hybrid,hybrid_only_vs_arm,median_input_tokens,median_output_tokens,median_cache_read_tokens,median_turns,median_cost_usd,total_cost_usd_rounded
+control,none,none,87,2,174,48,42,90,0,0,,,20336,16384,62496,11,0.0104,4.26
+hybrid-v6,tool,existing,87,2,174,37,30,67,9,32,9,11,16616,19068,10208,8,0.0127,3.33
+hybrid-v7,tool,existing,87,2,174,36,33,69,10,31,0,0,14470,17332,9312,8,0.0120,3.23
+hybrid-v7-fit,tool,task-adapted,87,2,174,39,33,72,12,30,13,10,18854,21724,12288,7,0.0137,3.41
+hybrid-v7-inline,inline,existing,87,2,174,39,22,61,11,40,10,18,10618,28607,1920,10,0.0165,4.00
+hybrid-v7-paperlike,inline,task-adapted,87,2,174,31,19,50,7,47,7,26,14074,33090,2368,10,0.0190,5.04
+hybrid-v7-tail2,tool,existing,87,2,174,39,32,71,7,26,11,9,22384,16574,6432,8,0.0122,3.28
+hybrid-v7-tail6,tool,existing,87,2,174,41,43,84,14,20,23,8,48989,16403,9920,9,0.0144,4.21

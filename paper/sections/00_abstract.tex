@@ -1,60 +1,21 @@
 \begin{abstract}
-\noindent
-Structured state memory replaces an agent's conversation history with a compact
-state block that the model itself edits on every turn. On synthetic
-long-horizon benchmarks this keeps the prompt at a near-constant size and
-reports no loss of task quality. We test whether this result carries over to
-real coding work, on a closed, pre-registered design: \EOneTasks{} Terminal-Bench
-2.0 tasks $\times$ \EOneConditions{} conditions $\times$ \EOneTrials{}
-independent trials $=$ \EOneRuns{} runs, every cell filled, with each run's
-verdict taken only from that task's own automatic verifier (the pass/fail
-check shipped with the task, never the agent's own report of success).
-
-The published method does not carry over to this setting. It solves
-\SolveTailZero{} of tasks against \SolveBase{} for the transcript control (the
-same agent run with its full conversation history and no state block instead).
-Comparing each run only against the control run on the same task and the same
-trial, it loses \McnCtlTailZero{} tasks and wins \McnArmTailZero{}
-($p={}$\McnPTailZero). The loss is larger on long-horizon tasks
-(\HorTailZeroLongCtl{} vs.\ \HorTailZeroLongArm, $p={}$\HorTailZeroLongP) than
-on short ones, the opposite of what a memory mechanism is meant to deliver.
-When we restore six verbatim exchanges beside the state block, the deficit
-becomes undetectable (\McnCtlTailSix{} vs.\ \McnArmTailSix{} discordant tasks,
-$p={}$\McnPTailSix), which points to the discarded conversation history, not
-the state block itself, as the source of the damage. We report this as a
-failure to detect a difference; that is not the same as showing the two
-conditions are equivalent.
-
-Our measurements show why bounding the prompt does not bound how much
-information the agent can acquire: agents re-acquire discarded context through
-their own tools. In failing state-only runs, \SI{58}{\percent} of all commands
-repeat an inspection already performed, against \SI{20}{\percent} in the
-control, and the agent follows pointers into files \num{12} times more often,
-so the tool loop spends in extra turns what the prompt saved in context. This
-carries a cost consequence: at equal outcome the state-only arm (the condition
-that runs with the state block alone, no history) carries
-\PeakRatioTailZero$\times$ the control's peak prompt size yet costs
-\CostRatioTailZero$\times$ as much, because maintaining the state block is
-billed at the output token price (\OutRatioTailZero$\times$ the input price)
-and rewriting the block every turn destroys the prefix cache that the control
-benefits from (\TotCacheBase{}M cached tokens against \TotCacheTailSix{}M).
-
-The tested regime is one model family on one benchmark, and in it the control
-never comes close to its context limit, so these results describe what the
-mechanism buys when the context window is not the binding constraint, not what
-it buys when the window is the binding constraint.
-
-Our contributions are a falsification of the transfer claim on real coding
-tasks; an account of the evaluation property that concealed it (fixing the
-number of model calls per episode makes this kind of compensatory
-re-acquisition impossible to observe by construction); a cache-aware
-accounting method that shows token reduction and cost reduction to be
-different quantities; and a released dataset of \EOneRuns{} fully
-instrumented agent trajectories.
+Replacing an agent's interaction history with structured state can reduce
+prompt size, but the replacement must preserve information needed for later
+decisions. We evaluate this trade-off for a terminal-based coding agent,
+comparing model-written state, hybrid state with runtime-derived records,
+and state augmented with recent history. Additional comparisons vary the
+state-update protocol and schema. With model-written state alone, the
+solved rate falls from \ModelControlRate\% for full history to
+\ModelStateRate\%; retaining recent history raises it to
+\ModelHistorySixRate\%. The corresponding hybrid policy reaches
+\HybridHistorySixRate\%, against its own full-history reference of
+\HybridControlRate\%. Neither the tested inline update protocol nor a
+task-adapted schema closes that gap. Smaller prompts also do not imply
+cheaper successful execution: on jointly successful executions,
+model-written state alone has a median peak-prompt ratio of
+\ModelStatePeakRatio{} and a cost ratio of \ModelStateCostRatio{} relative
+to full history. These results characterize a capability--resource
+trade-off in the evaluated implementations. They support retaining recent
+interaction records within those systems, while leaving the incremental
+benefit of state over an equally sized history window unresolved.
 \end{abstract}
-
-\vspace{0.5em}
-\noindent\textbf{Reading the source tags.} Claims about our own system carry
-\live{} for a measurement on a real run, \code{} for a property of the code, and
-\origin{} for a statement of the original papers. Anything without a tag is
-argument, not evidence.

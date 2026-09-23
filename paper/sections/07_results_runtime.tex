@@ -1,0 +1,45 @@
+\section{Hybrid state and failure records}
+\label{sec:runtime}
+
+Hybrid state changes who records execution evidence. Observable outcomes
+are retained by the runtime, while the model maintains their semantic
+interpretation and pending work. This division is intended to reduce the
+need for the model to rewrite facts already available to the system. The
+question is whether the resulting representation is sufficient when the
+interaction transcript is removed. Figure~\ref{fig:runtime-written}
+shows the division of state ownership.
+
+\input{../paper/figures/fig5_runtime_written}
+
+The hybrid reference reaches a solved rate of \HybridRate\%, against
+\HybridControlRate\% for full history
+(Table~\ref{tab:runtime}). The version without failure records reaches
+\HybridNoFailureRate\%, a difference of
+$\HybridNoFailureVsHybridDelta$ percentage points from the hybrid
+reference. This comparison provides little evidence of a large benefit
+from the tested failure-record representation, but does not establish that
+such records are unnecessary.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Hybrid state with and without failure records. Token use and cost
+are per-execution medians; token counts are in thousands.
+Exact McNemar tests compare each policy with full history.}
+\label{tab:runtime}
+\input{tables/new-runtime}
+\end{table}
+
+The success deficit remains even when observable evidence is partly
+runtime-maintained. Recording an event and selecting the information needed
+for a later decision are different operations. A command outcome may be
+accurately retained while its relevance to a new failure remains unclear.
+The measurements do not distinguish this possibility from other weaknesses
+of the hybrid implementation.
+
+The runtime comparison also should not be read as a direct estimate of the
+benefit of adding runtime records to model-written state. Those families
+have separately evaluated controls, and the hybrid system includes other
+implementation differences. The matched failure-record contrast isolates
+a narrower change within the hybrid system. Its strongest observed
+state-based result comes from retaining recent history, as shown in
+Table~\ref{tab:history}.

@@ -24,7 +24,7 @@ jobs:
       - name: System dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc poppler-utils perl
+          sudo apt-get install -y pandoc poppler-utils perl fonts-liberation fonts-dejavu-core
           curl -sL https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand -o /usr/local/bin/latexpand
           chmod +x /usr/local/bin/latexpand
           curl -sL https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz | tar xz
@@ -40,7 +40,7 @@ jobs:
           python -m venv .venv-research
           . .venv-research/bin/activate
           pip install --upgrade pip
-          pip install pytest pandera pandas pyyaml requests "academic-refchecker[llm,webui]"
+          pip install -r requirements-research.txt
 
       - name: Node dependencies
         run: |
@@ -49,7 +49,8 @@ jobs:
       - name: Full research audit
         env:
           TECTONIC: /usr/local/bin/tectonic
-        run: make audit
+          GH_TOKEN: ${{ github.token }}
+        run: make audit audit-ru
 
       - name: Upload reports
         if: always()

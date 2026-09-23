@@ -1,0 +1,36 @@
+\begin{algorithm}[H]
+\caption{Context selection and state ownership}
+\label{alg:context}
+\begin{algorithmic}[1]
+\Require Instructions $P$, policy $\pi$, retention setting $k$, update protocol $q$, initial observation $o$
+\State Initialize history $H$, semantic state $S$, runtime record $V$
+\While{the task has not terminated}
+  \If{$\pi=\mathrm{FullHistory}$}
+    \State $C \gets [P,H,o]$
+  \Else
+    \State $\Sigma \gets S$ \textbf{or} $(S,V)$ according to state ownership
+    \State $C \gets [P,\Sigma,\tau_k(H),o]$
+  \EndIf
+  \State $(S',a) \gets \operatorname{PolicyStep}(C,S,\pi,q)$
+  \State $r \gets \operatorname{Execute}(a)$; $S \gets S'$
+  \If{hybrid memory is enabled}
+    \State $V \gets \operatorname{Record}(V,a,r)$
+  \EndIf
+  \State Append a record of $(o,a)$ to $H$; $o \gets r$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}[H]
+\caption{Inline patch--action contract}
+\label{alg:inline}
+\begin{algorithmic}[1]
+\Require Current context $C$ and semantic state $S$
+\State $(\Delta S,a) \gets \operatorname{Model}(C)$
+\If{$\operatorname{Valid}(\Delta S,S)$}
+  \State \Return $(\operatorname{Apply}(S,\Delta S),a)$
+\Else
+  \State Keep $S$ unchanged and return a validation observation
+  \State Do not execute $a$ from the rejected envelope
+\EndIf
+\end{algorithmic}
+\end{algorithm}

@@ -1,133 +1,73 @@
-# Bounded Context Is Not Bounded Information
+# When Structured State Replaces Interaction History
 
-Materials for the paper testing whether structured state memory (SKILL.state,
-arXiv:2608.26263) transfers from synthetic long-horizon benchmarks to real
-coding tasks.
+Empirical study of context policies for a terminal-based coding agent.
+The manuscript compares recent-history retention, model-written and hybrid
+memory, update protocols, state schemas, and resource use. It studies a
+transfer of the SKILL.state runtime idea, not a reproduction of its original
+experiments.
 
-Short answer: it does not. On 1044 runs the method as published solves 0.349 of
-tasks against 0.613 for a transcript control, and the deficit grows with task
-horizon rather than shrinking.
+## Manuscripts
 
-## Building the paper
+- [English PDF](paper/main.pdf) and [LaTeX](paper/main.tex)
+- [Russian PDF](paper-ru/main.pdf) and [LaTeX](paper-ru/main.tex)
 
-```
-sh paper/build.sh
-```
+Both versions use the same generated English tables, architecture diagrams,
+algorithms, and plot data. Experimental sample sizes appear once in Methods.
+The two separately evaluated policy families retain their own controls.
 
-This runs the analysis first and typesets second, in that order and for a
-reason: every table, every figure coordinate and every inline number in the
-manuscript is generated from the released run data. No measured number is
-written into the LaTeX source. The analysis also enforces an integrity gate
-that recomputes the published headline values and aborts the build on any
-mismatch, so a stale table cannot survive a change in the data.
+## Build and audit
 
-Requires `tectonic` (self-contained, fetches its own packages) and Python 3
-with no third-party dependencies. The statistics are stdlib only, including the
-exact McNemar and sign tests, so the analysis runs anywhere Python does.
+Install Tectonic, Python 3.10+, and the analysis dependency NumPy. For a
+local manuscript build:
 
-## Layout
-
-| path | what |
-|---|---|
-| `paper/` | manuscript: `main.tex`, `sections/`, `figures/`, generated `tables/` |
-| `analysis/build_paper.py` | the deterministic analysis and the integrity gate |
-| `data/e1-release/` | the released dataset: canonical CSV, raw JSONL, data dictionary |
-| `data/e1-dataset-1044.tar.gz` | the same release, packaged |
-| `results/` | standalone result notes, including the two retractions |
-| `design/` | pre-registration and design specifications |
-| `docs/` | extraction of the original paper under test |
-
-## The study
-
-87 Terminal-Bench 2.0 tasks, 4 conditions, 3 independent trials, every cell
-filled. The conditions differ in one property: how many recent exchanges are
-retained verbatim beside the model-maintained state block (k = 0, 2, 6), plus a
-full-transcript control carrying no state block.
-
-Verdicts come only from each task's own verifier. A run without an external
-verdict does not enter a results table.
-
-The design was fixed in writing before the series ran, and the pre-registered
-hypothesis about cost amortising on long horizons was refuted by the data. It
-is reported as a refutation rather than dropped.
-
-## Extending to V2
-
-The composition study (which facts a runtime state must carry) is still being
-measured. Section 10 is written but gated:
-
-- `\vtwofalse` in `paper/preamble.tex` compiles the stub, which states the
-  design and the pre-registered prediction and contains no numbers.
-- `\vtwotrue` compiles `sections/09_results_composition.tex`, which carries a
-  block explaining exactly which tables to generate and where they go.
-
-## Status
-
-The manuscript is a working draft.
-
-## Always-current PDF and LaTeX source
-
-Every push to `main` rebuilds both papers and republishes them to a rolling
-GitHub Release tagged `latest` (`.github/workflows/publish-pdf.yml`), so you
-never need to know which commit is current or run the build yourself:
-
-```
-gh release download latest --repo DadaDevelopment/skill.state-paper \
-  --pattern '*.pdf' --pattern '*.tar.gz' --clobber
+```sh
+python3 -m venv .venv-research
+.venv-research/bin/pip install numpy
+make paper paper-ru
 ```
 
-or download directly from the releases page:
-`https://github.com/DadaDevelopment/skill.state-paper/releases/tag/latest`
+Russian typesetting needs Times New Roman/Arial or Liberation Serif/Sans,
+plus DejaVu Sans Mono. On Debian/Ubuntu install fonts-liberation and
+fonts-dejavu-core.
 
-That release always carries, rebuilt from the exact commit named in its own
-`BUILD_INFO.txt`:
+For the full research audit, additionally install the Python dependencies
+listed in requirements-research.txt, the Node packages, Pandoc, latexpand,
+and lychee:
 
-| asset | what |
-|---|---|
-| `skill-state-paper-en.pdf` | compiled English paper |
-| `skill-state-paper-ru.pdf` | compiled Russian paper |
-| `paper-en-source.tar.gz` | full `paper/` LaTeX source (sections, figures, tables, generated macros) |
-| `paper-ru-source.tar.gz` | full `paper-ru/` LaTeX source |
-| `BUILD_INFO.txt` | commit SHA and UTC build timestamp |
-
-This publish workflow only requires the paper to compile - it is independent
-of `make audit` below, which additionally checks prose quality, references,
-data invariants and literature coverage and is allowed to be red while the
-PDF itself is still correct and current.
-
-## Research CI
-
-`research/` and `scripts/research/` implement the verification layer from
-the project's own no-manual-numbers rule and the standard set out in
-`research/review-rubric.md`: a zero-slop prose gate, a reference checker
-against Semantic Scholar/OpenAlex/CrossRef/DBLP/ACL, Pandera data
-invariants on the canonical CSV, a literal-number gate on result-bearing
-sections, a literature-watch gap check, and a hostile independent-reviewer
-protocol. Run the whole thing with:
-
-```
+```sh
+.venv-research/bin/pip install -r requirements-research.txt
+npm install
 make audit
+make audit-ru
 ```
 
-One-time setup (this environment has no system package manager access, so
-tools are user-installed rather than apt-installed - see
-`.github/workflows/research-ci.yml` for the CI-runner equivalent using
-`apt-get`):
+Reference and link verification require network access. Failed verification
+is not treated as a successful audit.
 
-```
-uv venv .venv-research && source .venv-research/bin/activate
-uv pip install pytest pandera pandas pyyaml requests "academic-refchecker[llm,webui]"
-npm install --save-dev github:bheijden/slop bibtex-tidy
-```
+## Evidence and generated material
 
-`make audit` is red until every finding in `research/waivers.yml` is either
-fixed or has `approved_by` changed from `PENDING_HUMAN_REVIEW` to an actual
-name by a human - an agent is never allowed to approve its own waiver. See
-`research/waivers.yml` for what is currently pending and why.
+| Source | Role |
+|---|---|
+| data/e1-release/ | Canonical execution-level records for model-written memory |
+| data/followup-final/ | Final supplied aggregates for hybrid memory and protocol/schema comparisons |
+| analysis/build_approach_tables.py | Current tables, inline numbers, bootstrap intervals, and plot data |
+| analysis/build_paper.py --check | Preserved integrity checks against the original execution-level release |
+| paper/generated/ and paper/tables/ | Generated at build time; shared by both manuscripts |
+| scripts/research/ and tests/research/ | Data, numeric-claim, source-contract, prose, reference, and link checks |
 
-`make results` currently fails: the mechanism (`07_results_mechanism.tex`)
-and composition (`10_results_composition_v.tex`) sections carry ~20 numbers
-typed by hand from an off-pipeline trace classification, predating this
-gate. Fixing that means writing the trace-classification numbers into
-`analysis/build_paper.py`'s macro output, not editing the gate - it is
-correctly failing on a real violation of the project's own rule.
+The historical single-trial composition generator and unused manuscript
+sections remain in the repository for provenance but are not part of the
+current manuscript or its evidence. Design documents describe proposed
+behavior; they are not substitutes for an execution-source snapshot.
+
+The final hybrid evidence is aggregate-only. It does not support invented
+per-call prompt peaks, task-level bootstrap intervals, or token totals
+derived from marginal medians. Its rounded aggregate costs yield approximate
+cost efficiencies.
+
+## Release
+
+Pushes to main build both PDFs and update the
+[latest release](https://github.com/DadaDevelopment/skill.state-paper/releases/tag/latest).
+Source archives contain both language trees and the shared analysis inputs;
+the Russian manuscript is not a standalone copy of the English tables.
