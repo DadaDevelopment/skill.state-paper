@@ -132,35 +132,33 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <h2>Что получилось</h2>
   <div class="table-scroll">
     <table>
-      <thead><tr><th>Вариант памяти</th><th>Решено задач</th><th>Типичный промпт</th><th>Цена решённой задачи</th></tr></thead>
+      <thead><tr><th>Вариант памяти</th><th>Решено задач</th><th>Цена решённой задачи</th></tr></thead>
       <tbody>
-        <tr class="group"><td colspan="4">Состояние ведёт модель</td></tr>
-        <tr><td>Полная история</td><td><div class="rate"><span class="num">61%</span><div class="track"><div class="fill" style="width:61.3%"></div></div></div></td><td class="num">16 тыс.</td><td class="num">$0.112</td></tr>
-        <tr class="bad"><td>Только состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">35%</span><div class="track"><div class="fill" style="width:34.9%"></div></div></div></td><td class="num">4 тыс.</td><td class="num">$0.163</td></tr>
-        <tr><td>Состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">45%</span><div class="track"><div class="fill" style="width:45.2%"></div></div></div></td><td class="num">6 тыс.</td><td class="num">$0.109</td></tr>
-        <tr class="best"><td>Состояние + 6 последних сообщений <span class="tag good">лучше</span></td><td><div class="rate"><span class="num">59%</span><div class="track"><div class="fill" style="width:59%"></div></div></div></td><td class="num">11 тыс.</td><td class="num">$0.077</td></tr>
-        <tr class="group"><td colspan="4">Рантайм-состояние: факты пишет среда</td></tr>
-        <tr><td>Полная история</td><td><div class="rate"><span class="num">52%</span><div class="track"><div class="fill" style="width:51.7%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.047</td></tr>
-        <tr class="bad"><td>Рантайм-состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">40%</span><div class="track"><div class="fill" style="width:39.7%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.047</td></tr>
-        <tr><td>Рантайм-состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">41%</span><div class="track"><div class="fill" style="width:40.8%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.046</td></tr>
-        <tr><td>Рантайм-состояние + 6 последних сообщений</td><td><div class="rate"><span class="num">48%</span><div class="track"><div class="fill" style="width:48.3%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.050</td></tr>
+        <tr><td>Полная история</td><td><div class="rate"><span class="num">52%</span><div class="track"><div class="fill" style="width:52.3%"></div></div></div></td><td class="num">1×</td></tr>
+        <tr class="group"><td colspan="3">Состояние ведёт модель</td></tr>
+        <tr class="bad"><td>Только состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">33%</span><div class="track"><div class="fill" style="width:33.3%"></div></div></div></td><td class="num">2×</td></tr>
+        <tr><td>Состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">41%</span><div class="track"><div class="fill" style="width:40.8%"></div></div></div></td><td class="num">1,2×</td></tr>
+        <tr class="best"><td>Состояние + 6 последних сообщений <span class="tag good">лучше</span></td><td><div class="rate"><span class="num">53%</span><div class="track"><div class="fill" style="width:53.4%"></div></div></div></td><td class="num">0,7×</td></tr>
+        <tr class="group"><td colspan="3">Рантайм-состояние: факты пишет среда</td></tr>
+        <tr class="bad"><td>Рантайм-состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">40%</span><div class="track"><div class="fill" style="width:39.7%"></div></div></div></td><td class="num">1×</td></tr>
+        <tr><td>Рантайм-состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">41%</span><div class="track"><div class="fill" style="width:40.8%"></div></div></div></td><td class="num">1×</td></tr>
+        <tr><td>Рантайм-состояние + 6 последних сообщений</td><td><div class="rate"><span class="num">48%</span><div class="track"><div class="fill" style="width:48.3%"></div></div></div></td><td class="num">1,1×</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="note">Типичный промпт: медиана пикового размера за задачу, в токенах; для рантайм-состояния он не сохранился. Цена в условных долларах по единому прайсу. Каждый блок прогонялся отдельно со своей полной историей, поэтому сравнивать можно только строки внутри блока.</p>
-  <p class="note">Почему полная история то 61%, то 52%: первый повтор первого блока шёл через другой канал провайдера, где длинные ответы модели не обрезались. Потом примерно в трети прогонов ответ стал обрезаться, и агент останавливался, не решив задачу. Второй блок целиком прошёл уже в этом режиме. В повторах первого блока с тем же режимом полная история решает те же 52%, а порядок вариантов внутри блока не меняется.</p>
-  <p>Промпт вчетверо короче, но решённых задач почти вдвое меньше, и каждая стоит на <span class="num">45%</span> дороже. Если добавить к состоянию последние шесть сообщений, качество почти возвращается к полной истории, а цена решённой задачи становится ниже, чем у обычного агента.</p>
-  <p>Рантайм-состояние снимает штраф по цене: решённая задача стоит столько же, сколько у полной истории, потому что модель больше не переписывает факты и выход не растёт. Но качество оно не возвращает (<span class="num">40%</span> против <span class="num">52%</span>), и шесть последних сообщений доводят его только до <span class="num">48%</span>, без выигрыша в цене.</p>
+  <p class="note">Цена решённой задачи относительно полной истории: все потраченные деньги, делённые на число решённых.</p>
+  <p>Промпт у состояния втрое короче, но решённых задач на треть меньше, и каждая стоит вдвое дороже. Если добавить к состоянию последние шесть сообщений, качество возвращается к полной истории, а решённая задача обходится на треть дешевле.</p>
+  <p>Рантайм-состояние снимает переплату: модель больше не переписывает факты, и цена решённой задачи та же, что у полной истории. Но качество оно не возвращает, и шесть последних сообщений доводят его только до <span class="num">48%</span>.</p>
 </section>
 
 <section>
   <h2>Почему короткий промпт обходится дороже</h2>
   <div class="reasons">
-    <div class="reason"><div class="big">83% → 49%</div><p>доля входа из кеша. У полной истории начало промпта не меняется, и провайдер берёт его по сниженной цене. Состояние меняется каждый шаг и ломает это переиспользование.</p></div>
+    <div class="reason"><div class="big">73% → 45%</div><p>доля входа из кеша. У полной истории начало промпта не меняется, и провайдер берёт его по сниженной цене. Состояние меняется каждый шаг и ломает это переиспользование.</p></div>
     <div class="reason"><div class="big">×2</div><p>выходных токенов. Модель на каждом шаге заново переписывает состояние, а выход стоит дороже всего.</p></div>
-    <div class="reason"><div class="big">13 → 25</div><p>шагов на задачу. В состоянии теряются детали: точный текст ошибки, порядок действий. Агент повторно выясняет то, что уже видел.</p></div>
+    <div class="reason"><div class="big">11 → 19</div><p>шагов на задачу. В состоянии теряются детали: точный текст ошибки, порядок действий. Агент повторно выясняет то, что уже видел.</p></div>
   </div>
-  <p style="margin-top:14px">Сильнее всего это бьёт по длинным задачам, где сжатие должно было помогать больше всего: там агент со состоянием решает <span class="num">20%</span> против <span class="num">62%</span> у полной истории. С шестью последними сообщениями снова <span class="num">58%</span>.</p>
+  <p style="margin-top:14px">Сильнее всего это бьёт по длинным задачам, где сжатие должно было помогать больше всего: там агент со состоянием решает <span class="num">17%</span> против <span class="num">56%</span> у полной истории. С шестью последними сообщениями снова <span class="num">54%</span>.</p>
 </section>
 
 <section>
