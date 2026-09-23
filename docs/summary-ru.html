@@ -58,6 +58,7 @@ td .track{width:90px;height:8px;background:var(--line);border-radius:4px;overflo
 td .fill{height:100%;background:var(--accent)}
 tr.bad td .fill{background:var(--warn)}
 tr.best td:first-child{font-weight:600}
+tr.group td{font:600 12px/1.3 var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:left;padding-top:16px;background:var(--paper)}
 .tag{display:inline-block;font:600 11px/1 var(--mono);padding:4px 6px;border-radius:4px;margin-left:8px;vertical-align:2px}
 .tag.good{background:var(--accent-soft);color:var(--accent)}
 .tag.bad{background:var(--warn-soft);color:var(--warn)}
@@ -98,6 +99,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <h2>Идея</h2>
   <p>Кодовый агент работает циклом: смотрит на терминал, решает, что делать, выполняет команду. Обычно весь накопленный диалог отправляется модели на каждом шаге, и промпт растёт вместе с задачей.</p>
   <p>Подход SKILL.state предлагает заменить историю <strong>состоянием</strong>: короткой записью о том, какая цель, что уже сделано, что проверено, что не сработало и что дальше. Модель видит только инструкцию, состояние и последнее наблюдение, а после шага сама обновляет состояние. Промпт перестаёт расти.</p>
+  <p>Второй вариант мы построили по мотивам <a href="https://arxiv.org/abs/2608.00808">Ledger</a> (Wang et al., 2026). Там среда сама ведёт журнал исполнения: какие участки файлов агент реально видел, что изменилось, какие команды запускались и чем кончились. Модель ничего для этого не пишет, факты берутся из уже завершённых шагов. Ledger добавляет такой журнал к обычному агенту, у которого история остаётся. Мы делаем иначе: журнал <strong>заменяет</strong> историю. Получается <strong>рантайм-состояние</strong>: объективные факты записывает среда, а модель ведёт только гипотезы и план. Идея в том, что модели не нужно заново переписывать то, что среда и так знает.</p>
   <p>Мы проверили, превращается ли короткий промпт в реальную экономию, то есть в более дешёвую <em>решённую</em> задачу.</p>
 
   <div class="prompts" role="img" aria-label="Схема состава промпта в трёх вариантах памяти">
@@ -132,15 +134,22 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <table>
       <thead><tr><th>Вариант памяти</th><th>Решено задач</th><th>Типичный промпт</th><th>Цена решённой задачи</th></tr></thead>
       <tbody>
+        <tr class="group"><td colspan="4">Состояние ведёт модель</td></tr>
         <tr><td>Полная история</td><td><div class="rate"><span class="num">61%</span><div class="track"><div class="fill" style="width:61.3%"></div></div></div></td><td class="num">16 тыс.</td><td class="num">$0.112</td></tr>
         <tr class="bad"><td>Только состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">35%</span><div class="track"><div class="fill" style="width:34.9%"></div></div></div></td><td class="num">4 тыс.</td><td class="num">$0.163</td></tr>
         <tr><td>Состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">45%</span><div class="track"><div class="fill" style="width:45.2%"></div></div></div></td><td class="num">6 тыс.</td><td class="num">$0.109</td></tr>
         <tr class="best"><td>Состояние + 6 последних сообщений <span class="tag good">лучше</span></td><td><div class="rate"><span class="num">59%</span><div class="track"><div class="fill" style="width:59%"></div></div></div></td><td class="num">11 тыс.</td><td class="num">$0.077</td></tr>
+        <tr class="group"><td colspan="4">Рантайм-состояние: факты пишет среда</td></tr>
+        <tr><td>Полная история</td><td><div class="rate"><span class="num">52%</span><div class="track"><div class="fill" style="width:51.7%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.047</td></tr>
+        <tr class="bad"><td>Рантайм-состояние <span class="tag bad">хуже</span></td><td><div class="rate"><span class="num">40%</span><div class="track"><div class="fill" style="width:39.7%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.047</td></tr>
+        <tr><td>Рантайм-состояние + 2 последних сообщения</td><td><div class="rate"><span class="num">41%</span><div class="track"><div class="fill" style="width:40.8%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.046</td></tr>
+        <tr><td>Рантайм-состояние + 6 последних сообщений</td><td><div class="rate"><span class="num">48%</span><div class="track"><div class="fill" style="width:48.3%"></div></div></div></td><td class="num muted">нет данных</td><td class="num">$0.050</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="note">Типичный промпт: медиана пикового размера за задачу, в токенах. Цена в условных долларах по единому прайсу, для сравнения вариантов между собой.</p>
+  <p class="note">Типичный промпт: медиана пикового размера за задачу, в токенах; для рантайм-состояния он не сохранился. Цена в условных долларах по единому прайсу. Каждый блок прогонялся отдельно со своей полной историей, поэтому сравнивать можно только строки внутри блока.</p>
   <p>Промпт вчетверо короче, но решённых задач почти вдвое меньше, и каждая стоит на <span class="num">45%</span> дороже. Если добавить к состоянию последние шесть сообщений, качество почти возвращается к полной истории, а цена решённой задачи становится ниже, чем у обычного агента.</p>
+  <p>Рантайм-состояние снимает штраф по цене: решённая задача стоит столько же, сколько у полной истории, потому что модель больше не переписывает факты и выход не растёт. Но качество оно не возвращает (<span class="num">40%</span> против <span class="num">52%</span>), и шесть последних сообщений доводят его только до <span class="num">48%</span>, без выигрыша в цене.</p>
 </section>
 
 <section>
@@ -159,8 +168,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <div class="col">
       <h3>Частично помогает</h3>
       <ul>
-        <li>Пусть факты записывает среда, а не модель: какие файлы менялись, какие команды запускались и чем кончились. Это заметно лучше, чем просто список просмотренных файлов (<span class="num">40%</span> против <span class="num">29%</span>).</li>
-        <li>Но до полной истории такие записи не дотягивают, и дешевле её тоже не выходят.</li>
+        <li>В журнале среды важно не только, какие файлы агент видел, но и что изменилось и какие команды чем кончились: <span class="num">40%</span> решённых против <span class="num">29%</span> при одном списке файлов.</li>
+        <li>Дальше обогащать журнал бесполезно: диагностика, окружение, тесты и записи о неудачах добавляют один-два пункта.</li>
       </ul>
     </div>
     <div class="col no">
@@ -175,7 +184,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 
 <section class="takeaway">
   <h2>Вывод</h2>
-  <p>Сжатие памяти агента надо оценивать по цене решённой задачи с учётом кеша, а не по размеру промпта. Состояние, которое модель переписывает на каждом шаге, дорого само по себе: оно ломает кеш и добавляет выход. Рабочая схема, которую подсказывают данные: среда записывает факты, модель пишет только интерпретацию, а несколько последних сообщений остаются в исходном виде.</p>
+  <p>Сжатие памяти агента надо оценивать по цене решённой задачи с учётом кеша, а не по размеру промпта. Состояние, которое модель переписывает на каждом шаге, дорого само по себе: оно ломает кеш и добавляет выход. Перенос фактов в среду, как в Ledger, убирает этот штраф, но не возвращает качество. Лучший результат в наших данных дало состояние модели плюс шесть последних сообщений в исходном виде: почти то же качество, что у полной истории, и заметно дешевле.</p>
 </section>
 
 <footer>
