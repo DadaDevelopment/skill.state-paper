@@ -1,130 +1,59 @@
 \section{Experimental methodology}
 \label{sec:setup}
+\subsection{Agent and comparisons}
+We evaluate \texttt{zai/glm-5.3-flash} with Pi 0.85.1 and Harbor 0.22
+on Terminal-Bench 2.0~\citep{terminalbench}, with a 200-turn limit.
+Success is the binary task-verifier outcome. The analyzed subset contains
+87 tasks; two tasks whose environments could not initialize are excluded.
 
-\subsection{Agent, tasks, and comparisons}
+Four comparisons are reported, each with its own full-history control
+matched on task and repetition; controls are never pooled.
+\begin{itemize}\itemsep0pt
+\item \emph{Model-written state} uses four conditions and three repetitions,
+ $k\in\{0,2,6\}$.
+\item \emph{Hybrid state} uses eight conditions and two repetitions. Variants
+ remove failure records, add recent history, or cross tool/inline updates
+ with existing/task-adapted schemas.
+\item \emph{Runtime-record contents} uses four bundled configurations and a
+ control with one repetition. Its control and richest rows overlap the first
+ hybrid repetition, so it is not an independent replication.
+\item \emph{Window pilot} uses 12 tasks, six conditions ($k\in\{0,2,6,12,\infty\}$
+ and control), three repetitions. Only finalized summaries survive.
+\end{itemize}
+Schema adaptation used the same tasks, and weaker component configurations
+were dropped after preliminary runs, so these are exploratory, in-sample
+comparisons. Across implementations $k$ is the configured retention setting;
+equal $k$ does not guarantee identical serialization.
 
-The evaluation uses \texttt{zai/glm-5.3-flash}, Pi coding agent version
-0.85.1, and the Harbor 0.22 release family. Tasks come from Terminal-Bench
-2.0, which supplies executable environments and task-specific verification
-tests~\citep{terminalbench}. The agent works through coding and terminal
-tools. Success is the binary task-verifier outcome, and the recorded
-execution limit is 200 turns.
-
-The analyzed subset contains 87 tasks; two further benchmark tasks were
-excluded because their environments could not be initialized before agent
-execution. The model-written comparison has four conditions with three
-repetitions per task. The final hybrid comparison has eight conditions with
-two repetitions per task. An exploratory component comparison covers four
-runtime-record configurations and a full-history control with one
-repetition on the same tasks. Its control and richest configurations
-overlap the first repetition of the final hybrid comparison; they are not
-an independent replication. Each comparison uses its own full-history
-reference. An observation is a task execution under a condition and
-repetition, and contrasts match the same task and repetition. We do not
-pool the controls or treat repeated executions as additional tasks.
-
-The model-written conditions use a separate state-update tool and retain
-recent history at settings $k=0,2,6$. The hybrid reference combines
-runtime-derived records, including failed attempts, with model-written
-semantic content. Its variants remove failure records, retain recent
-history, or cross tool versus inline updates with an existing versus
-task-adapted schema. The reference condition is shared by these hybrid
-comparisons. The adapted schema was developed using experience from the
-same task set, so that comparison is exploratory and in-sample.
-
-The exploratory component comparison progressively groups file references,
-modifications and commands, diagnostics and environment and test records,
-and failed-attempt records. These are comparisons of bundled
-representations, not isolated effects of every field. The weaker
-configurations were discontinued after preliminary performance was
-observed. Their results describe the design search and do not constitute
-a confirmatory component study.
-
-The parameter $k$ denotes the configured retention setting. The available
-records do not resolve individual messages versus complete exchanges
-consistently across implementations. We therefore do not interpret equal
-values of $k$ as a verified equality of serialized context. The formal
-model describes information sources and update order; it does not specify
-hidden reasoning retention or an exact API message layout.
-
-\subsection{Outcomes and resources}
-
-For a condition $a$, task $i$, and repetition $r$, let $Y_{iar}$ denote
-binary success. With $n$ tasks and $R$ repetitions, the solved rate is
+\subsection{Metric contract}
+Every comparison uses the same two panels with identical rows.
+The \emph{quality panel} reports solved rate over all retained outcomes,
+median turns $T$, median normalized cost, median matched cost ratio to
+full history, and successes per dollar $\sum Y/\sum D$ (failures included).
+The \emph{resource panel} reports median peak prompt, cumulative uncached
+input $U$, cache reads $K$, output $O$, and cache hit
 \begin{equation}
-  \widehat{s}_a=\frac{1}{nR}\sum_{i=1}^{n}\sum_{r=1}^{R}Y_{iar}.
+ h_{iar}=\frac{K_{iar}}{U_{iar}+K_{iar}},
+ \label{eq:cache-hit}
 \end{equation}
-Differences in solved rate are percentage-point differences against the
-named reference within the same comparison.
-
-Token measures distinguish peak prompt size, the maximum input context of
-a model call, from cumulative uncached input, cache reads, and output over
-the execution. The model-written comparison uses the fixed reference
-tariff
+summarized as a per-execution median rather than a ratio of marginal
+token medians. No cache-write counter exists. Normalized cost is
 \begin{equation}
- D=10^{-6}(0.15U+0.03K+0.50O),
+ D=10^{-6}(0.15U+0.03K+0.50O)
  \label{eq:referencecost}
 \end{equation}
-where $U$, $K$, and $O$ denote uncached input, cache-read, and output
-tokens. Costs are in US dollars under this convention, not provider
-invoices. Recorded costs in the exploratory component comparison agree
-with this tariff to rounding precision. The final hybrid comparison
-supplies reported token and cost medians; its pricing
-calculation and per-call prompt peaks cannot be reconstructed from the
-available aggregates. We therefore compare monetary values within each
-comparison and do not interpret them as verified provider invoices or
-cross-comparison price differences.
+in US dollars, not a provider invoice. Metrics that the surviving records
+cannot reconstruct (hybrid peaks and cache hit, pilot solved rates and input
+counters) are shown as --, never imputed.
 
-We report median execution cost and cost per observed success,
-$\sum D/\sum Y$, over retained executions, including failures. Its
-reciprocal is successes per dollar. Successes per million tokens use total
-recorded input, cache-read, and output tokens as the denominator. These
-metrics describe the retained workload, excluding discarded attempts and
-unretained retries. They do not estimate the cost of retrying until success.
-
-A second resource comparison is conditional on both policies solving the
-same task in the same repetition. For each resource, we report the median
-of within-match condition/reference ratios. The selected subset differs by
-condition. For the exploratory component comparison, a sensitivity analysis
-also fixes the subset to tasks solved by every included configuration.
-This estimand describes relative resource use on shared
-successes, whereas cost per success also reflects failures and differences
-in capability. A ratio of marginal medians is not substituted for a median
-of matched ratios.
-
-\subsection{Statistical analysis}
-
-Solved-rate tables report two-sided exact McNemar $p$-values for the named
-matched contrasts. Conditional cost-ratio tables use a two-sided exact sign
-test against a ratio of one, excluding ties. These are unadjusted,
-exploratory reference tests under an independence assumption for matched
-observations. Repeated tasks and possible execution dependencies limit
-that interpretation. The tests do not adjust for within-task dependence
-or control the familywise error rate.
-
-For the model-written comparison, pointwise task-bundle bootstrap intervals
-provide a complementary assessment of solved-rate differences. We resample
-task identities with all their conditions and repetitions, using 100,000
-resamples and seed 20260922. Percentile endpoints define the 95\% intervals.
-This preserves the observed within-task structure under a task-resampling
-interpretation, without establishing that the benchmark is a random sample.
-The hybrid aggregates do not retain the task-level covariance needed for
-the same analysis. Small differences or non-significant tests are not
-interpreted as equivalence.
-
-The supplementary horizon analysis partitions tasks by the full-history
-control's median recorded turns, $T$, at
-$T=\HistoryHorizonCutoff$. Membership is fixed across state conditions.
-This post-hoc stratification describes shorter and longer reference
-trajectories; it does not measure a causal effect of horizon.
-
-\subsection{Analysis material}
-
-The model-written results are recomputed from released execution-level
-records using their canonical inclusion rules. The exploratory component
-results likewise use execution-level records, while the final hybrid
-results use condition summaries and matched discordant counts. This distinction
-sets the resolution of the analyses: the latter support the reported
-contrasts but not reconstruction of individual trajectories. The
-reproducibility appendix specifies the available material and derived
-metrics.
+\subsection{Statistical analysis and cohorts}
+Matched outcomes use two-sided exact McNemar tests; model-written contrasts
+add 95\% task-bundle bootstrap intervals (100,000 resamples, seed
+20260922) that resample tasks with all conditions and repetitions.
+Tests are unadjusted and exploratory; non-significance is not equivalence.
+Horizon cohorts use the control's median turns, giving short $T\leq8$ (31 tasks),
+medium $8<T\leq20$ (29), long $T>20$ (27), fixed across conditions. They
+describe control behavior, not assigned difficulty. The pilot repetition
+diagnostic is tool calls divided by distinct tool/argument combinations; 1.00 means
+no identical re-invocation, not absence of semantic redundancy.
+Supplementary~\ref{app:reproducibility} lists the available material.

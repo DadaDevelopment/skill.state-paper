@@ -2,6 +2,7 @@
 
 import json
 import re
+import statistics
 import sys
 from pathlib import Path
 
@@ -49,6 +50,26 @@ def test_common_success_intersection_changes_cost_estimand(rows):
     assert [round(summaries[arm]["fixed_cost_ratio"], 2) for arm in arms] == [2.50, 1.07, 1.03, 1.17]
     assert [round(summaries[arm]["fixed_turns_ratio"], 2) for arm in arms] == [1.61, .77, .75, .79]
     assert [round(summaries[arm]["fixed_output_ratio"], 2) for arm in arms] == [4.03, 1.56, 1.75, 1.73]
+
+
+def test_cache_hit_and_unconditional_cost_keep_their_denominators(rows):
+    summaries = composition.summarize(rows)
+    control = {row["task"]: row for row in rows if row["arm"] == "control"}
+    for arm in composition.ARMS:
+        selected = [row for row in rows if row["arm"] == arm]
+        assert summaries[arm]["cache_hit_median"] == pytest.approx(statistics.median(
+            100 * row["cache_read_tokens"] / (row["input_tokens"] + row["cache_read_tokens"])
+            for row in selected
+        ))
+        assert summaries[arm]["all_cost_ratio"] == pytest.approx(statistics.median(
+            row["cost_usd"] / control[row["task"]]["cost_usd"] for row in selected
+        ))
+
+
+def test_composition_uses_the_shared_table_metric_contract():
+    outputs = composition.generate()
+    assert " & ".join(approaches.QUALITY_HEADERS) in outputs["paper/tables/new-composition.tex"]
+    assert " & ".join(approaches.RESOURCE_HEADERS) in outputs["paper/tables/new-composition-resources.tex"]
 
 
 @pytest.mark.parametrize("mutation", ["duplicate", "missing", "trial", "nan", "settings", "tariff"])

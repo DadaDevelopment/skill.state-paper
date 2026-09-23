@@ -1,0 +1,50 @@
+\section{Where trajectory length changes the trade-off}
+\label{sec:horizon}
+
+The aggregate result hides substantial differences across task trajectories.
+We use the control-defined cohorts from Section~\ref{sec:setup}: short
+($T\leq8$), medium ($8<T\leq20$), and long ($T>20$), where $T$ is each
+task's median full-history trajectory length. Assignment is held fixed across
+memory policies. A policy's own trajectory length is an outcome, not the
+variable used to select its cohort.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Control-defined trajectory-length cohorts: quality and cost.
+All retained outcomes are included. Cost ratio is the median same-task,
+same-repeat ratio to full history.}
+\label{tab:horizon-main}
+\resizebox{\textwidth}{!}{\input{tables/new-horizon}}
+\end{table}
+
+State-only success is lower in every cohort. The largest deficit occurs in
+the long cohort: \HorizonLongModelStateRate\% against
+\HorizonLongModelControlRate\% for full history. Retaining $k=6$ restores
+\HorizonLongModelHistorySixRate\% (Table~\ref{tab:horizon-main}). Its cost ratio
+is \HorizonLongModelHistorySixAllCostRatio{}, compared with
+\HorizonLongModelStateAllCostRatio{} for state alone. Cost per observed success
+is respectively \$\HorizonLongModelHistorySixCostPerSuccess{} and
+\$\HorizonLongModelStateCostPerSuccess{}, versus
+\$\HorizonLongModelControlCostPerSuccess{} for the control.
+
+\begin{table}[htbp]
+\centering\small
+\caption{The same trajectory-length cohorts: median context and token
+measurements. Cache hit is the median per-execution fraction $K/(U+K)$;
+token columns are separate medians.}
+\label{tab:horizon-cache}
+\resizebox{\textwidth}{!}{\input{tables/new-horizon-resources}}
+\end{table}
+
+Long trajectories also strengthen the full-history cache advantage.
+Its median cache-hit rate rises from \HorizonShortModelControlCacheHit\%
+in the short cohort to \HorizonLongModelControlCacheHit\% in the long cohort;
+state alone and $k=6$ reach \HorizonLongModelStateCacheHit\% and
+\HorizonLongModelHistorySixCacheHit\% there. Cached-token volume alone cannot
+show this difference: hit rate also depends on uncached input.
+
+These descriptive cohorts identify where a history window is useful, not a
+universal switching threshold. Short-cohort tasks can have long outlier
+repeats; workload-level efficiency and median matched costs therefore need
+not rank policies alike. Trajectories are policy-dependent, and no controlled
+intervention on task horizon establishes a causal crossover here.

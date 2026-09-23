@@ -1,105 +1,105 @@
-\section{Reproducibility and metric definitions}
+\clearpage
+\section*{Supplementary material}
+\addcontentsline{toc}{section}{Supplementary material}
+\setcounter{subsection}{0}
+\renewcommand{\thesubsection}{S\arabic{subsection}}
+\renewcommand{\thetable}{S\arabic{table}}
+\setcounter{table}{0}
+
+\subsection{Data, metric definitions, and what is missing}
 \label{app:reproducibility}
+The artifact contains execution-level records for model-written state and
+for the runtime-record comparison, final aggregate summaries for the
+hybrid comparison, and finalized summaries for the window pilot. All
+tables and numerical claims are generated from these inputs. Hybrid
+summaries contain solved-rate margins and matched discordant counts, enough
+for the reported contrasts and exact McNemar tests, but not trajectories,
+per-call prompts, or cache hit. The pilot's raw sessions are unavailable;
+its task-level outcomes are transcribed from the research log.
 
-The analysis artifact contains execution-level records for the
-model-written policies and the exploratory runtime-record comparison,
-alongside final aggregate summaries for the hybrid policies.
-Table entries and numerical claims are generated from those
-inputs. The aggregate summaries contain solved-rate margins and matched
-discordant outcomes, sufficient to reconstruct the reported success
-contrasts and exact McNemar tests. They do not contain complete
-trajectories, per-call prompt measurements, or joint task-level outcomes
-for all configurations.
-
-Resource ratios are computed separately for each condition against its
-own full-history reference, restricting to shared successes. For a
-resource $X$, the reported statistic is
+Conditional resource ratios restrict to shared successes:
 \[
  \operatorname{median}_{(i,r):\,Y_{iar}=Y_{i0r}=1}
  \frac{X_{iar}}{X_{i0r}}.
 \]
-A zero reference denominator would make an individual ratio undefined.
-The analysis does not replace such a denominator with an arbitrary
-constant. Input and cached tokens are separate recorded counters.
-
-The efficiency measures use all retained outcomes:
+A zero denominator leaves the ratio undefined. Efficiency uses all
+retained outcomes:
 \[
  \text{Solved/\$}=\frac{\sum Y}{\sum D},
  \qquad
- \text{Solved/Mtok}=
- \frac{10^{6}\sum Y}{\sum(U+K+O)}.
+ \text{Solved/Mtok}=\frac{10^{6}\sum Y}{\sum(U+K+O)}.
 \]
-The latter measures logical token volume under the recorded counter
-convention, not equivalence of computational work across cached and
-uncached tokens. Hybrid cost efficiencies are approximate because the
-available aggregate costs are rounded. Unavailable token totals and
-prompt peaks are not reconstructed from marginal medians.
+Solved/Mtok counts logical tokens, not equal work across cached and
+uncached input. Hybrid efficiencies are approximate because their cost
+totals are rounded.
 
-\section{Sensitivity of exploratory component costs}
-\label{app:composition}
-
-The exploratory comparison permits a check of outcome-conditioned
-selection. A separate shared-success subset for each configuration changes
-the tasks contributing to its cost ratio. To compare the configurations
-on the same tasks, we additionally restrict all ratios to the intersection
-of successes across every included configuration and the control.
-Table~\ref{tab:composition-sensitivity} reports both calculations.
+\subsection{Matched outcome tests}
+\label{app:contrasts}
+\begin{table}[htbp]
+\centering\small
+\caption{Solved-rate differences in percentage points with exact McNemar
+tests. Bootstrap intervals are available only for model-written memory.}
+\label{tab:contrasts}
+\input{tables/new-contrasts}
+\end{table}
 
 \begin{table}[htbp]
 \centering\small
-\caption{Exploratory resource sensitivity. Variable-subset cost ratios use
-each configuration's shared successes with full history. Fixed-subset
-ratios use the same all-configuration success intersection. Entries are
-medians of task-wise ratios to full history, not ratios of marginal
-medians.}
+\caption{Solved-rate differences to full history within control-defined
+horizon cohorts (model-written memory).}
+\label{tab:horizon-contrasts}
+\input{tables/new-horizon-contrasts}
+\end{table}
+
+\subsection{Cost over all retained executions}
+\label{app:efficiency}
+\begin{table}[htbp]
+\centering\small
+\caption{Cost and efficiency including failures. Median and mean cost
+answer different questions from aggregate cost per success; none estimates
+retry-until-success cost.}
+\label{tab:economics}
+\resizebox{\linewidth}{!}{\input{tables/new-economics}}
+\end{table}
+
+\subsection{Success-subset sensitivity of runtime-record costs}
+\label{app:composition}
+Variable-subset ratios use each configuration's own shared successes with
+full history; fixed-subset ratios use tasks solved by every configuration.
+The richest variants cost \ExploreRichVariableCostRatio{} and
+\ExploreFailuresVariableCostRatio{} times full history on the first,
+\ExploreRichFixedCostRatio{} and \ExploreFailuresFixedCostRatio{} on the
+second. The saving over file references survives; a saving over full
+history does not.
+\begin{table}[htbp]
+\centering\small
+\caption{Runtime-record cost sensitivity. Entries are medians of task-wise
+ratios to full history.}
 \label{tab:composition-sensitivity}
 \input{tables/new-composition-sensitivity}
 \end{table}
 
-The two richest representations have variable-subset cost ratios of
-\ExploreRichVariableCostRatio{} and
-\ExploreFailuresVariableCostRatio{}, but fixed-subset ratios of
-\ExploreRichFixedCostRatio{} and \ExploreFailuresFixedCostRatio{}.
-The large reduction relative to file references remains. A cost advantage
-over full history does not. The fixed subset is still selected on outcomes,
-so this sensitivity check describes successful-task resource use rather
-than an unconditional causal effect.
-
-\section{Complete efficiency breakdown}
-\label{app:efficiency}
-
+\subsection{Window pilot per-repetition ratios}
+\label{app:window}
 \begin{table}[htbp]
 \centering\small
-\caption{Cost and efficiency over retained executions, including failures.
-Successes per dollar use aggregate cost and observed successes, not ratios
-of medians. Token efficiency is reported where cumulative totals are
-available. Final hybrid efficiencies use rounded reported cost totals.}
-\label{tab:economics}
-\input{tables/new-economics}
+\caption{Window pilot: median same-repetition ratios to full history for
+cost and peak prompt, reported separately for each repetition.}
+\label{tab:window-repeats}
+\resizebox{\linewidth}{!}{\input{tables/new-window-repeat-sensitivity}}
 \end{table}
 
-Table~\ref{tab:economics} supplements the cost-per-success comparisons in
-the main text. Median execution cost and aggregate cost per success answer
-different questions: the latter also includes the cost of failures and the
-shape of the cost distribution. Neither estimates the cost of repeated
-attempts until success.
-
-\section{Success by reference trajectory length}
-\label{app:horizon}
-
-Table~\ref{tab:horizon} separates tasks using the full-history control's
-median recorded trajectory length. All state policies use the same
-partition. The larger state-only deficit appears in the longer-reference
-subset, while recent-history retention improves the observed solved rate
-in both subsets. Because the partition is post-hoc and trajectory length
-also reflects task characteristics, this pattern does not identify a
-causal horizon effect or a context-window crossover.
-
+\subsection{Cache-discount scenario for the original results}
+\label{app:pricing}
+The original publication reports total tokens only. Multiplying its
+full/state token ratio by an assumed cache discount (full-history hit 0.93,
+state hit 0.72, cache price 0.198 of input) gives the proxy below. It
+treats all tokens as cacheable input and is a sensitivity illustration,
+not a reconstructed invoice.
 \begin{table}[htbp]
 \centering\small
-\caption{Solved rate by the full-history control's median recorded turns
-$T$. Differences and exact McNemar tests use full history within the same
-subset. The grouping is descriptive and held fixed across conditions.}
-\label{tab:horizon}
-\input{tables/new-horizon}
+\caption{Published full/state token ratio and discounted-token proxy by
+event horizon. Values above one favor state under the proxy.}
+\label{tab:pricing}
+\input{tables/new-pricing-sensitivity}
 \end{table}

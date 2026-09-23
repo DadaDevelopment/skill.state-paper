@@ -1,43 +1,52 @@
 \section{Context Policies and Update Protocols}
 \label{sec:model}
-Let $P$ denote persistent task instructions, $o_t$ the current observation, and $H_{<t}$ the retained interaction records preceding it. The record includes observable messages and tool results; the notation makes no assumption about access to hidden model reasoning. A full-history policy constructs
+Let $P$ denote task instructions, $o_t$ the current observation, and
+$H_{<t}$ preceding observable messages and tool results. Full history uses
 \begin{equation}
  C_t^{\mathrm{full}}=[P,H_{<t},o_t].
  \label{eq:ctx-transcript}
 \end{equation}
-For structured state $\Sigma_t$, the replacement policy is
+Structured memory instead constructs
 \begin{equation}
  C_t^{\mathrm{state},k}=[P,\Sigma_t,\tau_k(H_{<t}),o_t],
  \qquad \tau_0(H)=\varnothing,
  \label{eq:ctx-state}
 \end{equation}
-where $\tau_k$ selects the configured recent-history window, clipped at the start of the task. Full history is a separate reference policy, not state with an unlimited window. Figure~\ref{fig:architecture} shows the information retained by these policies.
+where $\tau_k$ selects available recent records and $\tau_\infty(H)=H$.
+Thus $k=\infty$ retains state \emph{and} the transcript; the no-state
+full-history control is a different policy (Figure~\ref{fig:architecture}).
+Neither definition assumes access to hidden reasoning.
 \input{../paper/figures/fig1_architecture}
 
-\subsection{Who writes the state?}
-In model-written memory, the model maintains semantic state $S_t$ through explicit updates. Hybrid memory separates this content from a runtime record:
+\subsection{State ownership and update protocol}
+Model-written memory maintains semantic state $S_t$. Hybrid memory adds
+runtime-owned records $V_t$:
 \begin{equation}
  \Sigma_t=(S_t,V_t),\qquad
  S_{t+1}=\operatorname{Apply}(S_t,\Delta S_t),\qquad
  V_{t+1}=\operatorname{Record}(V_t,a_t,r_t).
  \label{eq:ownership}
 \end{equation}
-The recorder derives entries from observed tool events $r_t$; the model cannot edit those entries through its semantic patch. File references identify observed artifacts. Modification records describe changes reported by the tools, and command records preserve observed invocations and outcomes. Richer variants add diagnostic, environment, test-related, and failed-attempt records. These records let the system retain some evidence without asking the model to generate a new description of it.
+The model maintains hypotheses and pending work; the runtime records
+observed tool events $r_t$, from file references to modifications, command
+outcomes, diagnostics, tests, and failed attempts. A semantic patch cannot
+edit $V$; this does not guarantee complete capture. Recent history can
+accompany either family.
 
-The semantic state stores goals, hypotheses, interpretations, and pending work. For example, a command result belongs in $V$, while the hypothesis that it explains a failure belongs in $S$. This division assigns responsibility for maintaining information; it does not make $V$ a complete or infallible account of the environment. Unobserved changes can be missed, and recognizing a test outcome from command text can require heuristics. Recent history is an independent addition to either state family. We reserve ``hybrid'' for the ownership distinction.
-
-\subsection{How is an update coupled to an action?}
-A separate update tool lets the model submit a state patch through the tool interface. An inline protocol instead asks for a joint envelope containing $\{\Delta S_t,a_t\}$, following the form of the published SKILL.state contract~\citep{skillstate2026}. These protocols differ in the relationship between state maintenance and environment actions; a tool-mediated policy step need not correspond to a single model invocation.
-
-Algorithm~\ref{alg:context} specifies the context and ownership abstraction used to distinguish the policies. Its $\operatorname{PolicyStep}$ leaves message serialization and the number of tool-mediated calls unspecified; with full history it emits an action and leaves $S$ unchanged. Algorithm~\ref{alg:inline} describes the joint patch--action contract, including rejection before action execution. It is a reference contract for the comparison, not a recovered execution trace or a claim that every evaluated implementation obeyed every detail. A fixed retry count or automatic fallback to full history is not assumed.
+A separate update tool accepts state patches; the inline protocol emits
+$\{\Delta S_t,a_t\}$ together, following the published SKILL.state
+contract~\citep{skillstate2026}. Algorithms~\ref{alg:context}
+and~\ref{alg:inline} are reference contracts, not reconstructed traces.
 \input{../paper/figures/algorithms}
 
-\subsection{Context size and complete-task cost}
-If interaction records have bounded size and the number of model calls per action is bounded, retaining the full transcript gives prompt growth of order $t$ and cumulative input growth of order $T^2$ over $T$ actions. A state policy has an action-independent context bound only when the state, observation, and retained-history records are all bounded. Under those assumptions and fixed $k$, cumulative input grows as $O(T)$. Neither statement fixes how many actions the policy will take to finish.
-
-Let $U$, $K$, and $O$ be accumulated uncached-input, cache-read, and output tokens. With their respective tariffs $\alpha$, $\gamma$, and $\beta$, normalized cost is
+\subsection{Context bounds and task cost}
+Full history yields $O(T^2)$ cumulative input over $T$ actions; bounded
+state and a fixed window yield $O(T)$. Neither bound fixes $T$ itself.
+With cumulative uncached input $U$, cache reads $K$, output $O$, and
+tariffs $\alpha,\gamma,\beta$,
 \begin{equation}
  D=\alpha U+\gamma K+\beta O.
  \label{eq:cost-model}
 \end{equation}
-A smaller maximum prompt does not determine any of these task-level sums. State updates can add output, and a changing prompt can alter cache reuse; these are possible explanations to examine, not consequences proved by the context-size bound. The evaluation therefore reports success, prompt size, token categories, and cost separately.
+State maintenance can add output, reduce cache reuse, or change $T$, so a
+smaller peak prompt does not determine $D$.

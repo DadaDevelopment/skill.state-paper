@@ -1,23 +1,20 @@
 \section{Conclusion}
 \label{sec:conclusion}
+Structured state is useful for bounding active context, but replacing
+history changes what the agent can do and how much work it performs.
+The experiments identify partial remedies: execution records beyond file
+references improve exploratory hybrid memory, and recent interactions
+recover much of the success lost by history replacement. Cache-aware
+accounting and control-defined horizon cohorts show why neither prompt
+size nor a single aggregate cost captures this trade-off.
 
-SKILL.state's context-management idea remains useful as a way to reduce
-the active record presented to an agent. In the tested coding setting,
-however, model-written state exchanges a smaller prompt for lower task
-success and higher conditional successful-execution cost. Context
-compression alone does not establish an efficient replacement for history.
-
-The design comparisons identify partial remedies and their limits.
-Runtime-owned execution records make hybrid memory more informative than
-file references alone, but further enrichment does not consistently
-improve outcomes. Retaining recent interactions gives the clearest
-capability recovery in both state families. The tested schema and protocol
-changes do not offer comparable recovery, and the economic value of
-history retention differs between implementations.
-
-Structured memory should therefore be judged by the evidence it preserves
-and the cost of completing the task with that evidence. Recent-history
-retention is a measured partial remedy, while the
-incremental benefit of state itself requires a matched history-only
-control. Adaptive switching and archival retrieval are motivated next
-steps, not solutions established by these results.
+The complete window sweep locates the threshold between two and six
+recent messages. Beyond six, success and repeated invocation hit the
+resolution limit of the pilot while prompt size keeps growing and the
+per-turn cost of rewriting state stays; the pilot cannot rank $k=6$,
+$12$, and $\infty$.
+The practical design principle is to separate runtime-recorded evidence,
+model-written interpretation, and access to original interactions.
+Compression is valuable when this combination preserves the ability to
+finish tasks; adaptive switching and retrieval must still demonstrate
+that benefit.

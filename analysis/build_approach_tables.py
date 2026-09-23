@@ -40,6 +40,12 @@ LABEL = {
     "hybrid-v7-tail6": "Hybrid + history ($k=6$)",
 }
 HORIZON_CUTOFF = 11
+HORIZON_BOUNDS = (8, 20)
+QUALITY_HEADERS = ["Approach", r"\shortstack{Solved rate\\(\%)}", r"Median $T$",
+                   r"\shortstack{Median cost\\(\$)}", r"\shortstack{Cost ratio\\($\times$)}", r"Solved/\$"]
+RESOURCE_HEADERS = ["Approach", r"\shortstack{Peak prompt\\(ktok)}",
+                    r"\shortstack{Uncached in\\(ktok)}", r"\shortstack{Cached in\\(ktok)}",
+                    r"\shortstack{Output\\(ktok)}", r"\shortstack{Cache hit\\(\%)}"]
 
 
 def p_tex(value):
@@ -98,6 +104,12 @@ def read_followup():
     return result
 
 
+def cache_hit_pct(row):
+    """Per-execution fraction of input tokens served from cache, not output."""
+    denominator = row["input_tokens"] + row["cache_read_tokens"]
+    return 100 * row["cache_read_tokens"] / denominator if denominator else None
+
+
 def model_summary(rows):
     result = {}
     for arm in MODEL_ARMS:
@@ -110,9 +122,67 @@ def model_summary(rows):
             "cost_total": cost, "cost_median": statistics.median(r["cost_usd"] for r in subset),
             "cost_mean": cost / len(subset), "cost_per_success": cost / solved,
             "solved_per_dollar": solved / cost, "solved_per_million_tokens": solved / total_tokens * 1e6,
+            "cache_hit_pct": statistics.median(hit for r in subset if (hit := cache_hit_pct(r)) is not None),
             **{key: statistics.median(r[key] for r in subset) for key in
                ("turns", "input_tokens", "output_tokens", "cache_read_tokens", "prompt_peak_tokens")},
         }
+    return result
+
+
+def all_outcome_cost_ratio(cells, arm):
+    """Median matched cost ratio, retaining both solved and unsolved outcomes."""
+    assert all(cell["baseline"]["cost_usd"] > 0 for cell in cells.values()), "Zero-cost reference needs an explicit estimand"
+    return statistics.median(cell[arm]["cost_usd"] / cell["baseline"]["cost_usd"]
+                             for cell in cells.values())
+
+
+def quality_row(label, summary, cost_ratio=None):
+    return [label, f"{summary['rate']:.1f}", f"{summary['turns']:g}",
+            f"{summary['cost_median']:.4f}", "--" if cost_ratio is None else f"{cost_ratio:.2f}",
+            f"{summary['solved_per_dollar']:.2f}"]
+
+
+def resource_row(label, summary):
+    return [label] + ["--" if summary.get(key) is None else f"{summary[key] / divisor:.1f}"
+                     for key, divisor in (("prompt_peak_tokens", 1000), ("input_tokens", 1000),
+                                          ("cache_read_tokens", 1000), ("output_tokens", 1000),
+                                          ("cache_hit_pct", 1))]
+
+
+def hybrid_summary(row):
+    """Normalize supplied aggregates without inventing unavailable statistics."""
+    return {"rate": 100 * row["solved"] / row["runs"], "turns": row["median_turns"],
+            "cost_median": row["median_cost_usd"],
+            "solved_per_dollar": row["solved"] / row["total_cost_usd_rounded"],
+            "input_tokens": row["median_input_tokens"], "output_tokens": row["median_output_tokens"],
+            "cache_read_tokens": row["median_cache_read_tokens"],
+            "prompt_peak_tokens": None, "cache_hit_pct": None}
+
+
+def horizon_summaries(rows):
+    """Posthoc task cohorts, held fixed across conditions using control length."""
+    control_turns = defaultdict(list)
+    for row in rows:
+        if row["condition"] == "baseline":
+            control_turns[row["task_id"]].append(row["turns"])
+    medians = {task: statistics.median(turns) for task, turns in control_turns.items()}
+    short, medium = HORIZON_BOUNDS
+    cohorts = (
+        ("Short", rf"Short: control median $T\leq{short}$", {t for t, n in medians.items() if n <= short}),
+        ("Medium", rf"Medium: control median ${short}<T\leq{medium}$", {t for t, n in medians.items() if short < n <= medium}),
+        ("Long", rf"Long: control median $T>{medium}$", {t for t, n in medians.items() if n > medium}),
+    )
+    assert set.union(*(cohort[2] for cohort in cohorts)) == set(medians)
+    assert sum(len(cohort[2]) for cohort in cohorts) == len(medians)
+    result = []
+    for name, label, tasks in cohorts:
+        selected = [row for row in rows if row["task_id"] in tasks]
+        cells = index_by_cell(selected)
+        summary = model_summary(selected)
+        for arm in MODEL_ARMS:
+            summary[arm]["cost_ratio_all"] = all_outcome_cost_ratio(cells, arm)
+            summary[arm]["p_vs_control"] = mcnemar_exact(*discordants(cells, arm))
+        result.append((name, label, tasks, summary))
     return result
 
 
@@ -172,6 +242,8 @@ def generate():
     assert all(set(cell) == set(MODEL_ARMS) for cell in cells.values())
     model = model_summary(rows)
     hybrid = read_followup()
+    hybrid_metrics = {arm: hybrid_summary(row) for arm, row in hybrid.items()}
+    all_ratios = {arm: all_outcome_cost_ratio(cells, arm) for arm in MODEL_ARMS}
     ratios = {arm: joint_ratios(cells, arm) for arm in MODEL_ARMS[1:]}
     confidence = task_bootstrap_intervals(rows)
     output, macros = {}, {}
@@ -189,6 +261,8 @@ def generate():
                                       ("SolvedPerMillionTokens", "solved_per_million_tokens", 3)):
             macros[prefix + suffix] = f"{result[key]:.{precision}f}"
         macros[prefix + "DeltaCI"] = f"[{confidence[arm][0]:+.1f}, {confidence[arm][1]:+.1f}]"
+        macros[prefix + "CacheHit"] = f"{result['cache_hit_pct']:.1f}"
+        macros[prefix + "AllCostRatio"] = f"{all_ratios[arm]:.2f}"
         if arm != "baseline":
             macros[prefix + "P"] = p_tex(mcnemar_exact(*discordants(cells, arm)))
             for suffix, key in (("CostRatio", "cost_usd"), ("PeakRatio", "prompt_peak_tokens"),
@@ -218,38 +292,30 @@ def generate():
     macros["ModelHistoryTwoVsStateDelta"] = f"{model['tail2']['rate'] - model['tail0']['rate']:+.1f}"
 
     history = [panel("Model-written memory", 6)]
-    for arm, k in zip(MODEL_ARMS, ("--", "0", "2", "6")):
-        history.append(["Full history" if arm == "baseline" else "Model-written state", k,
-                        f"{model[arm]['rate']:.1f}", macros[PREFIX[arm] + "CostPerSuccess"],
-                        "--" if arm == "baseline" else macros[PREFIX[arm] + "Delta"],
-                        "--" if arm == "baseline" else macros[PREFIX[arm] + "P"]])
+    history_resources = [panel("Model-written memory", 6)]
+    for arm in MODEL_ARMS:
+        history.append(quality_row(LABEL[arm], model[arm], all_ratios[arm]))
+        history_resources.append(resource_row(LABEL[arm], model[arm]))
     history += [r"\midrule", panel("Hybrid memory", 6)]
-    for arm, k in zip(HYBRID_ARMS, ("--", "0", "2", "6")):
-        history.append(["Full history" if arm == "control" else "Hybrid state", k, macros[PREFIX[arm] + "Rate"],
-                        macros[PREFIX[arm] + "CostPerSuccess"],
-                        "--" if arm == "control" else macros[PREFIX[arm] + "Delta"],
-                        "--" if arm == "control" else macros[PREFIX[arm] + "P"]])
-    add("history", ["Approach", "$k$", r"\shortstack{Solved rate\\(\%)}",
-                    r"\shortstack{Cost/success\\(\$)}", r"$\Delta$ (pp)", "$p$"], history)
+    history_resources += [r"\midrule", panel("Hybrid memory", 6)]
+    for arm in HYBRID_ARMS:
+        history.append(quality_row(LABEL[arm], hybrid_metrics[arm]))
+        history_resources.append(resource_row(LABEL[arm], hybrid_metrics[arm]))
+    add("history", QUALITY_HEADERS, history)
+    add("history-resources", RESOURCE_HEADERS, history_resources)
 
-    runtime = []
-    for arm in ("control", "hybrid-v6", "hybrid-v7"):
-        result = hybrid[arm]
-        runtime.append([LABEL[arm], macros[PREFIX[arm] + "Rate"], f"{result['median_output_tokens'] / 1000:.1f}",
-                        f"{result['median_cache_read_tokens'] / 1000:.1f}", f"{result['median_cost_usd']:.4f}",
-                        "--" if arm == "control" else macros[PREFIX[arm] + "P"]])
-    add("runtime", ["Approach", r"\shortstack{Solved rate\\(\%)}", r"\shortstack{Output\\(ktok)}", r"\shortstack{Cached\\(ktok)}", r"\shortstack{Median cost\\(\$)}", "$p$"], runtime)
-
-    protocol = []
-    for arm in ("hybrid-v7", "hybrid-v7-inline", "hybrid-v7-fit", "hybrid-v7-paperlike"):
-        result = hybrid[arm]
-        protocol.append([result["protocol"].title(), "Existing" if result["schema"] == "existing" else "Task-adapted",
-                         macros[PREFIX[arm] + "Rate"], f"{result['median_output_tokens'] / 1000:.1f}",
-                         f"{result['median_cost_usd']:.4f}", macros[PREFIX[arm] + "CostPerSuccess"],
-                         "--" if arm == "hybrid-v7" else macros[PREFIX[arm] + "VsHybridP"]])
-    add("protocol", ["Protocol", "Schema", r"\shortstack{Solved rate\\(\%)}", r"\shortstack{Output\\(ktok)}",
-                     r"\shortstack{Median cost\\(\$)}", r"\shortstack{Cost/success\\(\$)}", "$p$"], protocol,
-        "@{}llrrrrr@{}")
+    for name, arms in (
+        ("runtime", ("control", "hybrid-v6", "hybrid-v7")),
+        ("protocol", ("hybrid-v7", "hybrid-v7-inline", "hybrid-v7-fit", "hybrid-v7-paperlike")),
+    ):
+        def label(arm):
+            if name == "protocol":
+                row = hybrid[arm]
+                return row["protocol"].title() + " / " + ("Existing" if row["schema"] == "existing" else "Adapted")
+            return LABEL[arm]
+        add(name, QUALITY_HEADERS, [quality_row(label(arm), hybrid_metrics[arm]) for arm in arms])
+        add(name + "-resources", RESOURCE_HEADERS,
+            [resource_row(label(arm), hybrid_metrics[arm]) for arm in arms])
 
     resource = []
     for arm in MODEL_ARMS[1:]:
@@ -259,46 +325,83 @@ def generate():
                         + [p_tex(result["p_cost"])])
     add("resources", ["Approach", "Cost", "Peak prompt", "Input", "Output", "Cached", "$p$"], resource)
 
-    tokens = []
-    for arm in MODEL_ARMS:
-        result = model[arm]
-        tokens.append([LABEL[arm], f"{result['turns']:g}"] + [f"{result[key] / 1000:.1f}" for key in
-                      ("prompt_peak_tokens", "input_tokens", "output_tokens", "cache_read_tokens")])
-    add("tokens", ["Approach", r"Median $T$", r"\shortstack{Peak prompt\\(ktok)}", r"\shortstack{Input\\(ktok)}", r"\shortstack{Output\\(ktok)}", r"\shortstack{Cached\\(ktok)}"], tokens)
+    add("tokens", RESOURCE_HEADERS, [resource_row(LABEL[arm], model[arm]) for arm in MODEL_ARMS])
 
-    economics = [panel("Model-written memory", 5)]
+    economics = [panel("Model-written memory", 6)]
     for arm in MODEL_ARMS:
         result = model[arm]
         economics.append([LABEL[arm], f"{result['cost_median']:.4f}", f"{result['cost_mean']:.4f}",
+                          f"{result['cost_per_success']:.4f}",
                           f"{result['solved_per_dollar']:.2f}", f"{result['solved_per_million_tokens']:.3f}"])
-    economics += [r"\midrule", panel("Hybrid memory (efficiencies approximate)", 5)]
+    economics += [r"\midrule", panel("Hybrid memory (efficiencies approximate)", 6)]
     for arm in ("control", "hybrid-v7", "hybrid-v7-fit", "hybrid-v7-inline", "hybrid-v7-paperlike",
                 "hybrid-v7-tail2", "hybrid-v7-tail6"):
         result = hybrid[arm]
         economics.append([LABEL[arm], macros[PREFIX[arm] + "CostMedian"], macros[PREFIX[arm] + "CostMean"],
-                          macros[PREFIX[arm] + "SolvedPerDollar"], "--"])
-    add("economics", ["Approach", r"\shortstack{Median cost\\(\$)}", r"\shortstack{Mean cost\\(\$)}", r"Solved/\$", "Solved/Mtok"], economics)
+                          macros[PREFIX[arm] + "CostPerSuccess"], macros[PREFIX[arm] + "SolvedPerDollar"], "--"])
+    add("economics", ["Approach", r"\shortstack{Median cost\\(\$)}", r"\shortstack{Mean cost\\(\$)}",
+                      r"\shortstack{Cost/success\\(\$)}", r"Solved/\$", "Solved/Mtok"], economics)
 
-    task_turns = defaultdict(list)
-    for row in rows:
-        if row["condition"] == "baseline":
-            task_turns[row["task_id"]].append(row["turns"])
-    strata = [{task for task, turns in task_turns.items() if statistics.median(turns) <= HORIZON_CUTOFF},
-              {task for task, turns in task_turns.items() if statistics.median(turns) > HORIZON_CUTOFF}]
-    assert len(strata[0] | strata[1]) == len(task_turns) and not strata[0] & strata[1]
-    horizon = [r" & \multicolumn{3}{c}{Control median $T\leq" + str(HORIZON_CUTOFF) + r"$} & \multicolumn{3}{c}{Control median $T>" + str(HORIZON_CUTOFF) + r"$} \\",
-               r"\cmidrule(lr){2-4}\cmidrule(l){5-7}",
-               r"Approach & \shortstack{Solved rate\\(\%)} & $\Delta$ (pp) & $p$ & \shortstack{Solved rate\\(\%)} & $\Delta$ (pp) & $p$ \\", r"\midrule"]
+    contrasts = [panel("Model-written memory vs. full history", 4)]
+    for arm in MODEL_ARMS[1:]:
+        prefix = PREFIX[arm]
+        contrasts.append([LABEL[arm], macros[prefix + "Delta"], macros[prefix + "DeltaCI"], macros[prefix + "P"]])
+    contrasts += [r"\midrule", panel("Hybrid memory vs. full history", 4)]
+    for arm in hybrid:
+        if arm != "control":
+            prefix = PREFIX[arm]
+            contrasts.append([LABEL[arm], macros[prefix + "Delta"], "--", macros[prefix + "P"]])
+    contrasts += [r"\midrule", panel("Hybrid variants vs. hybrid state", 4)]
+    for arm, row in hybrid.items():
+        if arm != "hybrid-v7" and row["arm_only_vs_hybrid"] is not None:
+            prefix = PREFIX[arm]
+            contrasts.append([LABEL[arm], macros[prefix + "VsHybridDelta"], "--", macros[prefix + "VsHybridP"]])
+    add("contrasts", ["Approach", r"$\Delta$ (pp)", r"95\% CI (pp)", "$p$"], contrasts)
+
+    horizon, horizon_resources, horizon_contrasts, horizon_plot = [], [], [], []
+    summary_rows = []
+    summary_keys = ("runs", "solved", "rate", "turns", "cost_median", "cost_mean", "cost_per_success",
+                    "solved_per_dollar", "prompt_peak_tokens", "input_tokens", "cache_read_tokens",
+                    "output_tokens", "cache_hit_pct", "cost_ratio_all")
     for arm in MODEL_ARMS:
-        row = [LABEL[arm]]
-        for tasks in strata:
-            selected = {key: value for key, value in cells.items() if key[0] in tasks}
-            rate = 100 * sum(cell[arm]["solved"] for cell in selected.values()) / len(selected)
-            base_rate = 100 * sum(cell["baseline"]["solved"] for cell in selected.values()) / len(selected)
-            row += [f"{rate:.1f}", "--" if arm == "baseline" else f"{rate - base_rate:+.1f}",
-                    "--" if arm == "baseline" else p_tex(mcnemar_exact(*discordants(selected, arm)))]
-        horizon.append(" & ".join(row) + r" \\")
-    output["paper/tables/new-horizon.tex"] = "\n".join([r"\begin{tabular}{@{}lrrrrrr@{}}", r"\toprule"] + horizon + [r"\bottomrule", r"\end{tabular}"]) + "\n"
+        summary = dict(model[arm], cost_ratio_all=all_ratios[arm])
+        summary_rows.append(["all", arm] + [summary[key] for key in summary_keys])
+    for order, (name, label, tasks, summary) in enumerate(horizon_summaries(rows)):
+        if horizon:
+            horizon.append(r"\midrule")
+            horizon_resources.append(r"\midrule")
+            horizon_contrasts.append(r"\midrule")
+        horizon.append(panel(label, len(QUALITY_HEADERS)))
+        horizon_resources.append(panel(label, len(RESOURCE_HEADERS)))
+        horizon_contrasts.append(panel(label, 3))
+        macros["Horizon" + name + "Tasks"] = str(len(tasks))
+        for arm in MODEL_ARMS:
+            result = summary[arm]
+            prefix = "Horizon" + name + PREFIX[arm]
+            horizon.append(quality_row(LABEL[arm], result, result["cost_ratio_all"]))
+            horizon_resources.append(resource_row(LABEL[arm], result))
+            delta = result["rate"] - summary["baseline"]["rate"]
+            macros[prefix + "Rate"] = f"{result['rate']:.1f}"
+            macros[prefix + "Delta"] = f"{delta:+.1f}"
+            macros[prefix + "CacheHit"] = f"{result['cache_hit_pct']:.1f}"
+            macros[prefix + "CostMedian"] = f"{result['cost_median']:.4f}"
+            macros[prefix + "CostPerSuccess"] = f"{result['cost_per_success']:.4f}"
+            macros[prefix + "AllCostRatio"] = f"{result['cost_ratio_all']:.2f}"
+            macros[prefix + "SolvedPerDollar"] = f"{result['solved_per_dollar']:.2f}"
+            macros[prefix + "P"] = p_tex(result["p_vs_control"])
+            if arm != "baseline":
+                horizon_contrasts.append([LABEL[arm], f"{delta:+.1f}", p_tex(result["p_vs_control"])])
+            summary_rows.append([name.lower(), arm] + [result[key] for key in summary_keys])
+            horizon_plot.append([order, arm, result["rate"], result["cost_per_success"],
+                                 result["cache_hit_pct"], result["cost_ratio_all"]])
+    add("horizon", QUALITY_HEADERS, horizon)
+    add("horizon-resources", RESOURCE_HEADERS, horizon_resources)
+    add("horizon-contrasts", ["Approach", r"$\Delta$ (pp)", "$p$"], horizon_contrasts)
+    output["paper/generated/model-metric-summary.csv"] = csv_text(["cohort", "arm"] + list(summary_keys), summary_rows)
+    output["paper/generated/horizon-metrics.csv"] = csv_text(
+        ["cohort_order", "arm", "solved_pct", "cost_per_success_usd", "cache_hit_pct", "all_cost_ratio"], horizon_plot)
+    macros["HorizonShortUpper"] = str(HORIZON_BOUNDS[0])
+    macros["HorizonMediumUpper"] = str(HORIZON_BOUNDS[1])
 
     output["paper/generated/approaches.tex"] = "% Generated by analysis/build_approach_tables.py; do not edit.\n" + "\n".join(
         rf"\newcommand{{\{key}}}{{{value}}}" for key, value in sorted(macros.items())) + "\n"

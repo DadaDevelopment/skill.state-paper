@@ -1,61 +1,57 @@
-\section{Implications for memory design}
+\section{What the evidence changes about memory design}
 \label{sec:discussion}
+\subsection{A useful abstraction with distinct failure modes}
+SKILL.state separates working context from the transcript. The coding
+experiments support that architectural idea while showing why a smaller
+state is not a complete memory policy. Three measured effects matter.
+Sparse runtime records leave useful execution evidence absent; retaining
+commands and changes improves on file references alone. Removing recent
+interactions increases the pilot's repetition diagnostic and lowers
+success in the larger comparisons. Changing state and history also changes
+cache reuse, so logical token reduction is not a price comparison.
 
-\subsection{Preserve evidence, not only a compact account}
+The remedies address different parts of this problem. Runtime ownership
+avoids asking the model to rewrite every observed fact. A recent window
+preserves detail that a schema did not select. Their combination still
+requires evaluation: enriching the runtime record did not produce
+monotone gains, and history recovery had different cost consequences in
+the two implementations. The evidence supports a division of memory
+responsibilities, not a claim that the tested hybrid dominates full history.
 
-The results support the motivation for structured memory while identifying
-where the tested replacements fail. Smaller peak prompts demonstrate that
-the active record can be compressed. The accompanying success and cost
-deficits show that compression quality cannot be judged from its size.
-A memory policy must be evaluated through what the agent can still do
-with it.
+The extended window sweep turns $k=6$ from an unexplained constant into
+a measured threshold: success and repeated invocation stop improving there,
+but at the ceiling and floor of a 12-task pilot. Wider windows keep adding
+prompt without removing the per-turn cost of rewriting state. Some lost
+information therefore concerns the local execution sequence; older
+evidence may still matter on tasks that leave headroom, and a
+late-relevance task could need an observation outside every finite window.
 
-Hybrid ownership offers a concrete way to separate two responsibilities.
-The runtime retains observed execution evidence; the model maintains its
-interpretation and next steps. The component comparison suggests that
-recording modifications and commands is more useful than remembering file
-references alone. It does not show that every added record improves the
-agent, or that the richer representation is sufficient. This distinction
-matters when choosing a schema: a larger collection of fields is not
-necessarily a better record of the task.
+\subsection{Why fixed-horizon savings do not settle this question}
+The original synthetic scaling experiments hold the event stream fixed;
+our agent chooses actions and when to stop~\citep{skillstate2026}.
+A context bound at a fixed horizon does not constrain the extra work
+a memory policy may induce. The original paper also reports public
+interactive benchmarks, so this distinction is not an explanation of all
+differences between the studies. Different models, schemas, and runtimes
+remain alternative explanations. Its reported total-token savings likewise
+cannot determine monetary savings without input, output, and cache
+accounting. Supplementary~\ref{app:pricing} illustrates this missing
+information without claiming to reconstruct the authors' bill.
 
-\subsection{Retain a path back to the interaction}
+The horizon cohorts provide no universal rule to switch from transcript
+to state. State alone loses success in every cohort, whereas limited
+history recovers much of the gap even in the long-reference cohort.
+An adaptive policy should therefore respond to information needs and
+complete-task cost, not assume that trajectory age makes recent evidence
+dispensable. A retrievable archive and a matched history-only control are
+the next tests: the former checks recovery of older evidence, the latter
+whether state adds value beyond a recent window.
 
-Among the tested changes, recent-history retention gives the clearest
-recovery. It preserves observations together with neighboring actions
-instead of requiring the state writer to identify their future relevance.
-This is a plausible explanation for its benefit, not an identified causal
-mechanism. The practical result is nevertheless direct: the tested compact
-state performs better when some original interactions remain available.
-
-The choice depends on the objective. Model-written state with the larger
-history window combines a near-control success estimate with lower cost
-per observed success, but its confidence interval still permits a
-meaningful capability deficit. The corresponding hybrid policy recovers
-success without beating its control on that cost measure. Neither policy
-dominates full history on every relevant criterion. A deployment with a
-strict context budget may value a different point from one prioritizing
-completion probability or cost.
-
-\subsection{What would establish a stronger solution?}
-
-The evidence motivates selective preservation of evidence in both
-state and history. An adaptive policy could retain
-full history while trajectories are short and introduce state as the
-record grows. A retrievable archive could retain older evidence without
-keeping it in every prompt. These are design hypotheses, not evaluated
-features of the present system. Their thresholds, retrieval reliability,
-and complete-task costs require separate experiments.
-
-A decisive next comparison would hold the recent-history window constant
-and remove the state block. It would determine whether structured memory
-adds value beyond the interactions already retained. A separate test of
-schema degradation would be needed to establish whether runtime-owned
-records reduce sensitivity to semantic schema design. The current
-task-adapted-schema comparison does not answer that question.
-
-The measured result is therefore a partial repair with a clear boundary:
-richer execution records improve on a sparse representation in exploratory
-data, and recent interactions recover much of the observed capability
-loss. Full replacement of history, reliable adaptive switching, and
-recovery of discarded evidence remain open.
+\paragraph{Scope.}
+These are implementation-specific findings on one model and task
+collection. Exploratory configuration selection, in-sample schema
+adaptation, unadjusted repeated-task tests, incomplete execution-source
+provenance, and aggregate-only hybrid reporting limit inference.
+The pilot supports descriptive resource and repetition comparisons, not a
+success-equivalence test. Neither causal forgetting nor the effectiveness
+of adaptive switching and retrieval is established.

@@ -1,64 +1,112 @@
-\section{Recovering capability with recent history}
+\section{How much recent history is enough?}
 \label{sec:capability}
-
-A recent-history window preserves original interactions without requiring
-the state writer to select every relevant detail in advance. This is an
-independent change to either memory family. It adds a source of evidence
-without changing who writes the state.
-
-For model-written memory, success rises from \ModelStateRate\% without
-history to \ModelHistoryTwoRate\% at $k=2$ and
-\ModelHistorySixRate\% at $k=6$ (Table~\ref{tab:history}). The largest
-setting recovers much of the deficit relative to the
-\ModelControlRate\% full-history control. The task-bundle interval for its
-difference is $\ModelHistorySixDeltaCI$ percentage points, compared with
-$\ModelStateDeltaCI$ for state alone. Proximity of the point estimates does
-not establish equivalence.
+\subsection{Capability recovery and its price}
+State records selected facts; recent history also retains the wording,
+ordering, and surrounding context of interactions. Adding it raises
+model-written success from \ModelStateRate\% at $k=0$ to
+\ModelHistoryTwoRate\% at $k=2$ and \ModelHistorySixRate\% at $k=6$.
+The last setting differs from full history by
+$\ModelHistorySixDelta$ percentage points, with interval
+$\ModelHistorySixDeltaCI$. This is substantial recovery, not demonstrated
+equivalence.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Recent-history retention, task success, and cost per observed
-success. Each family has its own full-history reference. Differences and
-exact McNemar tests use that reference; panels are not pooled.
-Cost per success includes retained failures.}
+\caption{Recent-history retention, quality and economics. All retained
+outcomes contribute. Each memory family has its own full-history control.
+Cost ratio is the median matched ratio, not a ratio of medians; unavailable
+hybrid ratios are left blank. Solved/\$ uses aggregate cost, including failures.}
 \label{tab:history}
-\input{tables/new-history}
+\resizebox{\linewidth}{!}{\input{tables/new-history}}
 \end{table}
 
-Hybrid state shows the same direction of recovery. Its solved rate rises
-from \HybridRate\% without retained history to
-\HybridHistoryTwoRate\% at $k=2$ and \HybridHistorySixRate\% at $k=6$.
-The largest setting improves on hybrid state by
-\HybridHistorySixVsHybridDelta{} percentage points
+\begin{table}[htbp]
+\centering\small
+\caption{Resource panel for the same history policies. Peak prompt and
+token counts are execution-level medians; cache hit is the median
+within-execution cached fraction. Hybrid peak and cache-hit statistics
+are unavailable, not zero.}
+\label{tab:history-resources}
+\resizebox{\linewidth}{!}{\input{tables/new-history-resources}}
+\end{table}
+
+The hybrid policy shows the same direction: \HybridRate\% without history,
+\HybridHistoryTwoRate\% at $k=2$, and \HybridHistorySixRate\% at $k=6$.
+The latter improves on hybrid state alone by
+$\HybridHistorySixVsHybridDelta$ percentage points
 ($p=\HybridHistorySixVsHybridP$), against a full-history reference of
-\HybridControlRate\%. Recent interactions improve the outcome even when the runtime
-already retains rich execution records.
-
-\subsection{Recovery has different economic consequences}
-
-For model-written memory with $k=6$, cost per observed success is
-\$\ModelHistorySixCostPerSuccess{}, below the control's
-\$\ModelControlCostPerSuccess{}. For hybrid memory with $k=6$, it is
-\$\HybridHistorySixCostPerSuccess{}, above its own control's
-\$\HybridControlCostPerSuccess{}. Figure~\ref{fig:pareto} shows the
-resulting trade-offs. The histories improve success in both families,
-but do not confer the same economic advantage.
+\HybridControlRate\%.
+Its cost per observed success increases from \$\HybridCostPerSuccess{}
+to \$\HybridHistorySixCostPerSuccess{}.
+For model-written memory it instead falls from
+\$\ModelStateCostPerSuccess{} to \$\ModelHistorySixCostPerSuccess{}.
+The same retention decision therefore has different economic consequences.
 
 \input{../paper/figures/fig4_pareto}
 
-The model-written result is compatible with the conditional cost ratio
-of \ModelHistorySixCostRatio{} in Table~\ref{tab:resources}. Cost per
-success includes failures, termination behavior, and tasks solved by only
-one policy; conditional ratios include only shared successes. A policy
-can therefore have lower cost per observed success on the retained
-workload without being cheaper on the tasks both policies solve.
-The complete efficiency breakdown appears in
-Appendix~\ref{app:efficiency}.
+\subsection{The complete window sweep and why six}
+Recovery at $k=6$ alone cannot show that a larger window adds nothing.
+The pilot therefore also ran $k=12$ and $k=\infty$ (state plus the full
+transcript, distinct from the no-state control), with three repetitions
+on \WindowTaskCount{} tasks (Tables~\ref{tab:window}
+and~\ref{tab:window-tasks}).
 
-These results make recent-history retention the clearest measured partial
-remedy among the tested changes. They do not establish that structured
-state adds value over an equally sized history window: that requires a
-history-only control. Nor do they identify whether the useful material is
-an omitted observation, action order, formatting, or another property of
-the interaction record. The supplementary trajectory-length comparison
-in Appendix~\ref{app:horizon} describes where the observed deficits occur.
+\begin{table}[htbp]
+\centering\small
+\caption{Window pilot in the standard two panels (finalized medians over
+three repetitions). Per-execution solved rates, efficiencies, pooled cost
+ratios, and input counters were not retained (--). Cache hit is the
+reported pilot value, not reconstructed from counters.}
+\label{tab:window}
+\resizebox{\linewidth}{!}{\input{tables/new-window-quality}}
+
+\medskip
+\resizebox{\linewidth}{!}{\input{tables/new-window-resources}}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Window pilot outcomes reported in the research log (raw sessions
+unavailable). A task counts as solved if any of its three repetitions
+passed. Discordant tasks and exact McNemar $p$ compare with full history.
+Output per turn is the reported median.}
+\label{tab:window-tasks}
+\resizebox{\linewidth}{!}{\input{tables/new-window-tasks}}
+\end{table}
+
+Three measurements stop changing at $k=6$. Tasks solved rise from
+\WindowStateTasksSolved{} of \WindowTaskCount{} at $k\leq2$ to
+\WindowSixTasksSolved{} at $k=6$ and stay there; the repetition ratio
+falls from \WindowStateRepetition{} to \WindowSixRepetition{} and stays
+there; and the $k=6$, $12$, and $\infty$ rows each differ from the control
+by a single discordant task. Two of these flat lines are bounds, not
+plateaus. Solving all \WindowTaskCount{} tasks is the ceiling of the
+task set, and a ratio of one is the floor of the repetition diagnostic. A 12-task pilot
+needs at least six one-sided discordant tasks for significance at the five percent level, so it cannot
+separate conditions that are all at or near the ceiling. The honest
+reading is that the threshold lies between two and six messages, not that
+wider windows are useless.
+
+The resource columns keep moving. Median peak prompt grows from
+\WindowSixPeakMedian{} thousand tokens at $k=6$ to \WindowTwelvePeakMedian{}
+and \WindowInfinitePeakMedian{}; median turns fall from
+\WindowSixCallsMedian{} to \WindowTwelveCallsMedian{} and
+\WindowInfiniteCallsMedian{}; median cost is \$\WindowSixCostMedian{},
+\$\WindowTwelveCostMedian{}, and \$\WindowInfiniteCostMedian{}. Matched
+cost ratios stay between \WindowInfiniteCostRatioMin{} and
+\WindowTwelveCostRatioMax{} for every $k\geq6$ in every repetition
+(Supplementary~\ref{app:window}). The reason is visible in output per turn.
+Every state condition writes about twice the control's
+\WindowControlOutputPerTurn{} tokens (\WindowSixOutputPerTurn{} at $k=6$),
+because the model rewrites state on each step. Widening the window cannot
+remove that fixed overhead; it only trades fewer turns for larger prompts.
+Cache hit also stays low (\WindowSixCacheHit--\WindowInfiniteCacheHit\%
+against \WindowControlCacheHit\%), consistent with a state block that
+precedes the transcript in Eq.~\eqref{eq:ctx-state} and changes every turn.
+
+So $k=6$ is the smallest tested window at which success and redundant
+re-invocation reach the pilot's resolution limit, and the cheapest point
+beyond it is not identified by these data. The main model-state comparison
+confirms recovery at $k=6$ but did not run $k=12$ or $k=\infty$; a
+discriminating follow-up needs harder tasks with headroom above the
+ceiling and a no-state recent-history control.

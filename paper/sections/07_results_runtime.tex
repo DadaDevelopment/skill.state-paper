@@ -1,91 +1,72 @@
 \section{What should the runtime remember?}
 \label{sec:runtime}
 
-Hybrid state separates observed execution records from model-written
-interpretation. The runtime can preserve an observed command outcome
-without requiring the model to rewrite it, while the model maintains
-hypotheses and pending work. Figure~\ref{fig:runtime-written} shows this
-division. Its value depends on the contents of the runtime record:
-remembering which file was seen is different from retaining what was
-changed and which commands followed.
+Hybrid state lets the runtime keep observed command outcomes while the
+model maintains hypotheses and pending work
+(Figure~\ref{fig:runtime-written}). Its value depends on what the runtime
+records: which file was seen differs from what changed and which commands
+followed.
 
 \input{../paper/figures/fig5_runtime_written}
 
 \subsection{From file references to execution evidence}
 
-The exploratory component comparison makes this distinction visible
-(Table~\ref{tab:composition}). File references alone reach
-\ExploreFilesRate\% solved. Including modifications and command records
-raises the observed rate to \ExploreCommandsRate\%, while median output
-falls from \ExploreFilesOutputMedian{} to
-\ExploreCommandsOutputMedian{} thousand tokens. Median recorded cost
-falls from \$\ExploreFilesCostMedian{} to
-\$\ExploreCommandsCostMedian{}. The comparison changes a group of
-records, so it does not isolate which component accounts for the difference.
+File references alone reach \ExploreFilesRate\% solved
+(Table~\ref{tab:composition}). Adding modifications and command records
+raises this to \ExploreCommandsRate\%, lowers median output from
+\ExploreFilesOutputMedian{} to \ExploreCommandsOutputMedian{} thousand
+tokens, and lowers median cost from \$\ExploreFilesCostMedian{} to
+\$\ExploreCommandsCostMedian{}. Diagnostics, environment, and tests give
+\ExploreRichRate\%; failed-attempt records give \ExploreFailuresRate\%.
+None reaches full history at \ExploreControlRate\%. The gain sits between
+file references and execution records; further enrichment plateaus
+(Figure~\ref{fig:composition}). Rows change bundles of records, so no
+single component is isolated.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Exploratory comparison of runtime-record contents, with
-model-written semantic state under the same schema. Success and efficiency use all retained
-outcomes; output and cost are per-execution medians. Rows beginning with
-$+$ add to the preceding configuration. These are grouped design
-comparisons rather than independent estimates of individual components.}
+\caption{Runtime-record contents under the same semantic schema
+(exploratory, one repetition). Top: quality panel over all retained
+outcomes. Bottom: resource panel, per-execution medians. Rows beginning
+with $+$ add to the preceding row.}
 \label{tab:composition}
-\input{tables/new-composition}
-\end{table}
+\resizebox{\linewidth}{!}{\input{tables/new-composition}}
 
-Adding diagnostics, environment, and test-related records gives
-\ExploreRichRate\%; adding failed-attempt records gives
-\ExploreFailuresRate\%. Neither reaches the full-history reference of
-\ExploreControlRate\%. The largest observed improvement is thus between
-file references and the representation that also records modifications
-and commands. Further enrichment produces a plateau with no
-monotonic improvement in success or cost
-(Figure~\ref{fig:composition}).
+\medskip
+\resizebox{\linewidth}{!}{\input{tables/new-composition-resources}}
+\end{table}
 
 \input{../paper/figures/fig7_composition}
 
-Efficiency relative to the sparse representation improves as well.
-Successes per dollar rise from \ExploreFilesSolvedPerDollar{} with file
-references to \ExploreCommandsSolvedPerDollar{} with modifications and
-commands. The richer configurations approach, but do not exceed, the
-full-history value of \ExploreControlSolvedPerDollar{} on this workload.
-This is evidence for retaining execution information beyond artifact
-references, not evidence that hybrid state has replaced history at lower
-cost.
-
-The conditional cost comparison is sensitive to which successes are
-included. On the same tasks solved by every configuration, the cost ratios
-for the two richest variants are \ExploreRichFixedCostRatio{} and
-\ExploreFailuresFixedCostRatio{} relative to full history. They remain far
-below the file-reference ratio of \ExploreFilesFixedCostRatio{}, but do
-not establish a cost advantage over the control.
-Appendix~\ref{app:composition} reports this sensitivity analysis. The
-component results are exploratory and partly overlap the final comparison,
-as specified in Section~\ref{sec:setup}.
+Every runtime-record configuration has a lower cache hit than full history
+(\ExploreCommandsCacheHitMedian--\ExploreFilesCacheHitMedian\% against
+\ExploreControlCacheHitMedian\%), consistent with a changing state block
+breaking prefix reuse that a growing transcript keeps. Successes per dollar rise
+from \ExploreFilesSolvedPerDollar{} to \ExploreCommandsSolvedPerDollar{},
+approaching but not exceeding the control's
+\ExploreControlSolvedPerDollar{}. On tasks solved by every configuration,
+the richest variants cost \ExploreRichFixedCostRatio{} and
+\ExploreFailuresFixedCostRatio{} times full history
+(Supplementary~\ref{app:composition}): richer records beat a sparse index,
+but show no cost advantage over the transcript.
 
 \subsection{Do failure records close the remaining gap?}
 
-The final within-hybrid comparison tests the addition of failed-attempt
-records more narrowly (Table~\ref{tab:runtime}). Success rises from
-\HybridNoFailureRate\% without them to \HybridRate\% with them, while the
-full-history control reaches \HybridControlRate\%. Median cost falls
-slightly. The matched comparison provides little evidence of a large
-additional benefit from this representation of failures.
+In the final hybrid comparison, failure records move success from
+\HybridNoFailureRate\% to \HybridRate\%, against \HybridControlRate\% for
+full history (Table~\ref{tab:runtime}); the matched difference is small.
+A stored outcome need not preserve the order and context a later decision
+needs. More fields did not recover the gap; retaining some original
+interaction is the remaining candidate, tested next.
 
 \begin{table}[htbp]
 \centering\small
-\caption{Final hybrid comparison with and without failure records.
-Token use and cost are per-execution medians; token counts are in
-thousands. Exact McNemar tests compare each policy with full history.}
+\caption{Final hybrid comparison with and without failure records. Same
+two panels as Table~\ref{tab:composition}. Hybrid aggregates cannot
+reconstruct matched cost ratios, peak prompt, or cache hit (--).}
 \label{tab:runtime}
-\input{tables/new-runtime}
-\end{table}
+\resizebox{\linewidth}{!}{\input{tables/new-runtime}}
 
-The component comparison and the final failure-record contrast point to a
-limit of automatic recording. Richer execution evidence performs better
-than a sparse artifact index, but the tested record still does not
-substitute for the transcript. A stored outcome need not preserve the
-sequence or interpretive context needed by a later decision. This suggests
-retaining some original interactions alongside state. Adding more fields
-alone has not recovered the missing capability.
+\medskip
+\resizebox{\linewidth}{!}{\input{tables/new-runtime-resources}}
+\end{table}

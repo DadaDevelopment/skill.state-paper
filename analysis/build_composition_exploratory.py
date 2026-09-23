@@ -14,7 +14,7 @@ import math
 import statistics
 from pathlib import Path
 
-from build_approach_tables import csv_text, table
+from build_approach_tables import QUALITY_HEADERS, RESOURCE_HEADERS, csv_text, table
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "data/v-axis/vaxis-trial1.jsonl"
@@ -61,6 +61,8 @@ def load_rows(source=SOURCE):
         normalized_cost = (
             .15 * row["input_tokens"] + .03 * row["cache_read_tokens"] + .50 * row["output_tokens"]
         ) / 1e6
+        if row["input_tokens"] + row["cache_read_tokens"] <= 0 or row["cost_usd"] <= 0:
+            raise ValueError(f"Undefined cache-hit or cost denominator: {key}")
         if not math.isclose(row["cost_usd"], normalized_cost, rel_tol=0, abs_tol=0.000000501):
             raise ValueError(f"Cost disagrees with normalized tariff: {key}")
         tasks[row["arm"]].add(row["task"])
@@ -86,6 +88,17 @@ def summarize(rows):
             "output_median": statistics.median(row["output_tokens"] for row in selected) / 1000,
             "cost_median": statistics.median(row["cost_usd"] for row in selected),
             "solved_per_dollar": successes / total_cost,
+            "turns_median": statistics.median(row["turns"] for row in selected),
+            "peak_median": statistics.median(row["prompt_peak_tokens"] for row in selected) / 1000,
+            "input_median": statistics.median(row["input_tokens"] for row in selected) / 1000,
+            "cached_median": statistics.median(row["cache_read_tokens"] for row in selected) / 1000,
+            "cache_hit_median": statistics.median(
+                100 * row["cache_read_tokens"] / (row["input_tokens"] + row["cache_read_tokens"])
+                for row in selected
+            ),
+            "all_cost_ratio": statistics.median(
+                cell[arm]["cost_usd"] / cell["control"]["cost_usd"] for cell in cells.values()
+            ),
         }
         if arm != "control":
             variable = [cell for cell in cells.values() if cell["control"]["solved"] and cell[arm]["solved"]]
@@ -102,10 +115,11 @@ def summarize(rows):
 
 def generate(source=SOURCE):
     summaries = summarize(load_rows(source))
-    output, macros, main_rows, sensitivity_rows, plot_rows = {}, {}, [], [], []
+    output, macros, main_rows, resource_rows, sensitivity_rows, plot_rows = {}, {}, [], [], [], []
     metric_contract = (
         ("Rate", "rate", 1), ("OutputMedian", "output_median", 1),
         ("CostMedian", "cost_median", 5), ("SolvedPerDollar", "solved_per_dollar", 2),
+        ("CacheHitMedian", "cache_hit_median", 1),
         ("VariableCostRatio", "variable_cost_ratio", 2), ("FixedCostRatio", "fixed_cost_ratio", 2),
         ("FixedTurnsRatio", "fixed_turns_ratio", 2), ("FixedOutputRatio", "fixed_output_ratio", 2),
     )
@@ -115,17 +129,23 @@ def generate(source=SOURCE):
             if field in result:
                 macros["Explore" + PREFIX[arm] + suffix] = f"{result[field]:.{precision}f}"
         main_rows.append([
-            LABEL[arm], f"{result['rate']:.1f}", f"{result['output_median']:.1f}",
-            f"{result['cost_median']:.5f}", f"{result['solved_per_dollar']:.2f}",
+            LABEL[arm], f"{result['rate']:.1f}", f"{result['turns_median']:.0f}",
+            f"{result['cost_median']:.5f}", f"{result['all_cost_ratio']:.2f}",
+            f"{result['solved_per_dollar']:.2f}",
         ])
+        resource_rows.append([LABEL[arm]] + [f"{result[field]:.1f}" for field in (
+            "peak_median", "input_median", "cached_median", "output_median", "cache_hit_median",
+        )])
         if arm != "control":
             sensitivity_rows.append([LABEL[arm]] + [f"{result[field]:.2f}" + r"$\times$" for field in (
                 "variable_cost_ratio", "fixed_cost_ratio", "fixed_turns_ratio", "fixed_output_ratio",
             )])
             plot_rows.append([order - 1, f"{result['rate']:.8f}", f"{result['solved_per_dollar']:.8f}"])
     output["paper/tables/new-composition.tex"] = table(
-        ["Runtime-owned information", r"\shortstack{Solved rate\\(\%)}", r"\shortstack{Median output\\(ktok)}",
-         r"\shortstack{Median cost\\(\$)}", r"Solved/\$"], main_rows,
+        QUALITY_HEADERS, main_rows,
+    )
+    output["paper/tables/new-composition-resources.tex"] = table(
+        RESOURCE_HEADERS, resource_rows,
     )
     output["paper/tables/new-composition-sensitivity.tex"] = table(
         ["Runtime-owned information", r"\shortstack{Variable subset\\Cost}",

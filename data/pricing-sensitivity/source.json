@@ -1,0 +1,26 @@
+{
+  "source_url": "https://arxiv.org/html/2608.26263v3#S4.T1",
+  "source_version": "2608.26263v3",
+  "verified_date": "2026-09-23",
+  "table": "Table 1: Warehouse Management Long-Horizon Scaling",
+  "metric_definition_url": "https://arxiv.org/html/2608.26263v3#S4.SS3",
+  "metric_definition_excerpt": "The cumulative token burn across the entire execution horizon.",
+  "extraction": "docs/PAPER-EXTRACTION-full.md:7-32",
+  "direction": "full_history_over_state",
+  "estimand": "input_only_discounted_total_token_proxy",
+  "not_estimated": ["authors_monetary_cost", "authors_cache_hit", "output_pricing", "cost_crossover"],
+  "scenario": {
+    "provenance": "наброски по статье-4.docx; build/research/notes-4.md:2305 and 3057",
+    "status": "historical_log_assumptions_not_final_experiment_statistics",
+    "full_history_hit": 0.93,
+    "state_hit": 0.72,
+    "cache_to_input_price": 0.198
+  },
+  "rows": [
+    {"horizon": 10, "full_history_total_tokens": 9438, "state_total_tokens": 5870},
+    {"horizon": 25, "full_history_total_tokens": 42689, "state_total_tokens": 14714},
+    {"horizon": 50, "full_history_total_tokens": 171658, "state_total_tokens": 30151},
+    {"horizon": 100, "full_history_total_tokens": 1245413, "state_total_tokens": 65408},
+    {"horizon": 200, "full_history_total_tokens": 2608755, "state_total_tokens": 122384}
+  ]
+}

@@ -9,11 +9,14 @@ history absent (Table~\ref{tab:protocol}).
 
 \begin{table}[htbp]
 \centering\small
-\caption{Update protocol and schema within hybrid state. Output and cost
-are per-execution medians; cost per success includes retained failures.
-Exact McNemar tests compare each configuration with Tool + Existing schema.}
+\caption{Update protocol and schema within hybrid state, in the same two
+panels as Table~\ref{tab:composition}. Hybrid aggregates cannot
+reconstruct matched cost ratios, peak prompt, or cache hit (--).}
 \label{tab:protocol}
-\input{tables/new-protocol}
+\resizebox{\linewidth}{!}{\input{tables/new-protocol}}
+
+\medskip
+\resizebox{\linewidth}{!}{\input{tables/new-protocol-resources}}
 \end{table}
 
 The task-adapted schema changes success from \HybridRate\% to

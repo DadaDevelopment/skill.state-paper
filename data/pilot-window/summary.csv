@@ -1,0 +1,7 @@
+arm,calls_median,cost_median_usd_reported,peak_prompt_median_tokens,output_median_tokens,cache_hit_reported_median_pct,repetition_median,solved_pct,uncached_input_median_tokens,cached_input_median_tokens,pooled_matched_cost_ratio,solved_per_dollar
+baseline,12,0.0035,9870,6542,86.5,1.0,,,,,
+tail0,25,0.0099,3457,29621,64.3,1.27,,,,,
+tail2,15,0.0054,6184,14202,48.8,1.06,,,,,
+tail6,12,0.007,8430,12164,27.1,1.0,,,,,
+tail12,9,0.0059,11342,7926,27.0,1.0,,,,,
+tailinf,10,0.006,14018,9114,38.2,1.0,,,,,

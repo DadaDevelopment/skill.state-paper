@@ -4,9 +4,15 @@
 
 \begin{table}[htbp]
 \centering\small
-\caption{Protocol and schema changes within hybrid memory, without recent history. Output and cost are per-execution medians; cost per success includes failures. Exact McNemar tests use Tool + Existing as the reference.}
+\caption{Протокол и схема внутри гибридного состояния без недавней истории,
+в тех же двух панелях, что и табл.~\ref{tab:composition}. Гибридные сводки
+не позволяют восстановить парные отношения стоимости, пиковый промпт
+и cache hit (--).}
 \label{tab:protocol}
-\input{../paper/tables/new-protocol}
+\resizebox{\linewidth}{!}{\input{../paper/tables/new-protocol}}
+
+\medskip
+\resizebox{\linewidth}{!}{\input{../paper/tables/new-protocol-resources}}
 \end{table}
 
 Адаптированная схема при отдельном инструменте даёт \TaskAdaptedRate\% против \HybridRate\% у опорного варианта. Наблюдаемое улучшение небольшое, а медианная стоимость возрастает с \$\HybridCostMedian{} до \$\TaskAdaptedCostMedian{}. Для восстановления контрольной успешности этого изменения недостаточно.

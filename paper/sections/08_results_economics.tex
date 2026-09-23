@@ -1,57 +1,29 @@
-\section{Compression and the cost of completing a task}
+\section{Compression is not complete-task efficiency}
 \label{sec:economics}
+Model-written state achieves compression but does not preserve task
+performance. On shared successes its median peak-prompt ratio is
+\ModelStatePeakRatio{}, while its cost ratio is \ModelStateCostRatio{}
+and its output-token ratio is \ModelStateOutputRatio{}.
+Across all retained outcomes, success falls from \ModelControlRate\% to
+\ModelStateRate\%, with a task-bootstrap difference interval of
+$\ModelStateDeltaCI$ percentage points (Supplementary~\ref{app:contrasts}).
 
-Model-written state delivers the intended compression but does not preserve
-task success. Without recent history, its solved rate is
-\ModelStateRate\%, compared with \ModelControlRate\% for full history.
-On shared successes, the median peak-prompt ratio is
-\ModelStatePeakRatio{}, yet cost is \ModelStateCostRatio{} times the
-reference and output use is \ModelStateOutputRatio{} times higher
-(Table~\ref{tab:resources}). The smaller input context therefore coexists
-with more expensive successful execution.
+Cache hit exposes a second cost of replacing history. The median fraction
+of input served from cache is \ModelControlCacheHit\% for full history,
+\ModelStateCacheHit\% for state alone, \ModelHistoryTwoCacheHit\% at $k=2$,
+and \ModelHistorySixCacheHit\% at $k=6$.
+A growing transcript can reuse an unchanged prefix, whereas changing
+state and a moving window can reduce that reuse. The measurements support
+different cache behavior, not attribution to a particular serialization
+detail.
 
-\begin{table}[htbp]
-\centering\small
-\caption{Resource ratios on shared successes: median of matched
-condition/full-history ratios. Peak prompt is a per-call maximum; the
-token columns are cumulative. The exact sign test concerns cost ratios.}
-\label{tab:resources}
-\input{tables/new-resources}
-\end{table}
-
-The token breakdown shows why prompt reduction cannot be used as a cost
-estimate (Table~\ref{tab:tokens}). Across retained executions, state alone
-has a smaller peak prompt but more recorded turns and higher output.
-Retaining recent history raises input volume while bringing output closer
-to the full-history level. Cache reads also change substantially across
-policies. Under the reference tariff, uncached input, cached input, and
-output have different prices, so neither peak context nor total token
-volume captures their monetary consequences.
-
-\begin{table}[htbp]
-\centering\small
-\caption{Median recorded turns $T$, per-execution peak prompt, and
-cumulative token use for model-written state policies. Token counts are in
-thousands; input excludes cache reads. Peak is the median of execution
-maxima, not the median per-call prompt. Token columns are separate marginal
-medians and cannot be summed to obtain median total tokens.}
-\label{tab:tokens}
-\input{tables/new-tokens}
-\end{table}
-
-Including failures does not reverse the state-only result: cost per
-observed success is \$\ModelStateCostPerSuccess{}, versus
-\$\ModelControlCostPerSuccess{} for full history. This measures the
-retained workload, whereas the conditional ratios compare successful
-execution of the same task. Both expose costs that a prompt-size-only
-evaluation would miss.
-
-The breakdown is consistent with several mechanisms. Generating state
-updates consumes output; incomplete memory may require additional
-inspection; changing the prompt can alter cache reuse. The aggregate
-measurements do not identify how much each mechanism contributes.
-They do establish the design problem: reducing active context is
-insufficient if the resulting policy loses task-relevant evidence or
-requires more work to finish. The next comparisons examine what the
-runtime can retain directly and what remains useful in the original
-interaction record.
+A low cache-hit fraction is not itself a verdict against a memory policy.
+The recent-history window with the lowest hit rate also gives the best
+success among the tested state variants. Task-level cost combines cache
+reuse with uncached input, generated output, and the number of actions.
+For state alone, cost per observed success is
+\$\ModelStateCostPerSuccess{}, against
+\$\ModelControlCostPerSuccess{} for full history.
+The following comparisons retain the same quality, money, token, and
+cache columns so that changes in representation can be assessed on all
+these dimensions.

@@ -11,5 +11,9 @@ fi
 "$ANALYSIS_PYTHON" analysis/build_approach_tables.py --check
 "$ANALYSIS_PYTHON" analysis/build_composition_exploratory.py
 "$ANALYSIS_PYTHON" analysis/build_composition_exploratory.py --check
+"$ANALYSIS_PYTHON" analysis/build_window_pilot.py
+"$ANALYSIS_PYTHON" analysis/build_window_pilot.py --check
+"$ANALYSIS_PYTHON" analysis/build_pricing_sensitivity.py
+"$ANALYSIS_PYTHON" analysis/build_pricing_sensitivity.py --check
 cd paper-ru
 "${TECTONIC:-tectonic}" --keep-logs main.tex
